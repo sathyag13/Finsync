@@ -1,0 +1,186 @@
+/* Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    background:#f5f5f5;
+    min-height:100vh;
+}
+
+/* ==========================
+   Register & Login
+========================== */
+
+.container{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    padding:20px;
+}
+
+.card{
+    width:420px;
+    background:#ffffff;
+    border-radius:15px;
+    padding:35px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.15);
+}
+
+.card h2{
+    text-align:center;
+    color:#000;
+    margin-bottom:10px;
+}
+
+.card h4{
+    text-align:center;
+    color:#666;
+    margin-bottom:25px;
+    font-weight:500;
+}
+
+.card form{
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+.card input{
+    padding:14px;
+    border:1px solid #dcdcdc;
+    border-radius:8px;
+    font-size:15px;
+    transition:.3s;
+}
+
+.card input:focus{
+    outline:none;
+    border-color:#000;
+}
+
+.card button{
+    background:#000;
+    color:#fff;
+    border:none;
+    padding:14px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+    font-weight:600;
+    transition:.3s;
+}
+
+.card button:hover{
+    background:#333;
+}
+
+.card p{
+    margin-top:18px;
+    text-align:center;
+}
+
+.card a{
+    color:#000;
+    font-weight:600;
+    text-decoration:none;
+}
+
+.card a:hover{
+    text-decoration:underline;
+}
+
+/* ==========================
+   Messages
+========================== */
+
+.success{
+    color:green;
+    text-align:center;
+    margin-bottom:15px;
+    font-weight:600;
+}
+
+.error{
+    color:red;
+    text-align:center;
+    margin-bottom:15px;
+    font-weight:600;
+}
+
+/* ==========================
+   Dashboard
+========================== */
+
+.dashboard-container{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    background:#f5f5f5;
+    padding:20px;
+}
+
+.dashboard-card{
+    width:650px;
+    background:#fff;
+    border-radius:15px;
+    padding:40px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.15);
+}
+
+.dashboard-card h1{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.dashboard-card h2{
+    margin:20px 0;
+}
+
+.dashboard-card p{
+    margin:15px 0;
+    font-size:17px;
+}
+
+.dashboard-card button{
+    width:100%;
+    margin-top:30px;
+    padding:14px;
+    border:none;
+    border-radius:8px;
+    background:#000;
+    color:#fff;
+    cursor:pointer;
+    font-size:16px;
+    font-weight:600;
+    transition:.3s;
+}
+
+.dashboard-card button:hover{
+    background:#333;
+}
+
+/* ==========================
+   Responsive
+========================== */
+
+@media(max-width:600px){
+
+.card{
+    width:100%;
+    padding:25px;
+}
+
+.dashboard-card{
+    width:100%;
+    padding:25px;
+}
+
+}
