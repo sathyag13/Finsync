@@ -1,0 +1,21 @@
+body{
+
+    background:#f4f7fb;
+
+}
+
+.dashboard-container{
+
+    display:flex;
+
+}
+
+.main-content{
+
+    margin-left:260px;
+
+    width:calc(100% - 260px);
+
+    padding:30px;
+
+}

@@ -1,6 +1,7 @@
 package com.finsync.model;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -35,6 +36,10 @@ public class User {
 
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    // One User can have many Accounts
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Account> accounts;
 
     @PrePersist
     public void prePersist() {

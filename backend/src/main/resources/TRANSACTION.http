@@ -1,0 +1,9 @@
+
+POST http://localhost:8080/api/transactions/withdraw
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYXRoeWFAZ21haWwuY29tIiwiaWF0IjoxNzg1ODQzMzIxLCJleHAiOjE3ODU5Mjk3MjF9.WcBzGGjQEGRk6Yr57QIGZthJLNfyNANhnOCNOhnEExY
+Content-Type: application/json
+
+{
+  "accountNumber": "1358298227",
+  "amount": 1000
+}

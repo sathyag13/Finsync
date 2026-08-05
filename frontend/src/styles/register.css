@@ -1,0 +1,262 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    background:#f3f7fa;
+}
+
+.register-page{
+
+    width:100%;
+
+    height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:linear-gradient(135deg,#2563eb,#16a34a);
+
+}
+
+.register-card{
+
+    width:1050px;
+
+    height:650px;
+
+    background:white;
+
+    border-radius:25px;
+
+    overflow:hidden;
+
+    display:flex;
+
+    box-shadow:0 15px 45px rgba(0,0,0,.2);
+
+}
+
+.register-left{
+
+    width:45%;
+
+    background:linear-gradient(135deg,#2563eb,#0f766e);
+
+    color:white;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    text-align:center;
+
+    padding:50px;
+
+}
+
+.register-left h1{
+
+    font-size:50px;
+
+    margin-bottom:20px;
+
+}
+
+.register-left h2{
+
+    font-size:34px;
+
+    margin-bottom:20px;
+
+}
+
+.register-left p{
+
+    font-size:18px;
+
+    line-height:30px;
+
+}
+
+.register-right{
+
+    width:55%;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    padding:50px;
+
+}
+
+.register-right h2{
+
+    font-size:34px;
+
+    margin-bottom:30px;
+
+    color:#222;
+
+}
+
+.input-box{
+
+    display:flex;
+
+    align-items:center;
+
+    background:#f6f7fb;
+
+    border-radius:12px;
+
+    padding:15px;
+
+    margin-bottom:20px;
+
+    transition:.3s;
+
+    border:2px solid transparent;
+
+}
+
+.input-box:focus-within{
+
+    border-color:#16a34a;
+
+}
+
+.input-box svg{
+
+    color:#16a34a;
+
+    margin-right:15px;
+
+    font-size:18px;
+
+}
+
+.input-box input{
+
+    width:100%;
+
+    border:none;
+
+    outline:none;
+
+    background:none;
+
+    font-size:16px;
+
+}
+
+.register-btn{
+
+    width:100%;
+
+    border:none;
+
+    padding:16px;
+
+    border-radius:12px;
+
+    background:#16a34a;
+
+    color:white;
+
+    cursor:pointer;
+
+    font-size:17px;
+
+    transition:.3s;
+
+    margin-top:10px;
+
+}
+
+.register-btn:hover{
+
+    background:#15803d;
+
+}
+
+.error{
+
+    background:#fee2e2;
+
+    color:#dc2626;
+
+    padding:12px;
+
+    border-radius:10px;
+
+    margin-bottom:20px;
+
+}
+
+.register-right p{
+
+    margin-top:25px;
+
+    text-align:center;
+
+}
+
+.register-right a{
+
+    text-decoration:none;
+
+    color:#2563eb;
+
+    font-weight:bold;
+
+    margin-left:5px;
+
+}
+
+.register-right a:hover{
+
+    text-decoration:underline;
+
+}
+
+@media(max-width:900px){
+
+.register-card{
+
+    width:95%;
+
+    height:auto;
+
+    flex-direction:column;
+
+}
+
+.register-left{
+
+    width:100%;
+
+    height:230px;
+
+}
+
+.register-right{
+
+    width:100%;
+
+}
+
+}
