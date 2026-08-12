@@ -1,0 +1,20 @@
+# Dependencies & Build Outputs
+node_modules/
+frontend/node_modules/
+frontend/dist/
+backend/target/
+.mvn/
+
+# IDE & Editor Files
+.idea/
+.vscode/
+*.iml
+*.log
+
+# OS Junk
+.DS_Store
+Thumbs.db
+
+# Environment & Secrets
+.env
+.env.local
