@@ -2,10 +2,13 @@ package com.finsync.service.impl;
 
 import com.finsync.dto.ContributeRequest;
 import com.finsync.dto.SavingsGoalRequest;
+import com.finsync.exception.InsufficientBalanceException;
 import com.finsync.exception.ResourceNotFoundException;
 import com.finsync.exception.UnauthorizedAccessException;
+import com.finsync.model.Account;
 import com.finsync.model.SavingsGoal;
 import com.finsync.model.User;
+import com.finsync.repository.AccountRepository;
 import com.finsync.repository.SavingsGoalRepository;
 import com.finsync.repository.UserRepository;
 import com.finsync.service.SavingsGoalService;
@@ -24,6 +27,7 @@ public class SavingsGoalServiceImpl implements SavingsGoalService {
 
     private final SavingsGoalRepository savingsGoalRepository;
     private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -58,6 +62,20 @@ public class SavingsGoalServiceImpl implements SavingsGoalService {
         if (!goal.getUser().getId().equals(userId)) {
             throw new UnauthorizedAccessException("You do not own this savings goal");
         }
+
+        List<Account> accounts = accountRepository.findByUserId(userId);
+        if (accounts.isEmpty()) {
+            throw new InsufficientBalanceException("No active bank account found to debit savings vault contribution");
+        }
+
+        Account primaryAccount = accounts.get(0);
+        if (primaryAccount.getBalance() == null || primaryAccount.getBalance().compareTo(req.amount) < 0) {
+            throw new InsufficientBalanceException("Insufficient balance");
+        }
+
+        // Debit the contribution from the user's primary bank account balance
+        primaryAccount.setBalance(primaryAccount.getBalance().subtract(req.amount));
+        accountRepository.save(primaryAccount);
 
         goal.setSavedAmount(goal.getSavedAmount().add(req.amount));
         if (goal.getSavedAmount().compareTo(goal.getTargetAmount()) >= 0) {

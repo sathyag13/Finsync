@@ -7,7 +7,14 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     try {
       const stored = localStorage.getItem('finsync_user')
-      return stored && stored !== 'undefined' ? JSON.parse(stored) : null
+      if (stored && stored !== 'undefined') {
+        const parsed = JSON.parse(stored)
+        if (parsed && !parsed.role) {
+          parsed.role = 'CUSTOMER'
+        }
+        return parsed
+      }
+      return null
     } catch (e) {
       return null
     }
@@ -19,10 +26,17 @@ export function AuthProvider({ children }) {
     return data
   }
 
-  const register = async (fullName, email, password, phoneNumber) => {
-    const { data } = await api.post('/auth/register', { fullName, email, password, phoneNumber })
+  const register = async (fullName, email, password, phoneNumber, role = 'CUSTOMER', empNo = '') => {
+    const { data } = await api.post('/auth/register', { fullName, email, password, phoneNumber, role, empNo })
     persist(data)
     return data
+  }
+
+  const switchRole = (newRole) => {
+    if (!user) return
+    const updatedUser = { ...user, role: newRole }
+    localStorage.setItem('finsync_user', JSON.stringify(updatedUser))
+    setUser(updatedUser)
   }
 
   const persist = (data) => {
@@ -38,7 +52,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, login, register, logout, switchRole }}>
       {children}
     </AuthContext.Provider>
   )

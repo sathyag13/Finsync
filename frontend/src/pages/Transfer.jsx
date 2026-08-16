@@ -66,7 +66,7 @@ export default function Transfer() {
   const presetAmounts = [500, 1000, 5000, 10000, 25000]
 
   return (
-    <div style={{ maxWidth: 800, margin: '0 auto' }}>
+    <div style={{ width: '100%' }}>
       {/* Page Header */}
       <div style={{ marginBottom: 28 }}>
         <h1 style={{ fontSize: '1.8rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -175,21 +175,40 @@ export default function Transfer() {
             alignItems: 'center',
             gap: 16,
             padding: 14,
-            borderRadius: 'var(--radius-md)',
-            background: 'rgba(99,102,241,0.08)',
-            border: '1px solid var(--border-color)',
+            borderRadius: 10,
+            background: 'rgba(151, 20, 77, 0.08)',
+            border: '1px solid rgba(151, 20, 77, 0.25)',
             marginBottom: 24,
             fontSize: '0.85rem',
             color: 'var(--text-muted)'
           }}>
-            <ShieldCheck size={22} color="var(--primary)" />
+            <ShieldCheck size={22} color="var(--axis-maroon)" />
             <div>
-              <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>End-to-End Instant Settlement:</span> Transactions are encrypted with 256-bit SSL protocols and posted instantly.
+              <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>Axis Instant NetBanking Settlement:</span> Money transfers are protected with 256-bit SSL encryption and instant digital receipt generation.
             </div>
           </div>
 
-          <button className="btn btn-primary" type="submit" disabled={loading} style={{ width: '100%' }}>
-            {loading ? 'Processing Transfer…' : 'Execute Instant Transfer'}
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: '100%',
+              padding: '14px',
+              borderRadius: 8,
+              background: 'var(--axis-maroon-gradient)',
+              color: '#ffffff',
+              border: 'none',
+              fontWeight: 800,
+              fontSize: '1rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              boxShadow: '0 4px 16px rgba(151, 20, 77, 0.3)'
+            }}
+          >
+            <span>{loading ? 'Processing Transfer…' : 'Execute Instant Fund Transfer'}</span>
             <ArrowRight size={18} />
           </button>
         </form>

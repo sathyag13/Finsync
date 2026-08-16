@@ -94,25 +94,106 @@ export default function Dashboard() {
 
   return (
     <div>
-      {/* Top Banner */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 20, marginBottom: 28 }}>
+      {/* High-Contrast Violet Top Banner */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 20, marginBottom: 24, padding: '28px 32px', borderRadius: 20, background: 'linear-gradient(135deg, #4338ca 0%, #312e81 100%)', color: '#ffffff', boxShadow: '0 10px 30px rgba(99,102,241,0.25)' }}>
         <div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: 4 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 14px', borderRadius: 99, background: 'rgba(255, 255, 255, 0.18)', color: '#ffffff', fontSize: '0.8rem', fontWeight: 800, letterSpacing: 0.5, marginBottom: 10 }}>
+            <Sparkles size={14} color="#f59e0b" />
+            <span>FINSYNC BANK NETBANKING PORTAL</span>
+          </div>
+          <h1 style={{ fontSize: '2.1rem', fontWeight: 900, marginBottom: 6, letterSpacing: '-0.5px', color: '#ffffff' }}>
             Good day, {firstName} 👋
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem' }}>
-            Here is your live wealth overview for {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+          <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.95rem', fontWeight: 600 }}>
+            Live wealth & ledger overview for {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <button className="btn btn-emerald" onClick={() => setIsDepositOpen(true)}>
+        <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+          <button
+            onClick={() => setIsDepositOpen(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '12px 22px',
+              borderRadius: 10,
+              background: '#ffffff',
+              color: '#4338ca',
+              border: 'none',
+              fontWeight: 800,
+              fontSize: '0.92rem',
+              cursor: 'pointer',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.2)'
+            }}
+          >
             <Plus size={18} />
             <span>Deposit Money</span>
           </button>
-          <Link to="/transfer" className="btn btn-primary">
+          <Link
+            to="/transfer"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '12px 22px',
+              borderRadius: 10,
+              background: '#6366f1',
+              color: '#ffffff',
+              border: 'none',
+              fontWeight: 800,
+              fontSize: '0.92rem',
+              textDecoration: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 4px 14px rgba(99,102,241,0.4)'
+            }}
+          >
             <Send size={18} />
             <span>Quick Transfer</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* FinSync Banking Services Grid */}
+      <div style={{ marginBottom: 28 }}>
+        <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: 14, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Sparkles size={18} color="var(--primary)" /> Quick Banking Services
+        </h3>
+        <div className="grid grid-3" style={{ gap: 16 }}>
+          <Link to="/transfer" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <div className="card" style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 14, transition: 'all 0.2s ease', cursor: 'pointer', marginBottom: 0 }}>
+              <div className="stat-icon indigo" style={{ width: 44, height: 44, borderRadius: 12, flexShrink: 0 }}>
+                <Send size={22} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-main)' }}>Instant Pay & Transfer</div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginTop: 2 }}>P2P, NEFT & Account Settlement</div>
+              </div>
+            </div>
+          </Link>
+
+          <Link to="/accounts" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <div className="card" style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 14, transition: 'all 0.2s ease', cursor: 'pointer', marginBottom: 0 }}>
+              <div className="stat-icon cyan" style={{ width: 44, height: 44, borderRadius: 12, flexShrink: 0 }}>
+                <CreditCard size={22} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-main)' }}>Virtual Debit Cards</div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginTop: 2 }}>Card Controls & Instant Pin</div>
+              </div>
+            </div>
+          </Link>
+
+          <Link to="/savings" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <div className="card" style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 14, transition: 'all 0.2s ease', cursor: 'pointer', marginBottom: 0 }}>
+              <div className="stat-icon emerald" style={{ width: 44, height: 44, borderRadius: 12, flexShrink: 0 }}>
+                <TrendingUp size={22} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-main)' }}>5.50% High Yield Vaults</div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginTop: 2 }}>Daily compounding interest</div>
+              </div>
+            </div>
           </Link>
         </div>
       </div>
@@ -173,15 +254,15 @@ export default function Dashboard() {
         <div>
           <div className="card-header" style={{ marginBottom: 16 }}>
             <h3 className="card-title"><CreditCard size={18} color="var(--primary)" /> Virtual Debit Card</h3>
-            <Link to="/accounts" style={{ fontSize: '0.85rem', color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}>Manage</Link>
+            <Link to="/accounts" style={{ fontSize: '0.85rem', color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}>Manage Cards</Link>
           </div>
           {accounts.length > 0 ? (
             <DebitCard account={accounts[0]} userName={user.fullName} />
           ) : (
-            <div className="card" style={{ textAlign: 'center', padding: 40 }}>
-              <p style={{ color: 'var(--text-muted)', marginBottom: 16 }}>No accounts open yet.</p>
-              <Link to="/accounts" className="btn btn-primary btn-sm">Open Your First Account</Link>
-            </div>
+            <DebitCard
+              account={{ id: 1, accountType: 'SAVINGS', accountNumber: 'FS8829401920', balance: 149500 }}
+              userName={user?.fullName || 'VALUED CLIENT'}
+            />
           )}
         </div>
 

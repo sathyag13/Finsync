@@ -14,15 +14,21 @@ import {
   Moon,
   Sun,
   Bell,
-  Zap,
   CheckCircle2,
-  AlertCircle,
-  X,
-  ShieldCheck
+  ShieldCheck,
+  Building2,
+  Home,
+  Users,
+  FileText,
+  UserCheck,
+  ShieldAlert,
+  History,
+  Settings,
+  X
 } from 'lucide-react'
 
 export function Sidebar() {
-  const { user, logout } = useAuth()
+  const { user, logout, switchRole } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [showLogoutModal, setShowLogoutModal] = useState(false)
@@ -39,26 +45,70 @@ export function Sidebar() {
     ? user.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
     : 'FS'
 
-  const navItems = [
-    { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { label: 'Accounts', path: '/accounts', icon: CreditCard },
-    { label: 'Pay & Transfer', path: '/transfer', icon: Send },
-    { label: 'Expenses', path: '/expenses', icon: PieChart },
-    { label: 'Savings Goals', path: '/savings', icon: PiggyBank },
-    { label: 'Profile', path: '/profile', icon: User }
-  ]
+  // Dynamic Role-Based Sidebar Nav Items
+  let navItems = []
+
+  if (user.role === 'ADMIN') {
+    navItems = [
+      { label: 'Bank Portfolio Home', path: '/home', icon: Home },
+      { label: 'Dashboard Overview', path: '/admin', icon: LayoutDashboard },
+      { label: 'User Management', path: '/admin/users', icon: UserCheck },
+      { label: 'Accounts & Cards', path: '/admin/accounts', icon: CreditCard },
+      { label: 'Transactions & Payments', path: '/admin/transactions', icon: Send },
+      { label: 'Expense Analytics', path: '/admin/expenses', icon: PieChart },
+      { label: 'Savings & Products', path: '/admin/savings', icon: PiggyBank },
+      { label: 'Reports & Analytics', path: '/admin/reports', icon: FileText },
+      { label: 'Risk & Fraud', path: '/admin/risk', icon: ShieldAlert },
+      { label: 'Audit Logs', path: '/admin/audit-logs', icon: History },
+      { label: 'System Settings', path: '/admin/settings', icon: Settings },
+      { label: 'Admin Profile', path: '/profile', icon: User }
+    ]
+  } else if (user.role === 'ANALYST') {
+    navItems = [
+      { label: 'Bank Portfolio Home', path: '/home', icon: Home },
+      { label: 'Dashboard Overview', path: '/analyst', icon: LayoutDashboard },
+      { label: 'Accounts & Cards', path: '/analyst/accounts', icon: CreditCard },
+      { label: 'Transactions & Payments', path: '/analyst/transactions', icon: Send },
+      { label: 'Expense Analytics', path: '/analyst/expenses', icon: PieChart },
+      { label: 'Savings & Trends', path: '/analyst/savings', icon: PiggyBank },
+      { label: 'Customer Insights', path: '/analyst/customers', icon: Users },
+      { label: 'Reports', path: '/analyst/reports', icon: FileText },
+      { label: 'Analyst Profile', path: '/profile', icon: User }
+    ]
+  } else {
+    // CUSTOMER ROLE
+    navItems = [
+      { label: 'Bank Portfolio Home', path: '/home', icon: Home },
+      { label: 'Dashboard Overview', path: '/dashboard', icon: LayoutDashboard },
+      { label: 'Accounts & Cards', path: '/accounts', icon: CreditCard },
+      { label: 'Pay & Transfer', path: '/transfer', icon: Send },
+      { label: 'Expense Analytics', path: '/expenses', icon: PieChart },
+      { label: 'Savings Vaults', path: '/savings', icon: PiggyBank },
+      { label: 'User Profile', path: '/profile', icon: User }
+    ]
+  }
 
   return (
     <>
-      <aside className="sidebar">
-        <div className="sidebar-brand">
-          <div className="sidebar-logo-icon">
-            <Zap size={22} color="white" />
+      <aside className="sidebar" style={{ background: '#1e1b4b', borderRight: '1px solid rgba(255,255,255,0.1)' }}>
+        {/* Brand Logo Header */}
+        <div
+          className="sidebar-brand"
+          onClick={() => navigate('/home')}
+          title="Click to view Bank Portfolio Landing Page"
+          style={{ padding: '20px 24px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}
+        >
+          <div className="sidebar-logo-icon" style={{ background: 'linear-gradient(135deg, #6366f1, #4338ca)', borderRadius: 12, width: 42, height: 42, boxShadow: '0 4px 14px rgba(99,102,241,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff' }}>
+            <Building2 size={24} color="#ffffff" />
           </div>
-          <span className="sidebar-brand-text">FinSync</span>
+          <div>
+            <div style={{ fontSize: '1.3rem', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.5px' }}>FINSYNC BANK</div>
+            <div style={{ fontSize: '0.62rem', fontWeight: 800, color: '#a7f3d0', letterSpacing: 1.2, textTransform: 'uppercase' }}>ALWAYS WITH YOU</div>
+          </div>
         </div>
 
-        <nav className="sidebar-nav">
+        {/* Sidebar Nav Links */}
+        <nav className="sidebar-nav" style={{ padding: '16px 12px', overflowY: 'auto', maxHeight: 'calc(100vh - 200px)' }}>
           {navItems.map((item) => {
             const Icon = item.icon
             const isActive = location.pathname === item.path
@@ -68,25 +118,65 @@ export function Sidebar() {
                 type="button"
                 className={`sidebar-nav-item ${isActive ? 'active' : ''}`}
                 onClick={() => navigate(item.path)}
-                style={{ border: 'none', width: '100%', textAlign: 'left', cursor: 'pointer' }}
+                style={{
+                  border: 'none',
+                  width: '100%',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  padding: '11px 16px',
+                  borderRadius: 10,
+                  marginBottom: 4,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  fontWeight: isActive ? 800 : 600,
+                  fontSize: '0.88rem',
+                  color: isActive ? '#ffffff' : 'rgba(255,255,255,0.8)',
+                  background: isActive ? 'linear-gradient(135deg, #6366f1, #4338ca)' : 'transparent',
+                  boxShadow: isActive ? '0 4px 14px rgba(99, 102, 241, 0.4)' : 'none',
+                  transition: 'all 0.2s ease'
+                }}
               >
-                <Icon size={19} />
+                <Icon size={18} color={isActive ? '#ffffff' : '#a5b4fc'} />
                 <span>{item.label}</span>
               </button>
             )
           })}
         </nav>
 
-        <div className="sidebar-footer">
-          <div className="user-mini-card" onClick={() => navigate('/profile')} style={{ cursor: 'pointer' }}>
-            <div className="user-avatar">{initials}</div>
+        {/* FinSync Bank Security Widget */}
+        <div style={{
+          padding: '14px 16px',
+          margin: '12px 14px 0 14px',
+          borderRadius: 14,
+          background: 'rgba(99, 102, 241, 0.15)',
+          border: '1px solid rgba(99, 102, 241, 0.3)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }} />
+              <span style={{ fontWeight: 800, fontSize: '0.75rem', color: '#ffffff', letterSpacing: 0.5 }}>
+                {user.role} CLEARANCE
+              </span>
+            </div>
+            <span style={{ fontSize: '0.68rem', padding: '2px 8px', borderRadius: 99, background: 'rgba(255,255,255,0.2)', color: '#ffffff', fontWeight: 700 }}>256-Bit SSL</span>
+          </div>
+          <p style={{ fontSize: '0.74rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.3, margin: 0 }}>
+            RBI Scheduled Bank Secure Session
+          </p>
+        </div>
+
+        {/* Sidebar Footer User Card */}
+        <div className="sidebar-footer" style={{ borderTop: '1px solid rgba(255,255,255,0.1)', padding: '14px 16px' }}>
+          <div className="user-mini-card" onClick={() => navigate('/profile')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+            <div className="user-avatar" style={{ background: '#6366f1', color: '#ffffff', fontWeight: 800 }}>{initials}</div>
             <div className="user-info">
-              <div className="user-name">{user.fullName}</div>
-              <div className="user-role">{user.role || 'Verified Client'}</div>
+              <div className="user-name" style={{ color: '#ffffff', fontWeight: 800 }}>{user.fullName}</div>
+              <div className="user-role" style={{ color: '#a7f3d0', fontSize: '0.75rem', fontWeight: 700 }}>{user.role} {user.empNo ? `• ${user.empNo}` : ''}</div>
             </div>
           </div>
 
-          <button className="btn btn-secondary btn-sm" onClick={() => setShowLogoutModal(true)} style={{ width: '100%' }}>
+          <button className="btn btn-secondary btn-sm" onClick={() => setShowLogoutModal(true)} style={{ width: '100%', background: 'rgba(255,255,255,0.1)', color: '#ffffff', border: '1px solid rgba(255,255,255,0.2)' }}>
             <LogOut size={15} />
             <span>Sign Out</span>
           </button>
@@ -99,7 +189,7 @@ export function Sidebar() {
           <div className="sidebar-logo-icon" style={{ width: 48, height: 48, margin: '0 auto 16px auto', background: 'rgba(244, 63, 94, 0.15)', color: 'var(--accent-rose)' }}>
             <LogOut size={24} />
           </div>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: 8 }}>Sign Out of FinSync?</h3>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: 8 }}>Sign Out of FinSync Bank?</h3>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 24 }}>
             Are you sure you want to sign out of your account session?
           </p>
@@ -119,7 +209,7 @@ export function Sidebar() {
 }
 
 export function TopHeader() {
-  const { user, logout } = useAuth()
+  const { user, logout, switchRole } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const location = useLocation()
   const navigate = useNavigate()
@@ -134,14 +224,51 @@ export function TopHeader() {
     navigate('/login')
   }
 
+  const handleRoleSelect = (e) => {
+    const newRole = e.target.value
+    switchRole(newRole)
+    if (newRole === 'ADMIN') navigate('/admin')
+    else if (newRole === 'ANALYST') navigate('/analyst')
+    else navigate('/dashboard')
+  }
+
   const getPageTitle = () => {
+    if (location.pathname === '/home') return 'FinSync Bank Portfolio'
+    if (location.pathname === '/profile') return 'User Account & Security'
+    if (location.pathname.startsWith('/admin')) {
+      switch (location.pathname) {
+        case '/admin': return 'Admin Control Center Dashboard'
+        case '/admin/users': return 'User Management Directory'
+        case '/admin/accounts': return 'Bank Accounts Administration'
+        case '/admin/transactions': return 'System Transactions Ledger'
+        case '/admin/expenses': return 'Expense Outflow Controls'
+        case '/admin/savings': return 'Financial Products & Rates'
+        case '/admin/reports': return 'Administrative Reports & Exports'
+        case '/admin/risk': return 'Risk & Fraud Alerts Center'
+        case '/admin/audit-logs': return 'Administrative Audit Logs'
+        case '/admin/settings': return 'System Security Settings'
+        default: return 'FinSync Admin Workspace'
+      }
+    }
+    if (location.pathname.startsWith('/analyst')) {
+      switch (location.pathname) {
+        case '/analyst': return 'Financial Analyst Dashboard'
+        case '/analyst/accounts': return 'Bank-Wide Accounts Analytics'
+        case '/analyst/transactions': return 'Transaction Data & Payment Trends'
+        case '/analyst/expenses': return 'System-Wide Expense Analytics'
+        case '/analyst/savings': return 'Savings & Financial Trends'
+        case '/analyst/customers': return 'Customer Demographics & Insights'
+        case '/analyst/reports': return 'Analytical Reports Generator'
+        default: return 'FinSync Analyst Workspace'
+      }
+    }
     switch (location.pathname) {
       case '/dashboard': return 'Dashboard Overview'
-      case '/accounts': return 'Accounts & Banking'
+      case '/accounts': return 'Accounts & Debit Cards'
       case '/transfer': return 'Send & Transfer Funds'
       case '/expenses': return 'Expense Analytics'
-      case '/savings': return 'Savings Goals & Vaults'
-      case '/profile': return 'User Account & Security'
+      case '/savings': return 'Savings Vaults & APY'
+      case '/rbac': return 'Role-Based Access & Investment Reach'
       default: return 'FinSync Workspace'
     }
   }
@@ -151,25 +278,53 @@ export function TopHeader() {
     : 'FS'
 
   const notifications = [
-    { id: 1, title: `Welcome, ${user.fullName || 'User'}`, desc: 'Your banking session is authenticated with AES-256 JWT encryption.', time: 'Active Now', icon: CheckCircle2, color: 'var(--accent-emerald)' },
-    { id: 2, title: 'Realtime Database', desc: 'Connected to your personal account ledger.', time: 'Just now', icon: ShieldCheck, color: 'var(--primary)' }
+    { id: 1, title: `Authenticated as ${user.role}`, desc: `Session clearance for ${user.fullName}`, time: 'Active Now', icon: CheckCircle2, color: 'var(--accent-emerald)' },
+    { id: 2, title: 'Realtime Backend Database', desc: 'Connected to Spring Boot ACID database.', time: 'Just now', icon: ShieldCheck, color: 'var(--primary)' }
   ]
 
   return (
     <>
-      <header className="top-header" style={{ position: 'sticky', top: 0, zIndex: 40 }}>
+      <header className="top-header" style={{ position: 'sticky', top: 0, zIndex: 40, background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)' }}>
         <div className="header-title">
           <span>{getPageTitle()}</span>
         </div>
 
-        <div className="header-actions" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div className="btn-demo-badge">
-            <div className="demo-dot" />
-            <span>FinSync Live</span>
+        <div className="header-actions" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <button
+            className="btn btn-secondary btn-sm"
+            onClick={() => navigate('/home')}
+            title="View Bank Portfolio Landing Page"
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 12px', fontSize: '0.8rem', fontWeight: 800 }}
+          >
+            <Home size={15} color="var(--primary)" />
+            <span>Bank Home</span>
+          </button>
+
+          {/* Interactive Role Switcher Pill */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 10px', borderRadius: 99, background: 'rgba(99, 102, 241, 0.15)', border: '1px solid var(--primary)', color: 'var(--primary)', fontSize: '0.78rem', fontWeight: 800 }}>
+            <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 6px #10b981' }} />
+            <select
+              value={user.role || 'CUSTOMER'}
+              onChange={handleRoleSelect}
+              title="Switch Active Portal Role"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--primary)',
+                fontWeight: 800,
+                fontSize: '0.78rem',
+                cursor: 'pointer',
+                outline: 'none'
+              }}
+            >
+              <option value="CUSTOMER" style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}>CUSTOMER Portal</option>
+              <option value="ANALYST" style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}>ANALYST Portal</option>
+              <option value="ADMIN" style={{ background: 'var(--bg-card)', color: 'var(--text-main)' }}>ADMIN Portal</option>
+            </select>
           </div>
 
           <button className="icon-btn" onClick={toggleTheme} title="Toggle Dark/Light Mode">
-            {theme === 'dark' ? <Sun size={18} color="#f59e0b" /> : <Moon size={18} color="#6366f1" />}
+            {theme === 'dark' ? <Sun size={18} color="#f59e0b" /> : <Moon size={18} color="var(--primary)" />}
           </button>
 
           <button
@@ -178,8 +333,8 @@ export function TopHeader() {
             title="System Notifications"
             style={{ position: 'relative' }}
           >
-            <Bell size={18} />
-            <span style={{ position: 'absolute', top: 8, right: 8, width: 8, height: 8, borderRadius: '50%', background: 'var(--accent-rose)' }} />
+            <Bell size={18} color="var(--primary)" />
+            <span style={{ position: 'absolute', top: 8, right: 8, width: 8, height: 8, borderRadius: '50%', background: '#10b981' }} />
           </button>
 
           {/* Clickable Profile Avatar */}
@@ -188,7 +343,7 @@ export function TopHeader() {
             title="View Profile & Settings"
             style={{ display: 'flex', alignItems: 'center', gap: 10, paddingLeft: 10, borderLeft: '1px solid var(--border-color)', cursor: 'pointer' }}
           >
-            <div className="user-avatar" style={{ width: 34, height: 34, fontSize: '0.8rem', boxShadow: '0 2px 8px var(--primary-glow)' }}>
+            <div className="user-avatar" style={{ width: 34, height: 34, fontSize: '0.8rem', background: 'var(--primary)', color: '#ffffff', fontWeight: 800 }}>
               {initials}
             </div>
           </div>
@@ -259,7 +414,7 @@ export function TopHeader() {
           <div className="sidebar-logo-icon" style={{ width: 48, height: 48, margin: '0 auto 16px auto', background: 'rgba(244, 63, 94, 0.15)', color: 'var(--accent-rose)' }}>
             <LogOut size={24} />
           </div>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: 8 }}>Sign Out of FinSync?</h3>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: 8 }}>Sign Out of FinSync Bank?</h3>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 24 }}>
             Are you sure you want to sign out of your account session?
           </p>

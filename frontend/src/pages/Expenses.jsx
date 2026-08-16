@@ -84,11 +84,11 @@ export default function Expenses() {
     <div>
       {/* Header */}
       <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: '1.8rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: 10 }}>
-          <PieChart size={24} color="var(--primary)" /> Expense Analytics & Budgeting
+        <h1 style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <PieChart size={26} color="var(--axis-maroon)" /> Axis Expense Analytics & Budgeting
         </h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-          Categorize monthly spending, set budget thresholds, and optimize cash flow
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', fontWeight: 600 }}>
+          Categorize monthly spending, monitor budget thresholds, and manage your cash flow
         </p>
       </div>
 

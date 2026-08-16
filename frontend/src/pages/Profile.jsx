@@ -32,38 +32,45 @@ export default function Profile() {
     : 'FS'
 
   return (
-    <div style={{ maxWidth: 800, margin: '0 auto' }}>
+    <div style={{ width: '100%' }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
-        <div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: 10 }}>
-            <User size={24} color="var(--primary)" /> Profile & Preferences
-          </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-            Manage your personal information, account limits, and workspace preferences
-          </p>
-        </div>
-
-        <button className="btn btn-rose" onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <LogOut size={16} />
-          <span>Sign Out</span>
-        </button>
+      <div style={{ marginBottom: 28 }}>
+        <h1 style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <User size={26} color="var(--axis-maroon)" /> Axis NetBanking Profile & Security
+        </h1>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', fontWeight: 600 }}>
+          Manage your legal identity, daily transfer limits, and security preferences
+        </p>
       </div>
 
       {/* Main Profile Card */}
       <div className="card" style={{ marginBottom: 28 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 28, flexWrap: 'wrap' }}>
-          <div className="user-avatar" style={{ width: 72, height: 72, fontSize: '1.8rem', boxShadow: '0 8px 24px var(--primary-glow)' }}>
+          <div
+            style={{
+              width: 72,
+              height: 72,
+              borderRadius: '50%',
+              background: 'var(--axis-maroon-gradient)',
+              color: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.8rem',
+              fontWeight: 900,
+              boxShadow: '0 8px 24px rgba(151,20,77,0.3)'
+            }}
+          >
             {initials}
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: 800 }}>{user.fullName}</h2>
-              <span className="badge badge-emerald">
-                <ShieldCheck size={14} /> Verified Client
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text-main)' }}>{user.fullName}</h2>
+              <span className="badge badge-emerald" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', fontWeight: 800, padding: '4px 10px', borderRadius: 99 }}>
+                <ShieldCheck size={14} /> Verified Axis Client
               </span>
             </div>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: 2 }}>{user.email}</p>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: 2, fontWeight: 600 }}>{user.email}</p>
           </div>
         </div>
 

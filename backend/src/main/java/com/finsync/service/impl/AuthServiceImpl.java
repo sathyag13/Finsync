@@ -33,12 +33,21 @@ public class AuthServiceImpl implements AuthService {
             throw new BadRequestException("Email already registered");
         }
 
+        Role targetRole = req.role != null ? req.role : Role.CUSTOMER;
+
+        if (targetRole == Role.ANALYST || targetRole == Role.ADMIN) {
+            if (req.empNo == null || req.empNo.trim().isEmpty()) {
+                throw new BadRequestException("Employee Number (empNo) is required for " + targetRole.name() + " registration");
+            }
+        }
+
         User user = new User();
         user.setFullName(req.fullName);
         user.setEmail(req.email);
         user.setPhoneNumber(req.phoneNumber);
         user.setPassword(passwordEncoder.encode(req.password));
-        user.setRole(Role.CUSTOMER);
+        user.setRole(targetRole);
+        user.setEmpNo(req.empNo != null ? req.empNo.trim() : null);
 
         user = userRepository.save(user);
         return buildLoginResponse(user);
@@ -68,7 +77,8 @@ public class AuthServiceImpl implements AuthService {
                 "fullName", user.getFullName(),
                 "email", user.getEmail(),
                 "phoneNumber", user.getPhoneNumber() != null ? user.getPhoneNumber() : "",
-                "role", user.getRole().name()
+                "role", user.getRole().name(),
+                "empNo", user.getEmpNo() != null ? user.getEmpNo() : ""
         );
     }
 }

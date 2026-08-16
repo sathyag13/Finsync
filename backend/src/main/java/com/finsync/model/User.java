@@ -41,6 +41,12 @@ public class User {
     @Column(nullable = false)
     private Role role = Role.CUSTOMER;
 
+    private String empNo;
+
+    private String accountStatus = "ACTIVE";
+
+    private LocalDateTime lastLogin;
+
     private LocalDateTime createdAt;
 
     // Runs automatically right before this row is first saved.

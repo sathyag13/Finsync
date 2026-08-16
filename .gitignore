@@ -18,3 +18,10 @@ Thumbs.db
 # Environment & Secrets
 .env
 .env.local
+
+# Agent Skills & Customizations (Local Tooling)
+.agents/
+skills-lock.json
+
+# Vite Temporary Build Artifacts
+*.timestamp-*.mjs

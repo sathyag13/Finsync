@@ -95,35 +95,73 @@ export default function Accounts() {
   return (
     <div>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28, flexWrap: 'wrap', gap: 16 }}>
         <div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 800 }}>Accounts & Virtual Cards</h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-            Manage your savings, commercial, and business banking vaults
+          <h1 style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--text-main)' }}>Accounts & Virtual Debit Cards</h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', fontWeight: 600 }}>
+            Manage your savings, current, commercial, and business banking vaults
           </p>
         </div>
-        <button className="btn btn-primary" onClick={() => setIsCreateOpen(true)}>
+        <button
+          onClick={() => setIsCreateOpen(true)}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '12px 22px',
+            borderRadius: 8,
+            background: 'var(--axis-maroon-gradient)',
+            color: '#ffffff',
+            border: 'none',
+            fontWeight: 800,
+            fontSize: '0.92rem',
+            cursor: 'pointer',
+            boxShadow: '0 4px 14px rgba(151,20,77,0.3)'
+          }}
+        >
           <Plus size={18} />
           <span>Open New Account</span>
         </button>
       </div>
 
-      {/* Accounts Virtual Cards Showcase */}
-      <div className="grid grid-3" style={{ marginBottom: 32 }}>
-        {accounts.map((a) => (
-          <div
-            key={a.id}
-            onClick={() => viewHistory(a)}
-            style={{
-              cursor: 'pointer',
-              border: selectedAccount?.id === a.id ? '2px solid var(--primary)' : '2px solid transparent',
-              borderRadius: 'var(--radius-lg)',
-              transition: 'all 0.25s ease'
-            }}
-          >
-            <DebitCard account={a} userName={user.fullName} />
-          </div>
-        ))}
+      {/* Accounts Virtual Cards Showcase (3 Cards per Row) */}
+      <div className="grid grid-3" style={{ marginBottom: 32, gap: 18 }}>
+        {accounts.length > 0 ? (
+          accounts.map((a, idx) => (
+            <div
+              key={a.id}
+              onClick={() => viewHistory(a)}
+              style={{
+                cursor: 'pointer',
+                border: selectedAccount?.id === a.id ? '2px solid var(--primary)' : '2px solid transparent',
+                borderRadius: 'var(--radius-lg)',
+                transition: 'all 0.25s ease'
+              }}
+            >
+              <DebitCard account={a} userName={user?.fullName || 'VALUED CLIENT'} index={idx} />
+            </div>
+          ))
+        ) : (
+          <>
+            {/* Demo Savings Blue Debit Card */}
+            <div onClick={() => setIsCreateOpen(true)} style={{ cursor: 'pointer' }}>
+              <DebitCard
+                account={{ id: 1, accountType: 'SAVINGS', accountNumber: 'FS8829401920', balance: 149500 }}
+                userName={user?.fullName || 'VALUED CLIENT'}
+                index={0}
+              />
+            </div>
+
+            {/* Demo Current Dark Charcoal Debit Card */}
+            <div onClick={() => setIsCreateOpen(true)} style={{ cursor: 'pointer' }}>
+              <DebitCard
+                account={{ id: 2, accountType: 'CURRENT', accountNumber: 'FS9940182740', balance: 319000.5 }}
+                userName={user?.fullName || 'VALUED CLIENT'}
+                index={1}
+              />
+            </div>
+          </>
+        )}
       </div>
 
       {/* Selected Account Manager */}

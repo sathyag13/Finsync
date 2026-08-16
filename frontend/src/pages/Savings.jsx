@@ -51,15 +51,15 @@ export default function Savings() {
     try {
       const updated = await api.post(`/savings-goals/${activeGoal.id}/contribute`, { amount: contribAmount })
       if (updated.data && updated.data.achieved) {
-        addToast(`🎉 Congratulations! You achieved your goal: "${activeGoal.goalName}"!`, 'success')
+        addToast(`🎉 Goal achieved! ₹${Number(contribAmount).toLocaleString('en-IN')} debited from account for "${activeGoal.goalName}"!`, 'success')
       } else {
-        addToast(`Added ₹${Number(contribAmount).toLocaleString('en-IN')} to "${activeGoal.goalName}"`, 'success')
+        addToast(`₹${Number(contribAmount).toLocaleString('en-IN')} debited from account & added to "${activeGoal.goalName}"`, 'success')
       }
       setContribAmount('')
       setActiveGoal(null)
       loadGoals()
     } catch (err) {
-      addToast('Contribution failed', 'error')
+      addToast(err.response?.data?.message || 'Insufficient balance', 'error')
     }
   }
 
@@ -80,10 +80,10 @@ export default function Savings() {
     <div>
       {/* Header */}
       <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: '1.8rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: 10 }}>
-          <PiggyBank size={24} color="var(--primary)" /> Savings Goals & Automated Vaults
+        <h1 style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <PiggyBank size={26} color="var(--axis-maroon)" /> Axis Vault Savings Goals (5.50% APY)
         </h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', fontWeight: 600 }}>
           Lock funds into dedicated high-yield savings goals and track your progress to financial milestones
         </p>
       </div>
