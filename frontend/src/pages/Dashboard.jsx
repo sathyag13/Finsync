@@ -4,6 +4,7 @@ import api from '../api/axios.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useToast } from '../context/ToastContext.jsx'
 import Modal from '../components/Modal.jsx'
+import AnimatedCounter from '../components/AnimatedCounter.jsx'
 import { QRCodeCanvas } from 'qrcode.react'
 import {
   Wallet,
@@ -216,7 +217,7 @@ export default function Dashboard() {
               Total Balance
             </div>
             <div style={{ fontSize: '36px', fontWeight: 900, color: 'var(--text-main)', marginTop: 2, letterSpacing: '-0.03em' }}>
-              ₹{totalBalance.toLocaleString('en-IN')}
+              <AnimatedCounter value={totalBalance} />
             </div>
           </div>
 
@@ -229,7 +230,7 @@ export default function Dashboard() {
               <div>
                 <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--accent-emerald)', letterSpacing: '0.05em' }}>THIS MONTH INFLOW</div>
                 <div style={{ fontSize: '17px', fontWeight: 900, color: 'var(--accent-emerald)', marginTop: 2 }}>
-                  +₹{totalInflow.toLocaleString('en-IN')}
+                  +<AnimatedCounter value={totalInflow} />
                 </div>
               </div>
             </div>
@@ -241,7 +242,7 @@ export default function Dashboard() {
               <div>
                 <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--accent-rose)', letterSpacing: '0.05em' }}>THIS MONTH OUTFLOW</div>
                 <div style={{ fontSize: '17px', fontWeight: 900, color: 'var(--accent-rose)', marginTop: 2 }}>
-                  -₹{totalOutflow.toLocaleString('en-IN')}
+                  -<AnimatedCounter value={totalOutflow} />
                 </div>
               </div>
             </div>
@@ -252,14 +253,14 @@ export default function Dashboard() {
             <div style={{ padding: '10px 18px', borderRadius: 12, background: 'var(--bg-card)', border: '1px solid var(--border-color)', textAlign: 'right' }}>
               <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-muted)' }}>SAVINGS ACCOUNT</div>
               <div style={{ fontSize: '18px', fontWeight: 900, color: 'var(--primary)', marginTop: 2 }}>
-                ₹{savingsBalance.toLocaleString('en-IN')}
+                <AnimatedCounter value={savingsBalance} />
               </div>
             </div>
 
             <div style={{ padding: '10px 18px', borderRadius: 12, background: 'var(--bg-card)', border: '1px solid var(--border-color)', textAlign: 'right' }}>
               <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-muted)' }}>CURRENT ACCOUNT</div>
               <div style={{ fontSize: '18px', fontWeight: 900, color: 'var(--accent-cyan)', marginTop: 2 }}>
-                ₹{currentBalance.toLocaleString('en-IN')}
+                <AnimatedCounter value={currentBalance} />
               </div>
             </div>
           </div>
