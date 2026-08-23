@@ -210,12 +210,20 @@ export default function Profile() {
               <h2 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>
                 {displayUser.fullName}
               </h2>
-              <span className="badge badge-emerald">
-                <ShieldCheck size={14} /> KYC {displayUser.kycStatus || 'VERIFIED'}
-              </span>
-              <span className="badge badge-indigo">
-                {displayUser.role} {displayUser.empNo ? `• ${displayUser.empNo}` : ''}
-              </span>
+              {displayUser.role === 'ADMIN' ? (
+                <span className="badge badge-indigo">
+                  ADMINISTRATOR {displayUser.empNo ? `• ${displayUser.empNo}` : ''}
+                </span>
+              ) : (
+                <>
+                  <span className="badge badge-emerald">
+                    <ShieldCheck size={14} /> KYC {displayUser.kycStatus || 'VERIFIED'}
+                  </span>
+                  <span className="badge badge-indigo">
+                    CUSTOMER
+                  </span>
+                </>
+              )}
             </div>
             <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Mail size={14} color="var(--primary)" /> {displayUser.email}
@@ -226,36 +234,50 @@ export default function Profile() {
         {/* Identity Details Grid */}
         <div className="grid grid-3" style={{ gap: 14 }}>
           <div style={{ padding: '12px 14px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>CUSTOMER ID</div>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>
+              {displayUser.role === 'ADMIN' ? 'ADMIN / EMPLOYEE ID' : 'CUSTOMER ID'}
+            </div>
             <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-main)', marginTop: 2, fontFamily: 'monospace' }}>
-              #FS-USR-00{displayUser.id || '101'}
+              {displayUser.role === 'ADMIN' ? (displayUser.empNo || `#ADM-00${displayUser.id}`) : `#FS-USR-00${displayUser.id || '101'}`}
             </div>
           </div>
 
           <div style={{ padding: '12px 14px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>FINSYNC PAY ID</div>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>
+              {displayUser.role === 'ADMIN' ? 'SECURITY CLEARANCE' : 'FINSYNC PAY ID'}
+            </div>
             <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--primary)', marginTop: 2, fontFamily: 'monospace', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span>{payId}</span>
-              <button
-                type="button"
-                onClick={handleCopyPayId}
-                style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', padding: 0 }}
-                title="Copy Pay ID"
-              >
-                {copiedPayId ? <Check size={14} color="var(--accent-emerald)" /> : <Copy size={14} />}
-              </button>
+              {displayUser.role === 'ADMIN' ? (
+                <span style={{ fontSize: '13px', color: 'var(--accent-emerald)', fontWeight: 700 }}>SYSTEM ADMIN (SUPERVISOR)</span>
+              ) : (
+                <>
+                  <span>{payId}</span>
+                  <button
+                    type="button"
+                    onClick={handleCopyPayId}
+                    style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', padding: 0 }}
+                    title="Copy Pay ID"
+                  >
+                    {copiedPayId ? <Check size={14} color="var(--accent-emerald)" /> : <Copy size={14} />}
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
           <div style={{ padding: '12px 14px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>ACCOUNT STATUS</div>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>
+              {displayUser.role === 'ADMIN' ? 'SYSTEM STATUS' : 'ACCOUNT STATUS'}
+            </div>
             <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--accent-emerald)', marginTop: 2 }}>
-              {displayUser.accountStatus || 'ACTIVE'}
+              {displayUser.accountStatus || 'ACTIVE (FULL PRIVILEGES)'}
             </div>
           </div>
 
           <div style={{ padding: '12px 14px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>CUSTOMER SINCE</div>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>
+              {displayUser.role === 'ADMIN' ? 'REGISTERED SINCE' : 'CUSTOMER SINCE'}
+            </div>
             <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-main)', marginTop: 2 }}>
               {displayUser.createdAt ? new Date(displayUser.createdAt).toLocaleDateString('en-IN', { month: 'long', year: 'numeric', day: 'numeric' }) : 'August 2026'}
             </div>
@@ -277,72 +299,115 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* 2-Column Grid: Receive Money QR Code & Change Password */}
+      {/* 2-Column Grid: Left Card (Admin Privileges or QR Code) & Right Card (Change Password) */}
       <div className="grid grid-2" style={{ gap: 24, marginBottom: 'var(--section-gap)' }}>
-        {/* Receive Money Card */}
-        <div className="card" style={{ marginBottom: 0 }}>
-          <div className="card-header">
-            <h3 className="card-title">
-              <QrCode size={18} color="var(--primary)" />
-              <span>Receive Money (Your QR Code)</span>
-            </h3>
-            <span className="badge badge-indigo">Instant P2P</span>
-          </div>
-
-          <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: 16 }}>
-            Scan this QR code to send money directly to your FinSync primary account.
-          </p>
-
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, padding: '16px 0' }}>
-            <div
-              style={{
-                padding: 14,
-                background: '#ffffff',
-                borderRadius: 12,
-                boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              <QRCodeCanvas
-                id="customer-qr-canvas"
-                value={qrString}
-                size={168}
-                level="H"
-                includeMargin={false}
-              />
+        {displayUser.role === 'ADMIN' ? (
+          /* Admin Security Privileges Card */
+          <div className="card" style={{ marginBottom: 0 }}>
+            <div className="card-header">
+              <h3 className="card-title">
+                <ShieldCheck size={18} color="var(--primary)" />
+                <span>Administrative Access & Privileges</span>
+              </h3>
+              <span className="badge badge-emerald">Active Scope</span>
             </div>
 
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-main)' }}>
-                {displayUser.fullName}
+            <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: 16 }}>
+              Your administrator credentials grant executive access across core FinSync banking infrastructure.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
+                <CheckCircle2 size={16} color="var(--accent-emerald)" />
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-main)' }}>User Directory & KYC Clearance</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Inspect customer profiles, toggle account freeze states, and manage activation</div>
+                </div>
               </div>
-              <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 2 }}>
-                FinSync Pay ID: <strong style={{ color: 'var(--primary)', fontFamily: 'monospace' }}>{payId}</strong>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
+                <CheckCircle2 size={16} color="var(--accent-emerald)" />
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-main)' }}>Real-Time Audit Trail & Risk Engine</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Monitor security logs, failed logins, and rule-based risk triggers</div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
+                <CheckCircle2 size={16} color="var(--accent-emerald)" />
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-main)' }}>System Settings & Max Limit Control</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Configure system transfer limits, maintenance mode, and security flags</div>
+                </div>
               </div>
             </div>
+          </div>
+        ) : (
+          /* Customer Receive Money Card */
+          <div className="card" style={{ marginBottom: 0 }}>
+            <div className="card-header">
+              <h3 className="card-title">
+                <QrCode size={18} color="var(--primary)" />
+                <span>Receive Money (Your QR Code)</span>
+              </h3>
+              <span className="badge badge-indigo">Instant P2P</span>
+            </div>
 
-            <div style={{ display: 'flex', gap: 10, width: '100%', maxWidth: 320, marginTop: 4 }}>
-              <button
-                type="button"
-                onClick={handleDownloadQr}
-                className="btn btn-primary btn-sm"
-                style={{ flex: 1 }}
+            <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: 16 }}>
+              Scan this QR code to send money directly to your FinSync primary account.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, padding: '16px 0' }}>
+              <div
+                style={{
+                  padding: 14,
+                  background: '#ffffff',
+                  borderRadius: 12,
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
               >
-                <Download size={14} /> Download QR
-              </button>
-              <button
-                type="button"
-                onClick={handleShareQr}
-                className="btn btn-secondary btn-sm"
-                style={{ flex: 1 }}
-              >
-                <Share2 size={14} /> Share QR
-              </button>
+                <QRCodeCanvas
+                  id="customer-qr-canvas"
+                  value={qrString}
+                  size={168}
+                  level="H"
+                  includeMargin={false}
+                />
+              </div>
+
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-main)' }}>
+                  {displayUser.fullName}
+                </div>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 2 }}>
+                  FinSync Pay ID: <strong style={{ color: 'var(--primary)', fontFamily: 'monospace' }}>{payId}</strong>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10, width: '100%', maxWidth: 320, marginTop: 4 }}>
+                <button
+                  type="button"
+                  onClick={handleDownloadQr}
+                  className="btn btn-primary btn-sm"
+                  style={{ flex: 1 }}
+                >
+                  <Download size={14} /> Download QR
+                </button>
+                <button
+                  type="button"
+                  onClick={handleShareQr}
+                  className="btn btn-secondary btn-sm"
+                  style={{ flex: 1 }}
+                >
+                  <Share2 size={14} /> Share QR
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Change Password Form */}
         <div className="card" style={{ marginBottom: 0 }}>

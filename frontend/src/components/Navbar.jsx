@@ -97,6 +97,7 @@ export function Sidebar() {
   }
 
   // CUSTOMER ROLE: Clean, Organized, User-Friendly Categories
+  // CUSTOMER ROLE: Clean, Organized, User-Friendly Categories (Distinct 1-to-1 Routes)
   const customerSections = [
     {
       items: [
@@ -107,14 +108,12 @@ export function Sidebar() {
       category: 'MONEY',
       items: [
         { label: 'Accounts & Cards', path: '/accounts', icon: CreditCard },
-        { label: 'Pay & Transfer', path: '/transfer', icon: Send },
-        { label: 'Receive Money', path: '/profile', icon: QrCode }
+        { label: 'Pay & Transfer', path: '/transfer', icon: Send }
       ]
     },
     {
       category: 'SPENDING',
       items: [
-        { label: 'Recent Transactions', path: '/accounts', icon: History },
         { label: 'Expense Analytics', path: '/expenses', icon: PieChart }
       ]
     },
@@ -125,7 +124,7 @@ export function Sidebar() {
       ]
     },
     {
-      category: 'PROFILE',
+      category: 'ACCOUNT',
       items: [
         { label: 'My Profile', path: '/profile', icon: User }
       ]
@@ -246,7 +245,8 @@ export function TopHeader() {
   useEffect(() => {
     loadNotifications()
 
-    const interval = setInterval(loadNotifications, 8000)
+    // 45-second polling interval + reactive event listener on user activities
+    const interval = setInterval(loadNotifications, 45000)
     const handleActivity = () => loadNotifications()
     window.addEventListener('finsync:activity', handleActivity)
 

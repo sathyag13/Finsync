@@ -111,7 +111,13 @@ export default function Login() {
           <div style={{ display: 'flex', gap: 12, borderBottom: '2px solid var(--border-color)', marginBottom: 32, paddingBottom: 4, width: '100%', justifyContent: 'flex-start' }}>
             <button
               type="button"
-              onClick={() => setIsAdminMode(false)}
+              onClick={() => {
+                if (isAdminMode) {
+                  setIsAdminMode(false)
+                  setEmail('')
+                  setPassword('')
+                }
+              }}
               style={{
                 padding: '12px 20px 12px 0',
                 border: 'none',
@@ -133,7 +139,13 @@ export default function Login() {
 
             <button
               type="button"
-              onClick={() => setIsAdminMode(true)}
+              onClick={() => {
+                if (!isAdminMode) {
+                  setIsAdminMode(true)
+                  setEmail('')
+                  setPassword('')
+                }
+              }}
               style={{
                 padding: '12px 20px',
                 border: 'none',

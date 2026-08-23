@@ -542,48 +542,57 @@ export default function Dashboard() {
             <div style={{ marginBottom: 14 }}>
               <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>You spent</div>
               <div style={{ fontSize: '24px', fontWeight: 900, color: 'var(--text-main)', marginTop: 2 }}>
-                ₹{totalSpentThisMonth > 0 ? totalSpentThisMonth.toLocaleString('en-IN') : '28,500'}
+                ₹{totalSpentThisMonth.toLocaleString('en-IN')}
               </div>
             </div>
 
             {/* Spending Category Breakdown */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: 4 }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-muted)' }}>
-                    <Utensils size={13} color="var(--primary)" /> Food & Dining
-                  </span>
-                  <span style={{ fontWeight: 700 }}>₹{foodSpending > 0 ? foodSpending.toLocaleString('en-IN') : '8,000'}</span>
-                </div>
-                <div style={{ width: '100%', height: 6, background: 'rgba(255,255,255,0.08)', borderRadius: 99 }}>
-                  <div style={{ width: '35%', height: '100%', background: 'var(--primary)', borderRadius: 99 }} />
+            {expenses.length === 0 ? (
+              <div style={{ padding: '20px 0', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
+                No expenses logged this month.
+                <div style={{ marginTop: 8 }}>
+                  <Link to="/expenses" className="btn btn-secondary btn-sm">Log First Expense</Link>
                 </div>
               </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: 4 }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-muted)' }}>
+                      <Utensils size={13} color="var(--primary)" /> Food & Dining
+                    </span>
+                    <span style={{ fontWeight: 700 }}>₹{foodSpending.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div style={{ width: '100%', height: 6, background: 'var(--bg-input)', borderRadius: 99, overflow: 'hidden' }}>
+                    <div style={{ width: `${totalSpentThisMonth > 0 ? Math.min(100, Math.round((foodSpending / totalSpentThisMonth) * 100)) : 0}%`, height: '100%', background: 'var(--primary)', borderRadius: 99 }} />
+                  </div>
+                </div>
 
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: 4 }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-muted)' }}>
-                    <ShoppingBag size={13} color="var(--accent-emerald)" /> Shopping
-                  </span>
-                  <span style={{ fontWeight: 700 }}>₹{shoppingSpending > 0 ? shoppingSpending.toLocaleString('en-IN') : '6,500'}</span>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: 4 }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-muted)' }}>
+                      <ShoppingBag size={13} color="var(--accent-emerald)" /> Shopping
+                    </span>
+                    <span style={{ fontWeight: 700 }}>₹{shoppingSpending.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div style={{ width: '100%', height: 6, background: 'var(--bg-input)', borderRadius: 99, overflow: 'hidden' }}>
+                    <div style={{ width: `${totalSpentThisMonth > 0 ? Math.min(100, Math.round((shoppingSpending / totalSpentThisMonth) * 100)) : 0}%`, height: '100%', background: 'var(--accent-emerald)', borderRadius: 99 }} />
+                  </div>
                 </div>
-                <div style={{ width: '100%', height: 6, background: 'rgba(255,255,255,0.08)', borderRadius: 99 }}>
-                  <div style={{ width: '25%', height: '100%', background: 'var(--accent-emerald)', borderRadius: 99 }} />
-                </div>
-              </div>
 
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: 4 }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-muted)' }}>
-                    <Zap size={13} color="var(--accent-amber)" /> Bills & Utilities
-                  </span>
-                  <span style={{ fontWeight: 700 }}>₹{billsSpending > 0 ? billsSpending.toLocaleString('en-IN') : '9,000'}</span>
-                </div>
-                <div style={{ width: '100%', height: 6, background: 'rgba(255,255,255,0.08)', borderRadius: 99 }}>
-                  <div style={{ width: '40%', height: '100%', background: 'var(--accent-amber)', borderRadius: 99 }} />
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: 4 }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-muted)' }}>
+                      <Zap size={13} color="var(--accent-amber)" /> Bills & Utilities
+                    </span>
+                    <span style={{ fontWeight: 700 }}>₹{billsSpending.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div style={{ width: '100%', height: 6, background: 'var(--bg-input)', borderRadius: 99, overflow: 'hidden' }}>
+                    <div style={{ width: `${totalSpentThisMonth > 0 ? Math.min(100, Math.round((billsSpending / totalSpentThisMonth) * 100)) : 0}%`, height: '100%', background: 'var(--accent-amber)', borderRadius: 99 }} />
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Savings Goals Preview Card */}

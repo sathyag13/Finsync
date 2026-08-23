@@ -658,13 +658,13 @@ export default function Transfer() {
           )}
         </div>
 
-        {/* Right Column: Beneficiary Directory & QR Quick Guide */}
-        <div className="grid-col-right">
-          <div className="card" style={{ marginBottom: 'var(--section-gap)' }}>
+        {/* Right Column: Beneficiary Directory & Quick Guide */}
+        <div className="grid-col-right" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div className="card" style={{ marginBottom: 0, height: 'fit-content' }}>
             <div className="card-header">
               <h3 className="card-title">
                 <User size={18} color="var(--primary)" />
-                <span>Saved Payees & Beneficiaries</span>
+                <span>Saved Payees</span>
               </h3>
               <span className="badge badge-indigo">
                 {beneficiaries.length} Saved
@@ -674,7 +674,7 @@ export default function Transfer() {
             <div style={{ position: 'relative', marginBottom: 14 }}>
               <input
                 type="text"
-                placeholder="Search saved payees by name, bank or account..."
+                placeholder="Search saved payees..."
                 value={benSearch}
                 onChange={(e) => setBenSearch(e.target.value)}
                 style={{ paddingLeft: 32 }}
@@ -682,17 +682,17 @@ export default function Transfer() {
               <Search size={14} style={{ position: 'absolute', left: 10, top: 13, color: 'var(--text-muted)' }} />
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 320, overflowY: 'auto' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {filteredBeneficiaries.length === 0 ? (
-                <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
-                  No saved beneficiaries. Click "Add Beneficiary" to register your payees.
+                <div style={{ padding: '16px 8px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
+                  No saved payees found.
                 </div>
               ) : (
                 filteredBeneficiaries.map((b) => (
                   <div
                     key={b.id}
                     style={{
-                      padding: '12px 14px',
+                      padding: '10px 12px',
                       borderRadius: 8,
                       background: 'var(--bg-input)',
                       border: '1px solid var(--border-color)',
@@ -703,12 +703,12 @@ export default function Transfer() {
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <div className="stat-icon indigo" style={{ width: 34, height: 34, borderRadius: 8, flexShrink: 0 }}>
-                        <Building2 size={16} />
+                      <div className="stat-icon indigo" style={{ width: 32, height: 32, borderRadius: 8, flexShrink: 0 }}>
+                        <Building2 size={15} />
                       </div>
                       <div>
                         <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--text-main)' }}>{b.name}</div>
-                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
+                        <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
                           {b.bankName} • {b.accountNumber}
                         </div>
                       </div>
@@ -719,6 +719,7 @@ export default function Transfer() {
                         type="button"
                         onClick={() => handleSelectBeneficiary(b)}
                         className="btn btn-primary btn-sm"
+                        style={{ padding: '4px 10px', fontSize: '12px' }}
                       >
                         Pay
                       </button>
@@ -728,12 +729,36 @@ export default function Transfer() {
                         style={{ background: 'none', border: 'none', color: 'var(--accent-rose)', cursor: 'pointer', padding: 4 }}
                         title="Remove Beneficiary"
                       >
-                        <Trash2 size={15} />
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </div>
                 ))
               )}
+            </div>
+          </div>
+
+          {/* Quick Transfer Info Card */}
+          <div className="card" style={{ marginBottom: 0, height: 'fit-content' }}>
+            <div className="card-header">
+              <h3 className="card-title">
+                <ShieldCheck size={18} color="var(--accent-emerald)" />
+                <span>Transfer Security & Limits</span>
+              </h3>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: '12px', color: 'var(--text-muted)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid var(--border-color)' }}>
+                <span>Daily Outward Limit</span>
+                <strong style={{ color: 'var(--text-main)' }}>₹50,000.00</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid var(--border-color)' }}>
+                <span>Settlement Speed</span>
+                <strong style={{ color: 'var(--accent-emerald)' }}>Instant (24/7)</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0' }}>
+                <span>Transfer Processing Fee</span>
+                <strong style={{ color: 'var(--accent-emerald)' }}>₹0 (Zero Fee)</strong>
+              </div>
             </div>
           </div>
         </div>

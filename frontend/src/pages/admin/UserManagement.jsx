@@ -222,7 +222,7 @@ export default function UserManagement() {
                       </td>
                       <td>
                         <div style={{ fontSize: '13px', fontWeight: 600 }}>
-                          {u.accountsCount || 1} Accounts • {u.cardsCount || 1} Cards
+                          {(u.accountsCount === 1) ? '1 Account' : `${u.accountsCount || 0} Accounts`} • {(u.cardsCount === 1) ? '1 Card' : `${u.cardsCount || 0} Cards`}
                         </div>
                       </td>
                       <td style={{ textAlign: 'right', fontWeight: 800, fontSize: '14px', color: 'var(--primary)' }}>

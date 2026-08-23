@@ -32,11 +32,20 @@ public class AdminUserController {
     private final NotificationService notificationService;
 
     @GetMapping("/users")
-    public ResponseEntity<List<Map<String, Object>>> getAllUsers() {
+    public ResponseEntity<List<Map<String, Object>>> getAllUsers(@RequestParam(required = false) String role) {
         List<User> users = userRepository.findAll();
         List<Map<String, Object>> result = new ArrayList<>();
 
         for (User u : users) {
+            if (role != null && !role.trim().isEmpty() && !role.equalsIgnoreCase("ALL")) {
+                if (!role.equalsIgnoreCase(u.getRole() != null ? u.getRole().name() : "")) {
+                    continue;
+                }
+            } else if (u.getRole() == Role.ADMIN) {
+                // By default in the customer directory, do not list Admin accounts as retail customers
+                continue;
+            }
+
             Map<String, Object> map = new HashMap<>();
             map.put("id", u.getId());
             map.put("fullName", u.getFullName());

@@ -244,7 +244,7 @@ export default function Home() {
       </section>
 
       {/* Security Banner */}
-      <section style={{ background: '#1e1b4b', color: '#ffffff', padding: '60px 24px', margin: '60px 0', borderTop: '1px solid rgba(255,255,255,0.1)', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+      <section style={{ background: '#1e1b4b', color: '#ffffff', padding: '60px 24px', margin: '48px 0 0 0', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'center' }}>
           <div>
             <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#a7f3d0', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 8 }}>

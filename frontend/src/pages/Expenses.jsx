@@ -355,7 +355,11 @@ export default function Expenses() {
         </div>
 
         {expenses.length === 0 ? (
-          <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '24px 0', fontSize: '13px' }}>No expenses logged yet.</p>
+          <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--text-muted)' }}>
+            <Tag size={28} color="var(--primary)" style={{ opacity: 0.6, marginBottom: 8 }} />
+            <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-main)' }}>No expenses logged yet</div>
+            <div style={{ fontSize: '12px', marginTop: 2 }}>Use the form above to log your daily expenses.</div>
+          </div>
         ) : (
           <div className="table-container">
             <table>

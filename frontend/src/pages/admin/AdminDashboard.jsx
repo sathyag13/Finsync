@@ -128,22 +128,27 @@ export default function AdminDashboard() {
             <span className="badge badge-emerald">+18.4% WoW</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: 140, padding: '10px 0', borderBottom: '1px solid var(--border-color)' }}>
-            {days.map((day, i) => (
-              <div key={day} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, flex: 1 }}>
-                <div
-                  style={{
-                    width: 24,
-                    height: `${activityHeights[i]}%`,
-                    background: i === 4 ? 'linear-gradient(180deg, var(--primary), #4338ca)' : 'rgba(99, 102, 241, 0.4)',
-                    borderRadius: 4,
-                    transition: 'all 0.3s ease'
-                  }}
-                  title={`${day}: ${activityHeights[i] * 12} transactions`}
-                />
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>{day}</span>
-              </div>
-            ))}
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: 130, padding: '10px 0', borderBottom: '1px solid var(--border-color)' }}>
+            {days.map((day, i) => {
+              const barHeightPx = Math.round((activityHeights[i] / 100) * 90) + 12
+              return (
+                <div key={day} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%', gap: 6, flex: 1 }}>
+                  <div
+                    style={{
+                      width: 24,
+                      height: `${barHeightPx}px`,
+                      background: i === 4 ? 'linear-gradient(180deg, var(--primary) 0%, #4338ca 100%)' : 'linear-gradient(180deg, rgba(99, 102, 241, 0.8) 0%, rgba(99, 102, 241, 0.3) 100%)',
+                      borderRadius: '4px 4px 0 0',
+                      boxShadow: i === 4 ? '0 4px 12px var(--primary-glow)' : 'none',
+                      transition: 'all 0.3s ease',
+                      cursor: 'pointer'
+                    }}
+                    title={`${day}: ${activityHeights[i] * 12} transactions`}
+                  />
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>{day}</span>
+                </div>
+              )
+            })}
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10, fontSize: '12px', color: 'var(--text-muted)' }}>
             <span>Weekly Total: <strong>{dbTransactions.length + 42} Transfers</strong></span>
