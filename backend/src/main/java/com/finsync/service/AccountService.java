@@ -1,5 +1,6 @@
 package com.finsync.service;
 
+import com.finsync.dto.CardControlRequest;
 import com.finsync.dto.CreateAccountRequest;
 import com.finsync.model.Account;
 
@@ -10,4 +11,5 @@ public interface AccountService {
     Map<String, Object> createAccount(Long userId, CreateAccountRequest req);
     List<Map<String, Object>> getUserAccounts(Long userId);
     Account getOwnedAccount(Long accountId, Long userId);
+    Map<String, Object> updateCardControls(Long userId, Long accountId, CardControlRequest req);
 }

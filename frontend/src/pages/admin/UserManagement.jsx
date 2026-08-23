@@ -2,22 +2,13 @@ import { useState, useEffect } from 'react'
 import api from '../../api/axios.js'
 import { useToast } from '../../context/ToastContext.jsx'
 import Modal from '../../components/Modal.jsx'
+import PageHeader from '../../components/PageHeader.jsx'
 import {
   UserCheck,
   Search,
-  Filter,
   UserPlus,
   Eye,
-  Edit3,
-  Lock,
-  Unlock,
-  CheckCircle2,
-  XCircle,
-  ShieldCheck,
-  User,
-  Mail,
-  Phone,
-  BadgeCheck,
+  Building2,
   RefreshCw
 } from 'lucide-react'
 
@@ -31,30 +22,22 @@ export default function UserManagement() {
   const [statusFilter, setStatusFilter] = useState('ALL')
   const [search, setSearch] = useState('')
 
-  // Modals
-  const [selectedUser, setSelectedUser] = useState(null)
-  const [showViewModal, setShowViewModal] = useState(false)
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [showCreateModal, setShowCreateModal] = useState(false)
+  // Customer Overview & Modals State
+  const [selectedUserOverview, setSelectedUserOverview] = useState(null)
+  const [showOverviewModal, setShowOverviewModal] = useState(false)
+  const [loadingOverview, setLoadingOverview] = useState(false)
 
-  // Edit / Create Form States
-  const [editForm, setEditForm] = useState({ fullName: '', email: '', phoneNumber: '', empNo: '', role: 'CUSTOMER', accountStatus: 'ACTIVE' })
+  // Create Form States
+  const [showCreateModal, setShowCreateModal] = useState(false)
   const [createForm, setCreateForm] = useState({ fullName: '', email: '', password: 'SecretPassword123!', phoneNumber: '', empNo: '', role: 'CUSTOMER' })
 
   const fetchUsers = async () => {
     try {
       setLoading(true)
       const res = await api.get('/admin/users')
-      setUsers(res.data)
+      setUsers(res.data || [])
     } catch (err) {
-      // Mock Users Fallback if backend API is initializing
-      setUsers([
-        { id: 1, fullName: 'Sathya Narayanan', email: 'gsathya131104@gmail.com', role: 'ADMIN', accountStatus: 'ACTIVE', empNo: 'EMP-10001', phoneNumber: '+91 9876543210', createdAt: '2026-08-15', lastLogin: '2026-08-16 00:30' },
-        { id: 2, fullName: 'Aarav Sharma', email: 'aarav.sharma@finsync.in', role: 'ANALYST', accountStatus: 'ACTIVE', empNo: 'EMP-20042', phoneNumber: '+91 9811223344', createdAt: '2026-08-10', lastLogin: '2026-08-15 22:10' },
-        { id: 3, fullName: 'Priya Patel', email: 'priya.patel@gmail.com', role: 'CUSTOMER', accountStatus: 'LOCKED', empNo: '', phoneNumber: '+91 9722334455', createdAt: '2026-08-12', lastLogin: '2026-08-14 18:45' },
-        { id: 4, fullName: 'Rahul Verma', email: 'rahul.v@techcorp.com', role: 'CUSTOMER', accountStatus: 'ACTIVE', empNo: '', phoneNumber: '+91 9633445566', createdAt: '2026-08-14', lastLogin: '2026-08-15 15:20' },
-        { id: 5, fullName: 'Ananya Roy', email: 'ananya.roy@investors.org', role: 'ANALYST', accountStatus: 'INACTIVE', empNo: 'EMP-20088', phoneNumber: '+91 9544556677', createdAt: '2026-08-11', lastLogin: '2026-08-13 11:15' }
-      ])
+      console.error('Failed to fetch users:', err)
     } finally {
       setLoading(false)
     }
@@ -64,352 +47,381 @@ export default function UserManagement() {
     fetchUsers()
   }, [])
 
-  // Filtered Users List
-  const filteredUsers = users.filter((u) => {
-    const matchesRole = roleFilter === 'ALL' || u.role === roleFilter
-    const matchesStatus = statusFilter === 'ALL' || u.accountStatus === statusFilter
-    const matchesSearch = u.fullName.toLowerCase().includes(search.toLowerCase()) ||
-                          u.email.toLowerCase().includes(search.toLowerCase()) ||
-                          u.id.toString().includes(search)
-    return matchesRole && matchesStatus && matchesSearch
-  })
+  // Customer Overview loader
+  const handleOpenOverview = async (user) => {
+    try {
+      setLoadingOverview(true)
+      setShowOverviewModal(true)
+      const res = await api.get(`/admin/users/${user.id}/overview`)
+      setSelectedUserOverview(res.data)
+    } catch (err) {
+      setSelectedUserOverview(user)
+    } finally {
+      setLoadingOverview(false)
+    }
+  }
 
   // Action Handlers
   const handleToggleStatus = async (userId, currentStatus) => {
     const newStatus = currentStatus === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE'
     try {
       await api.patch(`/admin/users/${userId}/status`, { accountStatus: newStatus })
-      addToast(`User #${userId} status changed to ${newStatus}`, 'success')
+      addToast(`Customer #${userId} status set to ${newStatus}`, 'success')
       fetchUsers()
+      if (selectedUserOverview && selectedUserOverview.id === userId) {
+        setSelectedUserOverview(prev => ({ ...prev, accountStatus: newStatus }))
+      }
     } catch (err) {
-      setUsers(prev => prev.map(u => u.id === userId ? { ...u, accountStatus: newStatus } : u))
-      addToast(`User #${userId} status toggled to ${newStatus}`, 'success')
+      addToast('Failed to update status', 'error')
     }
   }
 
-  const handleToggleLock = async (userId, currentStatus) => {
-    const newStatus = currentStatus === 'LOCKED' ? 'ACTIVE' : 'LOCKED'
+  const handleToggleAccountFreeze = async (accountId) => {
     try {
-      await api.patch(`/admin/users/${userId}/status`, { accountStatus: newStatus })
-      addToast(`User #${userId} is now ${newStatus === 'LOCKED' ? 'LOCKED' : 'UNLOCKED'}`, 'warning')
+      const res = await api.patch(`/admin/accounts/${accountId}/freeze`)
+      addToast(res.data?.message || 'Account status toggled', 'success')
       fetchUsers()
+      if (selectedUserOverview) {
+        handleOpenOverview(selectedUserOverview)
+      }
     } catch (err) {
-      setUsers(prev => prev.map(u => u.id === userId ? { ...u, accountStatus: newStatus } : u))
-      addToast(`User #${userId} is now ${newStatus === 'LOCKED' ? 'LOCKED' : 'UNLOCKED'}`, 'warning')
+      addToast('Failed to toggle account freeze state', 'error')
     }
   }
 
-  const handleRoleChange = async (userId, newRole) => {
-    try {
-      await api.patch(`/admin/users/${userId}/role`, { role: newRole })
-      addToast(`User #${userId} assigned new role: ${newRole}`, 'success')
-      fetchUsers()
-    } catch (err) {
-      setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u))
-      addToast(`User #${userId} assigned new role: ${newRole}`, 'success')
-    }
-  }
-
-  const handleOpenView = (u) => {
-    setSelectedUser(u)
-    setShowViewModal(true)
-  }
-
-  const handleOpenEdit = (u) => {
-    setSelectedUser(u)
-    setEditForm({
-      fullName: u.fullName,
-      email: u.email,
-      phoneNumber: u.phoneNumber || '',
-      empNo: u.empNo || '',
-      role: u.role,
-      accountStatus: u.accountStatus || 'ACTIVE'
-    })
-    setShowEditModal(true)
-  }
-
-  const handleSaveEdit = async (e) => {
-    e.preventDefault()
-    try {
-      await api.put(`/admin/users/${selectedUser.id}`, editForm)
-      addToast(`User #${selectedUser.id} details updated!`, 'success')
-      setShowEditModal(false)
-      fetchUsers()
-    } catch (err) {
-      setUsers(prev => prev.map(u => u.id === selectedUser.id ? { ...u, ...editForm } : u))
-      addToast(`User #${selectedUser.id} updated successfully!`, 'success')
-      setShowEditModal(false)
-    }
-  }
-
-  const handleCreateUser = async (e) => {
+  const handleCreateUserSubmit = async (e) => {
     e.preventDefault()
     try {
       await api.post('/admin/users', createForm)
-      addToast('New user account created successfully!', 'success')
+      addToast(`Customer ${createForm.fullName} registered successfully!`, 'success')
       setShowCreateModal(false)
+      setCreateForm({ fullName: '', email: '', password: 'SecretPassword123!', phoneNumber: '', empNo: '', role: 'CUSTOMER' })
       fetchUsers()
     } catch (err) {
-      const newUser = {
-        id: users.length + 1,
-        fullName: createForm.fullName,
-        email: createForm.email,
-        role: createForm.role,
-        accountStatus: 'ACTIVE',
-        empNo: createForm.empNo,
-        phoneNumber: createForm.phoneNumber,
-        createdAt: '2026-08-16',
-        lastLogin: 'Never'
-      }
-      setUsers(prev => [newUser, ...prev])
-      addToast('New user registered into bank ledger!', 'success')
-      setShowCreateModal(false)
+      addToast(err.response?.data?.message || 'Failed to create user', 'error')
     }
   }
 
+  const filteredUsers = users.filter((u) => {
+    const matchesRole = roleFilter === 'ALL' || u.role === roleFilter
+    const matchesStatus = statusFilter === 'ALL' || u.accountStatus === statusFilter
+    const matchesSearch =
+      (u.fullName || '').toLowerCase().includes(search.toLowerCase()) ||
+      (u.email || '').toLowerCase().includes(search.toLowerCase()) ||
+      (u.phoneNumber || '').toLowerCase().includes(search.toLowerCase()) ||
+      (u.id || '').toString().includes(search)
+    return matchesRole && matchesStatus && matchesSearch
+  })
+
   return (
-    <div style={{ paddingBottom: 60 }}>
-      {/* Header Bar */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 16, marginBottom: 24 }}>
-        <div>
-          <h1 style={{ fontSize: '1.9rem', fontWeight: 900, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <UserCheck size={28} color="var(--primary)" /> Bank User Management Directory
-          </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.94rem', fontWeight: 600, marginTop: 4 }}>
-            System Administration Panel: Assign roles, toggle status, activate/lock accounts & manage legal user records
-          </p>
-        </div>
+    <div>
+      {/* Page Header */}
+      <PageHeader
+        title="Customer Directory & Overview"
+        description="Inspect client portfolios, virtual debit cards, balances, account freeze controls & activity status"
+        icon={UserCheck}
+        actions={
+          <>
+            <button className="btn btn-secondary btn-sm" onClick={fetchUsers}>
+              <RefreshCw size={15} /> Refresh
+            </button>
+            <button className="btn btn-primary btn-sm" onClick={() => setShowCreateModal(true)}>
+              <UserPlus size={15} /> Register Client
+            </button>
+          </>
+        }
+      />
 
-        <div style={{ display: 'flex', gap: 10 }}>
-          <button className="btn btn-secondary btn-sm" onClick={fetchUsers} style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 800 }}>
-            <RefreshCw size={14} className={loading ? 'spin' : ''} /> Refresh List
-          </button>
-          <button className="btn btn-primary btn-sm" onClick={() => setShowCreateModal(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 800 }}>
-            <UserPlus size={16} /> + Create New Bank User
-          </button>
-        </div>
-      </div>
-
-      {/* FILTER & SEARCH BAR */}
-      <div className="card" style={{ marginBottom: 24, padding: '16px 24px', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
+      {/* Filter & Search Bar Card */}
+      <div className="card" style={{ padding: 16, marginBottom: 'var(--section-gap)' }}>
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Filter size={18} color="var(--primary)" />
-            <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>Role:</span>
-          </div>
-          <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} className="input-field" style={{ padding: '6px 12px', fontSize: '0.82rem', width: 'auto' }}>
-            <option value="ALL">All Roles</option>
-            <option value="CUSTOMER">CUSTOMER</option>
-            <option value="ADMIN">ADMIN</option>
-          </select>
-
-          <span style={{ fontWeight: 800, fontSize: '0.9rem', marginLeft: 8 }}>Status:</span>
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="input-field" style={{ padding: '6px 12px', fontSize: '0.82rem', width: 'auto' }}>
-            <option value="ALL">All Statuses</option>
-            <option value="ACTIVE">ACTIVE</option>
-            <option value="INACTIVE">INACTIVE</option>
-            <option value="LOCKED">LOCKED</option>
-          </select>
-        </div>
-
-        <div style={{ position: 'relative', width: 280 }}>
-          <Search size={16} style={{ position: 'absolute', left: 12, top: 10, color: 'var(--text-muted)' }} />
-          <input
-            type="text"
-            placeholder="Search ID, Name, or Email..."
-            className="input-field"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{ paddingLeft: 36, padding: '6px 12px 6px 36px', fontSize: '0.84rem' }}
-          />
-        </div>
-      </div>
-
-      {/* USER MANAGEMENT TABLE */}
-      <div className="card">
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
-            <thead>
-              <tr style={{ borderBottom: '2px solid var(--border-color)', textAlign: 'left' }}>
-                <th style={{ padding: '12px 14px', color: 'var(--text-muted)', fontWeight: 800 }}>USER ID</th>
-                <th style={{ padding: '12px 14px', color: 'var(--text-muted)', fontWeight: 800 }}>CUSTOMER NAME</th>
-                <th style={{ padding: '12px 14px', color: 'var(--text-muted)', fontWeight: 800 }}>EMAIL ADDRESS</th>
-                <th style={{ padding: '12px 14px', color: 'var(--text-muted)', fontWeight: 800 }}>ROLE</th>
-                <th style={{ padding: '12px 14px', textAlign: 'center', color: 'var(--text-muted)', fontWeight: 800 }}>STATUS</th>
-                <th style={{ padding: '12px 14px', color: 'var(--text-muted)', fontWeight: 800 }}>REG DATE</th>
-                <th style={{ padding: '12px 14px', color: 'var(--text-muted)', fontWeight: 800 }}>LAST LOGIN</th>
-                <th style={{ padding: '12px 14px', textAlign: 'center', color: 'var(--text-muted)', fontWeight: 800 }}>ACTIONS</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.map((u) => (
-                <tr key={u.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                  <td style={{ padding: '12px 14px', fontWeight: 800, color: 'var(--primary)' }}>#{u.id}</td>
-                  <td style={{ padding: '12px 14px', fontWeight: 800, color: 'var(--text-main)' }}>
-                    {u.fullName}
-                    {u.empNo ? <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>ID: {u.empNo}</div> : null}
-                  </td>
-                  <td style={{ padding: '12px 14px', color: 'var(--text-muted)' }}>{u.email}</td>
-                  <td style={{ padding: '12px 14px' }}>
-                    <span style={{
-                      fontSize: '0.75rem',
-                      fontWeight: 800,
-                      padding: '4px 10px',
-                      borderRadius: 99,
-                      background: u.role === 'ADMIN' ? 'rgba(99,102,241,0.18)' : 'rgba(16,185,129,0.15)',
-                      color: u.role === 'ADMIN' ? 'var(--primary)' : '#10b981'
-                    }}>
-                      {u.role}
-                    </span>
-                  </td>
-                  <td style={{ padding: '12px 14px', textAlign: 'center' }}>
-                    <span style={{
-                      fontSize: '0.75rem',
-                      fontWeight: 800,
-                      padding: '4px 10px',
-                      borderRadius: 99,
-                      background: u.accountStatus === 'ACTIVE' ? 'rgba(16,185,129,0.15)' : u.accountStatus === 'LOCKED' ? 'rgba(239,68,68,0.18)' : 'rgba(245,158,11,0.18)',
-                      color: u.accountStatus === 'ACTIVE' ? '#10b981' : u.accountStatus === 'LOCKED' ? '#ef4444' : '#f59e0b'
-                    }}>
-                      {u.accountStatus || 'ACTIVE'}
-                    </span>
-                  </td>
-                  <td style={{ padding: '12px 14px', color: 'var(--text-muted)', fontSize: '0.8rem' }}>{u.createdAt}</td>
-                  <td style={{ padding: '12px 14px', color: 'var(--text-muted)', fontSize: '0.8rem' }}>{u.lastLogin}</td>
-
-                  {/* ADMIN USER ACTIONS BUTTONS */}
-                  <td style={{ padding: '12px 14px', textAlign: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                      {/* View Button */}
-                      <button className="icon-btn" onClick={() => handleOpenView(u)} title="View User Profile" style={{ width: 28, height: 28 }}>
-                        <Eye size={15} color="var(--primary)" />
-                      </button>
-
-                      {/* Edit Button */}
-                      <button className="icon-btn" onClick={() => handleOpenEdit(u)} title="Edit User Details" style={{ width: 28, height: 28 }}>
-                        <Edit3 size={15} color="#f59e0b" />
-                      </button>
-
-                      {/* Activate / Deactivate Toggle */}
-                      <button
-                        className="icon-btn"
-                        onClick={() => handleToggleStatus(u.id, u.accountStatus)}
-                        title={u.accountStatus === 'ACTIVE' ? 'Deactivate Account' : 'Activate Account'}
-                        style={{ width: 28, height: 28 }}
-                      >
-                        {u.accountStatus === 'ACTIVE' ? <XCircle size={15} color="#ef4444" /> : <CheckCircle2 size={15} color="#10b981" />}
-                      </button>
-
-                      {/* Lock / Unlock Toggle */}
-                      <button
-                        className="icon-btn"
-                        onClick={() => handleToggleLock(u.id, u.accountStatus)}
-                        title={u.accountStatus === 'LOCKED' ? 'Unlock Account' : 'Lock Account'}
-                        style={{ width: 28, height: 28 }}
-                      >
-                        {u.accountStatus === 'LOCKED' ? <Unlock size={15} color="#10b981" /> : <Lock size={15} color="#ef4444" />}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* VIEW USER MODAL */}
-      <Modal isOpen={showViewModal} onClose={() => setShowViewModal(false)} title="User Profile Inspection">
-        {selectedUser && (
-          <div style={{ padding: 10 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid var(--border-color)' }}>
-              <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'var(--primary)', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1.2rem' }}>
-                {selectedUser.fullName.charAt(0)}
-              </div>
-              <div>
-                <div style={{ fontSize: '1.15rem', fontWeight: 800 }}>{selectedUser.fullName}</div>
-                <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{selectedUser.email}</div>
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, fontSize: '0.88rem' }}>
-              <div><strong>User ID:</strong> #{selectedUser.id}</div>
-              <div><strong>Role:</strong> {selectedUser.role}</div>
-              <div><strong>Account Status:</strong> {selectedUser.accountStatus || 'ACTIVE'}</div>
-              <div><strong>Employee ID:</strong> {selectedUser.empNo || 'N/A'}</div>
-              <div><strong>Mobile Phone:</strong> {selectedUser.phoneNumber || 'N/A'}</div>
-              <div><strong>Registered On:</strong> {selectedUser.createdAt}</div>
-            </div>
-          </div>
-        )}
-      </Modal>
-
-      {/* EDIT USER MODAL */}
-      <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)} title="Edit User Administrative Profile">
-        <form onSubmit={handleSaveEdit} style={{ padding: 10 }}>
-          <div className="form-group" style={{ marginBottom: 14 }}>
-            <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, marginBottom: 4 }}>Full Name</label>
-            <input type="text" value={editForm.fullName} onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })} className="input-field" required />
+          <div style={{ flex: 1, minWidth: 260, position: 'relative' }}>
+            <input
+              type="text"
+              placeholder="Search by customer name, email, phone or ID..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{ paddingLeft: 36 }}
+            />
+            <Search size={16} style={{ position: 'absolute', left: 12, top: 12, color: 'var(--text-muted)' }} />
           </div>
 
-          <div className="form-group" style={{ marginBottom: 14 }}>
-            <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, marginBottom: 4 }}>Email Address</label>
-            <input type="email" value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} className="input-field" required />
-          </div>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} style={{ minWidth: 140 }}>
+              <option value="ALL">All Statuses</option>
+              <option value="ACTIVE">ACTIVE</option>
+              <option value="INACTIVE">INACTIVE</option>
+              <option value="LOCKED">LOCKED</option>
+            </select>
 
-          <div className="form-group" style={{ marginBottom: 14 }}>
-            <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, marginBottom: 4 }}>Phone Number</label>
-            <input type="text" value={editForm.phoneNumber} onChange={(e) => setEditForm({ ...editForm, phoneNumber: e.target.value })} className="input-field" />
-          </div>
-
-          <div className="form-group" style={{ marginBottom: 14 }}>
-            <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, marginBottom: 4 }}>Employee ID Number</label>
-            <input type="text" maxLength={5} value={editForm.empNo} onChange={(e) => setEditForm({ ...editForm, empNo: e.target.value })} className="input-field" placeholder="e.g. 10492" />
-          </div>
-
-          <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
-            <button type="button" className="btn btn-secondary" onClick={() => setShowEditModal(false)} style={{ flex: 1 }}>Cancel</button>
-            <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Save Changes</button>
-          </div>
-        </form>
-      </Modal>
-
-      {/* CREATE NEW USER MODAL */}
-      <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Create New Bank User Account">
-        <form onSubmit={handleCreateUser} style={{ padding: 10 }}>
-          <div className="form-group" style={{ marginBottom: 14 }}>
-            <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, marginBottom: 4 }}>Role Clearance</label>
-            <select value={createForm.role} onChange={(e) => setCreateForm({ ...createForm, role: e.target.value })} className="input-field">
-              <option value="CUSTOMER">Retail Client (Customer)</option>
-              <option value="ADMIN">System Security Admin</option>
+            <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} style={{ minWidth: 140 }}>
+              <option value="ALL">All Roles</option>
+              <option value="CUSTOMER">CUSTOMERS ONLY</option>
+              <option value="ADMIN">ADMINS ONLY</option>
             </select>
           </div>
+        </div>
+      </div>
 
-          <div className="form-group" style={{ marginBottom: 14 }}>
-            <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, marginBottom: 4 }}>Full Name</label>
-            <input type="text" value={createForm.fullName} onChange={(e) => setCreateForm({ ...createForm, fullName: e.target.value })} className="input-field" required />
+      {/* Customer Directory Table Card */}
+      <div className="card">
+        {loading ? (
+          <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>Loading customer directory…</div>
+        ) : filteredUsers.length === 0 ? (
+          <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>No customers matching your search criteria.</div>
+        ) : (
+          <div className="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Client / Email</th>
+                  <th>Role & KYC</th>
+                  <th>Accounts & Cards</th>
+                  <th style={{ textAlign: 'right' }}>Total Balance</th>
+                  <th>Txns Count</th>
+                  <th>Last Session</th>
+                  <th style={{ textAlign: 'center' }}>Status</th>
+                  <th style={{ textAlign: 'center' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredUsers.map((u) => {
+                  const isActive = u.accountStatus === 'ACTIVE'
+                  return (
+                    <tr key={u.id}>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <div
+                            style={{
+                              width: 32,
+                              height: 32,
+                              borderRadius: '50%',
+                              background: 'var(--primary)',
+                              color: '#ffffff',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontWeight: 700,
+                              fontSize: '12px',
+                              flexShrink: 0
+                            }}
+                          >
+                            {u.fullName ? u.fullName.charAt(0).toUpperCase() : 'U'}
+                          </div>
+                          <div>
+                            <div style={{ fontWeight: 700, color: 'var(--text-main)', fontSize: '13px' }}>{u.fullName}</div>
+                            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{u.email}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                          <span className="badge badge-indigo" style={{ fontSize: '11px' }}>{u.role}</span>
+                          <span style={{ fontSize: '11px', color: 'var(--accent-emerald)', fontWeight: 700 }}>KYC {u.kycStatus || 'VERIFIED'}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ fontSize: '13px', fontWeight: 600 }}>
+                          {u.accountsCount || 1} Accounts • {u.cardsCount || 1} Cards
+                        </div>
+                      </td>
+                      <td style={{ textAlign: 'right', fontWeight: 800, fontSize: '14px', color: 'var(--primary)' }}>
+                        ₹{Number(u.totalBalance || 0).toLocaleString('en-IN')}
+                      </td>
+                      <td>
+                        <span style={{ fontWeight: 600, fontSize: '13px' }}>{u.transactionCount || 0} Txns</span>
+                      </td>
+                      <td style={{ color: 'var(--text-muted)', fontSize: '12px' }}>
+                        {u.lastLogin ? new Date(u.lastLogin).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recently'}
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        <span className={`badge ${isActive ? 'badge-emerald' : 'badge-rose'}`}>
+                          {u.accountStatus || 'ACTIVE'}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        <div style={{ display: 'inline-flex', gap: 6 }}>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenOverview(u)}
+                            className="btn btn-secondary btn-sm"
+                            title="View Customer Overview"
+                          >
+                            <Eye size={13} /> Inspect
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleStatus(u.id, u.accountStatus)}
+                            className={`btn btn-sm ${isActive ? 'btn-secondary' : 'btn-emerald'}`}
+                            title={isActive ? 'Deactivate Customer' : 'Activate Customer'}
+                          >
+                            {isActive ? 'Deactivate' : 'Activate'}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
           </div>
+        )}
+      </div>
 
-          <div className="form-group" style={{ marginBottom: 14 }}>
-            <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, marginBottom: 4 }}>Email Address</label>
-            <input type="email" value={createForm.email} onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })} className="input-field" required />
-          </div>
-
-          <div className="form-group" style={{ marginBottom: 14 }}>
-            <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, marginBottom: 4 }}>Password</label>
-            <input type="password" value={createForm.password} onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })} className="input-field" required />
-          </div>
-
-          {createForm.role === 'ADMIN' && (
-            <div className="form-group" style={{ marginBottom: 14 }}>
-              <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, marginBottom: 4 }}>Employee ID Number (5 Digits)</label>
-              <input type="text" maxLength={5} value={createForm.empNo} onChange={(e) => setCreateForm({ ...createForm, empNo: e.target.value })} className="input-field" placeholder="e.g. 10492" required />
+      {/* Customer Overview Modal */}
+      <Modal isOpen={showOverviewModal} onClose={() => setShowOverviewModal(false)} title="Customer Overview & Ledger Profile">
+        {loadingOverview ? (
+          <div style={{ padding: 32, textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>Loading customer overview…</div>
+        ) : selectedUserOverview ? (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16, paddingBottom: 12, borderBottom: '1px solid var(--border-color)' }}>
+              <div
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, var(--primary), #4338ca)',
+                  color: '#ffffff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '18px',
+                  fontWeight: 800,
+                  flexShrink: 0
+                }}
+              >
+                {selectedUserOverview.fullName ? selectedUserOverview.fullName.charAt(0).toUpperCase() : 'C'}
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800 }}>{selectedUserOverview.fullName}</h3>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 2 }}>
+                  Customer ID: #FS-USR-00{selectedUserOverview.id} • {selectedUserOverview.email}
+                </div>
+              </div>
             </div>
-          )}
 
-          <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
-            <button type="button" className="btn btn-secondary" onClick={() => setShowCreateModal(false)} style={{ flex: 1 }}>Cancel</button>
-            <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Register User</button>
+            {/* Quick Metrics Grid */}
+            <div className="grid grid-3" style={{ gap: 10, marginBottom: 16 }}>
+              <div style={{ padding: '8px 12px', borderRadius: 8, background: 'var(--bg-input)' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>TOTAL BALANCE</div>
+                <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--primary)', marginTop: 2 }}>
+                  ₹{Number(selectedUserOverview.totalBalance || 0).toLocaleString('en-IN')}
+                </div>
+              </div>
+              <div style={{ padding: '8px 12px', borderRadius: 8, background: 'var(--bg-input)' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>ACCOUNTS & CARDS</div>
+                <div style={{ fontSize: '14px', fontWeight: 700, marginTop: 2 }}>
+                  {selectedUserOverview.accountsCount || 0} Acc / {selectedUserOverview.cardsCount || 0} Cards
+                </div>
+              </div>
+              <div style={{ padding: '8px 12px', borderRadius: 8, background: 'var(--bg-input)' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>TRANSACTIONS</div>
+                <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--accent-emerald)', marginTop: 2 }}>
+                  {selectedUserOverview.transactionCount || 0} Operations
+                </div>
+              </div>
+            </div>
+
+            {/* Owned Accounts List & Freeze Toggles */}
+            <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Building2 size={15} color="var(--primary)" /> Owned Bank Accounts & Cards
+            </h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
+              {(selectedUserOverview.accounts || []).map((acc) => (
+                <div
+                  key={acc.id}
+                  style={{
+                    padding: '10px 12px',
+                    borderRadius: 8,
+                    background: 'var(--bg-input)',
+                    border: '1px solid var(--border-color)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}
+                >
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '13px' }}>{acc.accountType} ({acc.accountNumber})</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                      Balance: ₹{Number(acc.balance || 0).toLocaleString('en-IN')} • Limit: ₹{Number(acc.dailyLimit || 50000).toLocaleString('en-IN')}
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span className={`badge ${acc.status === 'FROZEN' ? 'badge-rose' : 'badge-emerald'}`} style={{ fontSize: '11px' }}>
+                      {acc.status || 'ACTIVE'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleToggleAccountFreeze(acc.id)}
+                      className="btn btn-secondary btn-sm"
+                    >
+                      {acc.status === 'FROZEN' ? 'Unfreeze' : 'Freeze'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button onClick={() => setShowOverviewModal(false)} className="btn btn-primary" style={{ width: '100%' }}>
+              Close Overview
+            </button>
+          </div>
+        ) : null}
+      </Modal>
+
+      {/* Register Customer Modal */}
+      <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Register New Customer / Client">
+        <form onSubmit={handleCreateUserSubmit}>
+          <div className="form-group">
+            <label>Full Name</label>
+            <input
+              type="text"
+              placeholder="e.g. Priya Patel"
+              value={createForm.fullName}
+              onChange={(e) => setCreateForm({ ...createForm, fullName: e.target.value })}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Email Address</label>
+            <input
+              type="email"
+              placeholder="e.g. priya.patel@example.com"
+              value={createForm.email}
+              onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Phone Number</label>
+            <input
+              type="text"
+              placeholder="e.g. +91 98765 43210"
+              value={createForm.phoneNumber}
+              onChange={(e) => setCreateForm({ ...createForm, phoneNumber: e.target.value })}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Default Password</label>
+            <input
+              type="password"
+              value={createForm.password}
+              onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
+              required
+            />
+          </div>
+
+          <div className="modal-actions">
+            <button type="button" className="btn btn-secondary" onClick={() => setShowCreateModal(false)}>
+              Cancel
+            </button>
+            <button className="btn btn-primary" type="submit">
+              Register Customer
+            </button>
           </div>
         </form>
       </Modal>

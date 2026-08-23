@@ -18,19 +18,11 @@ import {
   CheckCircle2,
   ShieldCheck,
   Building2,
-  Home,
-  Users,
-  FileText,
   UserCheck,
-  ShieldAlert,
   History,
   Settings,
-  X,
-  ArrowDownLeft,
-  ArrowUpRight,
-  RefreshCw,
-  Clock,
-  Sparkles
+  Trash2,
+  Check
 } from 'lucide-react'
 
 export function Sidebar() {
@@ -44,7 +36,7 @@ export function Sidebar() {
     ? user.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
     : 'FS'
 
-  // Dynamic Role-Based Sidebar Nav Items (Filtered for Role-Relevant Modules)
+  // Dynamic Role-Based Sidebar Nav Items (2 Roles: CUSTOMER and ADMIN)
   let navItems = []
 
   if (user.role === 'ADMIN') {
@@ -64,76 +56,55 @@ export function Sidebar() {
       { label: 'Pay & Transfer', path: '/transfer', icon: Send },
       { label: 'Expense Analytics', path: '/expenses', icon: PieChart },
       { label: 'Savings Vaults', path: '/savings', icon: PiggyBank },
-      { label: 'User Profile', path: '/profile', icon: User }
+      { label: 'Customer Profile', path: '/profile', icon: User }
     ]
   }
 
   return (
-    <>
-      <aside className="sidebar" style={{ background: '#1e1b4b', borderRight: '1px solid rgba(255,255,255,0.1)' }}>
-        {/* Brand Logo Header */}
-        <div
-          className="sidebar-brand"
-          style={{ padding: '20px 24px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid rgba(255,255,255,0.1)' }}
-        >
-          <div className="sidebar-logo-icon" style={{ background: 'linear-gradient(135deg, #6366f1, #4338ca)', borderRadius: 12, width: 42, height: 42, boxShadow: '0 4px 14px rgba(99,102,241,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff' }}>
-            <Building2 size={24} color="#ffffff" />
-          </div>
-          <div>
-            <div style={{ fontSize: '1.3rem', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.5px' }}>FINSYNC BANK</div>
-            <div style={{ fontSize: '0.62rem', fontWeight: 800, color: '#a7f3d0', letterSpacing: 1.2, textTransform: 'uppercase' }}>ALWAYS WITH YOU</div>
-          </div>
+    <aside className="sidebar">
+      {/* Brand Logo Header (64px height) */}
+      <div className="sidebar-brand">
+        <div className="sidebar-logo-icon">
+          <Building2 size={20} color="#ffffff" />
         </div>
+        <div>
+          <div className="sidebar-brand-title">FINSYNC</div>
+          <div className="sidebar-brand-subtitle">ALWAYS WITH YOU</div>
+        </div>
+      </div>
 
-        {/* Sidebar Nav Links */}
-        <nav className="sidebar-nav" style={{ padding: '16px 12px', overflowY: 'auto', flex: 1 }}>
-          {navItems.map((item) => {
-            const Icon = item.icon
-            const isActive = location.pathname === item.path
-            return (
-              <button
-                key={item.path}
-                type="button"
-                className={`sidebar-nav-item ${isActive ? 'active' : ''}`}
-                onClick={() => navigate(item.path)}
-                style={{
-                  border: 'none',
-                  width: '100%',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  padding: '11px 16px',
-                  borderRadius: 10,
-                  marginBottom: 4,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                  fontWeight: isActive ? 800 : 600,
-                  fontSize: '0.88rem',
-                  color: isActive ? '#ffffff' : 'rgba(255,255,255,0.8)',
-                  background: isActive ? 'linear-gradient(135deg, #6366f1, #4338ca)' : 'transparent',
-                  boxShadow: isActive ? '0 4px 14px rgba(99, 102, 241, 0.4)' : 'none',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <Icon size={18} color={isActive ? '#ffffff' : '#a5b4fc'} />
-                <span>{item.label}</span>
-              </button>
-            )
-          })}
-        </nav>
+      {/* Sidebar Nav Links */}
+      <nav className="sidebar-nav">
+        {navItems.map((item) => {
+          const Icon = item.icon
+          const isActive = location.pathname === item.path
+          return (
+            <button
+              key={item.path}
+              type="button"
+              className={`sidebar-nav-item ${isActive ? 'active' : ''}`}
+              onClick={() => navigate(item.path)}
+            >
+              <Icon size={18} />
+              <span>{item.label}</span>
+            </button>
+          )
+        })}
+      </nav>
 
-        {/* Sidebar Footer User Card */}
-        <div className="sidebar-footer" style={{ borderTop: '1px solid rgba(255,255,255,0.1)', padding: '14px 16px' }}>
-          <div className="user-mini-card" onClick={() => navigate('/profile')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div className="user-avatar" style={{ background: '#6366f1', color: '#ffffff', fontWeight: 800 }}>{initials}</div>
-            <div className="user-info">
-              <div className="user-name" style={{ color: '#ffffff', fontWeight: 800 }}>{user.fullName}</div>
-              <div className="user-role" style={{ color: '#a7f3d0', fontSize: '0.75rem', fontWeight: 700 }}>{user.role} {user.empNo ? `• ${user.empNo}` : ''}</div>
+      {/* Sidebar Footer User Card */}
+      <div className="sidebar-footer">
+        <div className="user-mini-card" onClick={() => navigate('/profile')}>
+          <div className="user-avatar">{initials}</div>
+          <div className="user-info">
+            <div className="user-name">{user.fullName}</div>
+            <div className="user-role">
+              {user.role} {user.empNo ? `• ${user.empNo}` : ''}
             </div>
           </div>
         </div>
-      </aside>
-    </>
+      </div>
+    </aside>
   )
 }
 
@@ -158,131 +129,36 @@ function formatTimeAgo(isoString) {
 }
 
 export function TopHeader() {
-  const { user, logout, switchRole } = useAuth()
+  const { user, logout } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const location = useLocation()
   const navigate = useNavigate()
   const [showNotifications, setShowNotifications] = useState(false)
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [notifications, setNotifications] = useState([])
-  const [loadingNotifs, setLoadingNotifs] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
+  const [filterUnreadOnly, setFilterUnreadOnly] = useState(false)
 
-  const loadRealtimeNotifications = async () => {
+  const loadNotifications = async () => {
     if (!user) return
     try {
-      setLoadingNotifs(true)
-      const accRes = await api.get('/accounts').catch(() => ({ data: [] }))
-      const accountsList = accRes.data || []
+      const [notifRes, countRes] = await Promise.all([
+        api.get('/notifications').catch(() => ({ data: [] })),
+        api.get('/notifications/unread-count').catch(() => ({ data: { unreadCount: 0 } }))
+      ])
 
-      let allTxns = []
-      if (accountsList.length > 0) {
-        const historyResults = await Promise.all(
-          accountsList.map((a) =>
-            api.get(`/accounts/${a.id}/history`)
-              .then((r) => (r.data || []).map((t) => ({ ...t, accountNumber: a.accountNumber, accountType: a.accountType })))
-              .catch(() => [])
-          )
-        )
-        allTxns = historyResults.flat()
-      }
-
-      // Sort newest first
-      allTxns.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-
-      const formatted = allTxns.slice(0, 15).map((t) => {
-        const amt = Number(t.amount || 0).toLocaleString('en-IN')
-        if (t.type === 'DEPOSIT') {
-          return {
-            id: `tx-${t.id}`,
-            title: `Deposit Credited`,
-            badge: `+₹${amt}`,
-            desc: `₹${amt} deposited into ${t.accountType || 'Bank'} Acc (${t.accountNumber})${t.description ? ' • ' + t.description : ''}`,
-            time: formatTimeAgo(t.createdAt),
-            icon: ArrowDownLeft,
-            color: '#10b981',
-            badgeBg: 'rgba(16,185,129,0.15)',
-            badgeColor: '#10b981'
-          }
-        } else if (t.type === 'WITHDRAWAL') {
-          return {
-            id: `tx-${t.id}`,
-            title: `Cash Withdrawal`,
-            badge: `-₹${amt}`,
-            desc: `₹${amt} withdrawn from ${t.accountType || 'Bank'} Acc (${t.accountNumber})${t.description ? ' • ' + t.description : ''}`,
-            time: formatTimeAgo(t.createdAt),
-            icon: ArrowUpRight,
-            color: '#f43f5e',
-            badgeBg: 'rgba(244,63,94,0.15)',
-            badgeColor: '#f43f5e'
-          }
-        } else if (t.type === 'TRANSFER_OUT') {
-          return {
-            id: `tx-${t.id}`,
-            title: `Funds Transferred`,
-            badge: `-₹${amt}`,
-            desc: `₹${amt} transferred to ${t.counterpartyAccountNumber || 'Recipient'}${t.description ? ' • ' + t.description : ''}`,
-            time: formatTimeAgo(t.createdAt),
-            icon: Send,
-            color: '#6366f1',
-            badgeBg: 'rgba(99,102,241,0.15)',
-            badgeColor: '#6366f1'
-          }
-        } else if (t.type === 'TRANSFER_IN') {
-          return {
-            id: `tx-${t.id}`,
-            title: `Transfer Received`,
-            badge: `+₹${amt}`,
-            desc: `₹${amt} received from ${t.counterpartyAccountNumber || 'Sender'}${t.description ? ' • ' + t.description : ''}`,
-            time: formatTimeAgo(t.createdAt),
-            icon: ArrowDownLeft,
-            color: '#10b981',
-            badgeBg: 'rgba(16,185,129,0.15)',
-            badgeColor: '#10b981'
-          }
-        } else {
-          return {
-            id: `tx-${t.id}`,
-            title: `Transaction Activity`,
-            badge: `₹${amt}`,
-            desc: `${t.description || t.type} on Acc ${t.accountNumber}`,
-            time: formatTimeAgo(t.createdAt),
-            icon: CreditCard,
-            color: 'var(--primary)',
-            badgeBg: 'rgba(99,102,241,0.12)',
-            badgeColor: 'var(--primary)'
-          }
-        }
-      })
-
-      // Add system clearance status item
-      formatted.push({
-        id: 'sys-auth',
-        title: `Authenticated Session`,
-        badge: user.role || 'USER',
-        desc: `Active banking session clearance for ${user.fullName}`,
-        time: 'Active Now',
-        icon: CheckCircle2,
-        color: '#10b981',
-        badgeBg: 'rgba(16,185,129,0.12)',
-        badgeColor: '#10b981'
-      })
-
-      setNotifications(formatted)
-      setUnreadCount(allTxns.length)
+      setNotifications(notifRes.data || [])
+      setUnreadCount(countRes.data?.unreadCount || 0)
     } catch (err) {
-      console.error('Failed to load realtime notifications:', err)
-    } finally {
-      setLoadingNotifs(false)
+      console.error('Failed to load notifications:', err)
     }
   }
 
   useEffect(() => {
-    loadRealtimeNotifications()
+    loadNotifications()
 
-    // Realtime polling and custom activity event listener
-    const interval = setInterval(loadRealtimeNotifications, 8000)
-    const handleActivityEvent = () => loadRealtimeNotifications()
+    const interval = setInterval(loadNotifications, 8000)
+    const handleActivityEvent = () => loadNotifications()
     window.addEventListener('finsync:activity', handleActivityEvent)
 
     return () => {
@@ -293,254 +169,279 @@ export function TopHeader() {
 
   if (!user) return null
 
+  const handleMarkAsRead = async (id) => {
+    try {
+      await api.patch(`/notifications/${id}/read`)
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n))
+      setUnreadCount(prev => Math.max(0, prev - 1))
+    } catch (err) {
+      console.error('Failed to mark read', err)
+    }
+  }
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await api.patch('/notifications/read-all')
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
+      setUnreadCount(0)
+    } catch (err) {
+      console.error('Failed to mark all as read', err)
+    }
+  }
+
+  const handleDeleteNotification = async (id) => {
+    try {
+      await api.delete(`/notifications/${id}`)
+      setNotifications(prev => prev.filter(n => n.id !== id))
+      loadNotifications()
+    } catch (err) {
+      console.error('Failed to delete notification', err)
+    }
+  }
+
   const handleConfirmLogout = () => {
     setShowLogoutModal(false)
     logout()
     navigate('/login')
   }
 
-  const getPageTitle = () => {
-    if (location.pathname === '/home') return 'FinSync Bank Portfolio'
-    if (location.pathname === '/profile') return 'User Account & Security'
-    if (location.pathname.startsWith('/admin')) {
-      switch (location.pathname) {
-        case '/admin': return 'Admin Control Center Dashboard'
-        case '/admin/users': return 'User Management Directory'
-        case '/admin/accounts': return 'Bank Accounts Administration'
-        case '/admin/transactions': return 'System Transactions Ledger'
-        case '/admin/expenses': return 'Expense Outflow Controls'
-        case '/admin/savings': return 'Financial Products & Rates'
-        case '/admin/reports': return 'Administrative Reports & Exports'
-        case '/admin/risk': return 'Risk & Fraud Alerts Center'
-        case '/admin/audit-logs': return 'Administrative Audit Logs'
-        case '/admin/settings': return 'System Security Settings'
-        default: return 'FinSync Admin Workspace'
-      }
-    }
-    switch (location.pathname) {
-      case '/dashboard': return 'Dashboard Overview'
-      case '/accounts': return 'Accounts & Debit Cards'
-      case '/transfer': return 'Send & Transfer Funds'
-      case '/expenses': return 'Expense Analytics'
-      case '/savings': return 'Savings Vaults & APY'
-      case '/rbac': return 'Role-Based Access & Investment Reach'
-      default: return 'FinSync Workspace'
-    }
-  }
-
-  const initials = user.fullName
-    ? user.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
-    : 'FS'
+  const filteredNotifs = filterUnreadOnly
+    ? notifications.filter(n => !n.isRead)
+    : notifications
 
   return (
     <>
-      <header className="top-header" style={{ position: 'sticky', top: 0, zIndex: 40, background: 'var(--bg-card)', borderBottom: '1px solid var(--border-color)' }}>
-        <div className="header-title">
-          <span>{getPageTitle()}</span>
+      <header className="top-header">
+        {/* Left: Clearance & System Status */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span className={`badge ${user.role === 'ADMIN' ? 'badge-indigo' : 'badge-emerald'}`}>
+            <ShieldCheck size={14} />
+            <span>{user.role === 'ADMIN' ? 'ADMIN ACCESS' : 'RETAIL CLIENT'}</span>
+          </span>
+          <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 500 }}>
+            FinSync Secure Portal • 256-bit SSL
+          </span>
         </div>
 
-        <div className="header-actions" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 12 }}>
-
-          {/* Static Role Clearance Indicator Badge */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 99, background: 'rgba(99, 102, 241, 0.15)', border: '1px solid var(--primary)', color: 'var(--primary)', fontSize: '0.78rem', fontWeight: 800 }}>
-            <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 6px #10b981' }} />
-            <span>{user.role || 'CUSTOMER'} PORTAL</span>
-          </div>
-
-          <button className="icon-btn" onClick={toggleTheme} title="Toggle Dark/Light Mode">
-            {theme === 'dark' ? <Sun size={18} color="#f59e0b" /> : <Moon size={18} color="var(--primary)" />}
-          </button>
-
-          <button
-            className="icon-btn"
-            onClick={() => {
-              setShowNotifications(!showNotifications)
-              if (!showNotifications) loadRealtimeNotifications()
-            }}
-            title="Realtime Activity Notifications"
-            style={{ position: 'relative' }}
-          >
-            <Bell size={18} color="var(--primary)" />
-            <span
+        {/* Right Controls */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {/* Notification Center Trigger */}
+          <div style={{ position: 'relative' }}>
+            <button
+              type="button"
+              onClick={() => setShowNotifications(!showNotifications)}
               style={{
-                position: 'absolute',
-                top: 4,
-                right: 4,
-                minWidth: 16,
-                height: 16,
-                padding: '0 4px',
-                borderRadius: 99,
-                background: '#10b981',
-                color: '#ffffff',
-                fontSize: '0.62rem',
-                fontWeight: 900,
+                position: 'relative',
+                background: 'var(--bg-input)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '8px',
+                width: 36,
+                height: 36,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 0 8px rgba(16,185,129,0.7)'
+                cursor: 'pointer',
+                color: 'var(--text-main)'
               }}
+              title="Notifications"
             >
-              {unreadCount > 9 ? '9+' : unreadCount}
-            </span>
-          </button>
+              <Bell size={16} />
+              {unreadCount > 0 && (
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: -4,
+                    right: -4,
+                    background: 'var(--accent-rose)',
+                    color: '#ffffff',
+                    fontSize: '10px',
+                    fontWeight: 900,
+                    width: 16,
+                    height: 16,
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '2px solid var(--card-bg)'
+                  }}
+                >
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
 
-          {/* Clickable Profile Avatar */}
-          <div
-            onClick={() => navigate('/profile')}
-            title="View Profile & Settings"
-            style={{ display: 'flex', alignItems: 'center', gap: 10, paddingLeft: 10, borderLeft: '1px solid var(--border-color)', cursor: 'pointer' }}
-          >
-            <div className="user-avatar" style={{ width: 34, height: 34, fontSize: '0.8rem', background: 'var(--primary)', color: '#ffffff', fontWeight: 800 }}>
-              {initials}
-            </div>
-          </div>
-
-          {/* Header Sign Out Button */}
-          <button
-            className="btn btn-secondary btn-sm"
-            onClick={() => setShowLogoutModal(true)}
-            title="Sign Out"
-            style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--accent-rose)', borderColor: 'rgba(244,63,94,0.3)', marginLeft: 6 }}
-          >
-            <LogOut size={15} />
-            <span>Sign Out</span>
-          </button>
-
-          {/* Realtime Notifications Dropdown Panel */}
-          {showNotifications && (
-            <div style={{
-              position: 'absolute',
-              top: 52,
-              right: 0,
-              width: 380,
-              maxWidth: '90vw',
-              background: 'var(--bg-secondary)',
-              border: '1px solid var(--border-glow)',
-              borderRadius: 'var(--radius-lg)',
-              boxShadow: '0 16px 40px rgba(0,0,0,0.35)',
-              padding: '16px 18px',
-              zIndex: 100,
-              backdropFilter: 'var(--glass-filter)'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, paddingBottom: 10, borderBottom: '1px solid var(--border-color)' }}>
-                <div style={{ fontWeight: 800, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Bell size={16} color="var(--primary)" /> Realtime Activities
-                  <span style={{ fontSize: '0.68rem', fontWeight: 800, padding: '2px 7px', borderRadius: 99, background: 'rgba(16,185,129,0.18)', color: '#10b981' }}>
-                    LIVE
-                  </span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <button
-                    style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: 2 }}
-                    onClick={loadRealtimeNotifications}
-                    title="Refresh activities"
-                  >
-                    <RefreshCw size={14} style={{ animation: loadingNotifs ? 'spin 1s linear infinite' : 'none' }} />
-                  </button>
-                  <button
-                    style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 2 }}
-                    onClick={() => setShowNotifications(false)}
-                    title="Close"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              </div>
-
-              {/* Notification Items List */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 340, overflowY: 'auto', paddingRight: 4 }}>
-                {notifications.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '28px 12px', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                    <Clock size={28} color="var(--primary)" style={{ margin: '0 auto 8px auto', opacity: 0.7 }} />
-                    <div style={{ fontWeight: 700 }}>No transaction activities yet</div>
-                    <div style={{ fontSize: '0.75rem', marginTop: 4 }}>Your deposits, withdrawals, and transfers will appear here in real time.</div>
+            {/* Notification Drawer Popover */}
+            {showNotifications && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 44,
+                  right: 0,
+                  width: 360,
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '12px',
+                  boxShadow: 'var(--shadow-lg)',
+                  zIndex: 100,
+                  overflow: 'hidden'
+                }}
+              >
+                <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontWeight: 700, fontSize: '14px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Bell size={15} color="var(--primary)" /> Notifications ({unreadCount} new)
                   </div>
-                ) : (
-                  notifications.map((n) => {
-                    const Icon = n.icon
-                    return (
+                  {unreadCount > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleMarkAllAsRead}
+                      style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}
+                    >
+                      Mark all read
+                    </button>
+                  )}
+                </div>
+
+                {/* Filter Switch */}
+                <div style={{ display: 'flex', padding: '6px 12px', background: 'var(--bg-input)', borderBottom: '1px solid var(--border-color)', gap: 6 }}>
+                  <button
+                    type="button"
+                    onClick={() => setFilterUnreadOnly(false)}
+                    style={{
+                      border: 'none',
+                      background: !filterUnreadOnly ? 'var(--primary)' : 'transparent',
+                      color: !filterUnreadOnly ? '#ffffff' : 'var(--text-muted)',
+                      padding: '3px 8px',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    All ({notifications.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFilterUnreadOnly(true)}
+                    style={{
+                      border: 'none',
+                      background: filterUnreadOnly ? 'var(--primary)' : 'transparent',
+                      color: filterUnreadOnly ? '#ffffff' : 'var(--text-muted)',
+                      padding: '3px 8px',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Unread ({unreadCount})
+                  </button>
+                </div>
+
+                <div style={{ maxHeight: 320, overflowY: 'auto' }}>
+                  {filteredNotifs.length === 0 ? (
+                    <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
+                      No notifications to display.
+                    </div>
+                  ) : (
+                    filteredNotifs.map((n) => (
                       <div
                         key={n.id}
                         style={{
+                          padding: '10px 14px',
+                          borderBottom: '1px solid var(--border-color)',
+                          background: n.isRead ? 'transparent' : 'rgba(99, 102, 241, 0.05)',
                           display: 'flex',
-                          gap: 12,
+                          justifyContent: 'space-between',
                           alignItems: 'flex-start',
-                          padding: '10px 12px',
-                          borderRadius: 10,
-                          background: 'rgba(255,255,255,0.03)',
-                          border: '1px solid var(--border-color)',
-                          transition: 'background 0.15s ease'
+                          gap: 8
                         }}
                       >
-                        <div style={{ width: 32, height: 32, borderRadius: 8, background: `${n.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 2, flexShrink: 0 }}>
-                          <Icon size={16} color={n.color} />
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6 }}>
-                            <span style={{ fontWeight: 800, fontSize: '0.86rem', color: 'var(--text-main)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {n.title}
-                            </span>
-                            {n.badge && (
-                              <span style={{ fontSize: '0.68rem', fontWeight: 800, padding: '1px 6px', borderRadius: 4, background: n.badgeBg || 'rgba(99,102,241,0.15)', color: n.badgeColor || 'var(--primary)', flexShrink: 0 }}>
-                                {n.badge}
-                              </span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                            <span style={{ fontWeight: 700, fontSize: '13px', color: 'var(--text-main)' }}>{n.title}</span>
+                            {!n.isRead && (
+                              <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--primary)' }} />
                             )}
                           </div>
-                          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2, wordBreak: 'break-word', lineHeight: 1.35 }}>
-                            {n.desc}
-                          </div>
-                          <div style={{ fontSize: '0.68rem', color: 'var(--text-dim)', marginTop: 4, fontWeight: 600 }}>
-                            {n.time}
+                          <div style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: 1.4 }}>{n.message}</div>
+                          <div style={{ fontSize: '11px', color: 'var(--text-dim)', marginTop: 4 }}>
+                            {formatTimeAgo(n.createdAt)}
                           </div>
                         </div>
-                      </div>
-                    )
-                  })
-                )}
-              </div>
 
-              {/* Footer action */}
-              <div style={{ marginTop: 12, paddingTop: 10, borderTop: '1px solid var(--border-color)', textAlign: 'center' }}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowNotifications(false)
-                    navigate('/dashboard')
-                  }}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--primary)',
-                    fontSize: '0.8rem',
-                    fontWeight: 800,
-                    cursor: 'pointer'
-                  }}
-                >
-                  View Full Transactions History →
-                </button>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                          {!n.isRead && (
+                            <button
+                              type="button"
+                              onClick={() => handleMarkAsRead(n.id)}
+                              style={{ background: 'none', border: 'none', color: '#10b981', cursor: 'pointer', padding: 4 }}
+                              title="Mark as read"
+                            >
+                              <Check size={13} />
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteNotification(n.id)}
+                            style={{ background: 'none', border: 'none', color: 'var(--text-dim)', cursor: 'pointer', padding: 4 }}
+                            title="Delete"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
+
+          {/* Theme Toggle */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            style={{
+              background: 'var(--bg-input)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '8px',
+              width: 36,
+              height: 36,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: 'var(--text-main)'
+            }}
+            title="Toggle theme"
+          >
+            {theme === 'dark' ? <Sun size={16} color="#f59e0b" /> : <Moon size={16} />}
+          </button>
+
+          {/* Logout Button */}
+          <button
+            type="button"
+            onClick={() => setShowLogoutModal(true)}
+            className="btn btn-rose btn-sm"
+          >
+            <LogOut size={14} />
+            <span>Sign Out</span>
+          </button>
         </div>
       </header>
 
-      {/* Header Sign Out Confirmation Modal */}
+      {/* Logout Confirmation Modal */}
       <Modal isOpen={showLogoutModal} onClose={() => setShowLogoutModal(false)} title="Confirm Sign Out">
-        <div style={{ textAlign: 'center', padding: '10px 0 20px 0' }}>
-          <div className="sidebar-logo-icon" style={{ width: 48, height: 48, margin: '0 auto 16px auto', background: 'rgba(244, 63, 94, 0.15)', color: 'var(--accent-rose)' }}>
-            <LogOut size={24} />
-          </div>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: 8 }}>Sign Out of FinSync Bank?</h3>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 24 }}>
-            Are you sure you want to sign out of your account session?
+        <div>
+          <p style={{ color: 'var(--text-muted)', marginBottom: 20, fontSize: '14px' }}>
+            Are you sure you want to end your secure FinSync banking session?
           </p>
-
-          <div style={{ display: 'flex', gap: 12 }}>
-            <button className="btn btn-secondary" onClick={() => setShowLogoutModal(false)} style={{ flex: 1 }}>
+          <div className="modal-actions">
+            <button className="btn btn-secondary" onClick={() => setShowLogoutModal(false)}>
               Cancel
             </button>
-            <button className="btn btn-rose" onClick={handleConfirmLogout} style={{ flex: 1 }}>
-              Confirm Sign Out
+            <button className="btn btn-rose" onClick={handleConfirmLogout}>
+              Sign Out
             </button>
           </div>
         </div>
@@ -548,8 +449,3 @@ export function TopHeader() {
     </>
   )
 }
-
-export default function Navbar() {
-  return null
-}
-

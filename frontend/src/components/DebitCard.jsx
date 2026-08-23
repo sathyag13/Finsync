@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { Wifi, Eye, EyeOff } from 'lucide-react'
+import { Wifi, Eye, EyeOff, Lock, ShieldAlert } from 'lucide-react'
 
-export default function DebitCard({ account, userName = 'VALUED CLIENT', index = 0 }) {
+export default function DebitCard({ account, userName = 'VALUED CLIENT', index = 0, onToggleFreeze }) {
   const [showBalance, setShowBalance] = useState(true)
 
   if (!account) return null
+
+  const isFrozen = !!account.cardFrozen
 
   // Distinct FinSync Bank card themes per account type
   let cardThemeStyle = {
@@ -53,7 +55,7 @@ export default function DebitCard({ account, userName = 'VALUED CLIENT', index =
     <div
       className="debit-card"
       style={{
-        background: cardThemeStyle.background,
+        background: isFrozen ? 'linear-gradient(135deg, #374151 0%, #111827 100%)' : cardThemeStyle.background,
         borderRadius: 16,
         padding: 24,
         color: '#ffffff',
@@ -64,7 +66,8 @@ export default function DebitCard({ account, userName = 'VALUED CLIENT', index =
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        border: '1px solid rgba(255, 255, 255, 0.15)'
+        border: isFrozen ? '2px solid rgba(239, 68, 68, 0.5)' : '1px solid rgba(255, 255, 255, 0.15)',
+        transition: 'all 0.3s ease'
       }}
     >
       {/* Background Watermark Curve */}
@@ -81,8 +84,34 @@ export default function DebitCard({ account, userName = 'VALUED CLIENT', index =
         }}
       />
 
+      {/* Frozen Badge Banner */}
+      {isFrozen && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            background: '#ef4444',
+            color: '#ffffff',
+            textAlign: 'center',
+            fontSize: '0.72rem',
+            fontWeight: 900,
+            letterSpacing: 1.5,
+            padding: '3px 0',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 6,
+            zIndex: 10
+          }}
+        >
+          <Lock size={12} /> CARD IS TEMPORARILY FROZEN
+        </div>
+      )}
+
       {/* Top Header Row: Chip & FinSync Brand Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 1 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 1, marginTop: isFrozen ? 8 : 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           {/* Gold Metallic EMV Chip */}
           <div
@@ -90,29 +119,29 @@ export default function DebitCard({ account, userName = 'VALUED CLIENT', index =
               width: 42,
               height: 32,
               borderRadius: 6,
-              background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
+              background: isFrozen ? 'linear-gradient(135deg, #9ca3af 0%, #4b5563 100%)' : 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
               border: '1px solid rgba(255, 255, 255, 0.4)',
               boxShadow: 'inset 0 0 4px rgba(0,0,0,0.3)'
             }}
           />
-          <Wifi size={22} style={{ opacity: 0.9 }} />
+          <Wifi size={22} style={{ opacity: isFrozen ? 0.4 : 0.9 }} />
         </div>
         <div style={{ textAlign: 'right' }}>
           <div style={{ fontSize: '1.05rem', fontWeight: 900, letterSpacing: '-0.3px', color: '#ffffff' }}>
             FINSYNC <span style={{ fontWeight: 600, opacity: 0.9 }}>BANK</span>
           </div>
-          <div style={{ fontSize: '0.62rem', fontWeight: 800, padding: '2px 8px', borderRadius: 4, background: cardThemeStyle.badgeBg, letterSpacing: 0.8, textTransform: 'uppercase', marginTop: 2, display: 'inline-block' }}>
-            {(account.isPrimary || index === 0) ? `PRIMARY • ${cardThemeStyle.cardTypeLabel}` : cardThemeStyle.cardTypeLabel}
+          <div style={{ fontSize: '0.62rem', fontWeight: 800, padding: '2px 8px', borderRadius: 4, background: isFrozen ? 'rgba(239, 68, 68, 0.35)' : cardThemeStyle.badgeBg, letterSpacing: 0.8, textTransform: 'uppercase', marginTop: 2, display: 'inline-block' }}>
+            {isFrozen ? 'FROZEN CARD' : ((account.isPrimary || index === 0) ? `PRIMARY • ${cardThemeStyle.cardTypeLabel}` : cardThemeStyle.cardTypeLabel)}
           </div>
         </div>
       </div>
 
-      {/* Middle Row: Card Number & Eye Privacy Toggle */}
+      {/* Middle Row: Card Number */}
       <div style={{ margin: '14px 0', zIndex: 1 }}>
         <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: 1, opacity: 0.7, marginBottom: 4 }}>
           Virtual Debit Card Number
         </div>
-        <div style={{ fontSize: '1.25rem', fontFamily: 'monospace', fontWeight: 800, letterSpacing: 2 }}>
+        <div style={{ fontSize: '1.25rem', fontFamily: 'monospace', fontWeight: 800, letterSpacing: 2, opacity: isFrozen ? 0.6 : 1 }}>
           {formattedNumber}
         </div>
       </div>
@@ -132,6 +161,7 @@ export default function DebitCard({ account, userName = 'VALUED CLIENT', index =
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: 1, opacity: 0.7 }}>
             <span>Available Balance</span>
             <button
+              type="button"
               onClick={() => setShowBalance(!showBalance)}
               style={{ background: 'none', border: 'none', color: '#ffffff', cursor: 'pointer', padding: 0 }}
               title="Toggle Balance Visibility"
@@ -140,7 +170,7 @@ export default function DebitCard({ account, userName = 'VALUED CLIENT', index =
             </button>
           </div>
           <div style={{ fontSize: '1.15rem', fontWeight: 900, color: '#ffffff' }}>
-            {showBalance ? `₹${(account.balance || 0).toLocaleString('en-IN')}` : '••••••••'}
+            {showBalance ? `₹${Number(account.balance || 0).toLocaleString('en-IN')}` : '••••••••'}
           </div>
         </div>
       </div>

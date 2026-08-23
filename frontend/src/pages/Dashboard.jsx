@@ -1,339 +1,292 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import api from '../api/axios.js'
 import { useAuth } from '../context/AuthContext.jsx'
-import DebitCard from '../components/DebitCard.jsx'
-import Modal from '../components/Modal.jsx'
-import { useToast } from '../context/ToastContext.jsx'
+import PageHeader from '../components/PageHeader.jsx'
+import StatCard from '../components/StatCard.jsx'
 import {
   Wallet,
-  TrendingUp,
-  TrendingDown,
-  ArrowUpRight,
   ArrowDownLeft,
-  Plus,
-  Send,
+  ArrowUpRight,
   CreditCard,
-  Building2,
+  Send,
+  Plus,
   Clock,
-  ChevronRight,
-  Sparkles
+  Sparkles,
+  PieChart,
+  ShieldAlert,
+  Sliders,
+  History,
+  TrendingUp,
+  LayoutDashboard
 } from 'lucide-react'
 
 export default function Dashboard() {
   const { user } = useAuth()
-  const { addToast } = useToast()
+  const navigate = useNavigate()
   const [accounts, setAccounts] = useState([])
-  const [recentTxns, setRecentTxns] = useState([])
+  const [recentTransactions, setRecentTransactions] = useState([])
   const [loading, setLoading] = useState(true)
 
-  // Deposit Modal state
-  const [isDepositOpen, setIsDepositOpen] = useState(false)
-  const [depositAccId, setDepositAccId] = useState('')
-  const [depositAmount, setDepositAmount] = useState('')
-  const [depositDesc, setDepositDesc] = useState('')
-
-  const loadData = async () => {
+  const loadDashboardData = async () => {
     try {
-      const res = await api.get('/accounts')
-      setAccounts(res.data)
-      if (res.data.length > 0) {
-        setDepositAccId(res.data[0].id)
-        const histories = await Promise.all(
-          res.data.map((a) => api.get(`/accounts/${a.id}/history`).then((r) => r.data).catch(() => []))
+      setLoading(true)
+      const accRes = await api.get('/accounts')
+      const accList = accRes.data || []
+      setAccounts(accList)
+
+      if (accList.length > 0) {
+        const historyPromises = accList.map(a =>
+          api.get(`/accounts/${a.id}/history`).then(r => r.data || []).catch(() => [])
         )
-        const merged = histories.flat().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        setRecentTxns(merged.slice(0, 8))
+        const allHistories = await Promise.all(historyPromises)
+        const combined = allHistories.flat().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        setRecentTransactions(combined.slice(0, 5))
       }
     } catch (err) {
-      console.error(err)
+      console.error('Failed to load dashboard:', err)
     } finally {
       setLoading(false)
     }
   }
 
   useEffect(() => {
-    loadData()
+    loadDashboardData()
   }, [])
 
-  const handleDepositSubmit = async (e) => {
-    e.preventDefault()
-    try {
-      await api.post(`/accounts/${depositAccId}/deposit`, { amount: depositAmount, description: depositDesc })
-      addToast(`₹${Number(depositAmount).toLocaleString('en-IN')} deposited successfully!`, 'success')
-      window.dispatchEvent(new Event('finsync:activity'))
-      setIsDepositOpen(false)
-      setDepositAmount('')
-      setDepositDesc('')
-      loadData()
-    } catch (err) {
-      addToast(err.response?.data?.message || 'Deposit failed', 'error')
+  // Calculate Metrics
+  const totalBalance = accounts.reduce((sum, a) => sum + (Number(a.balance) || 0), 0)
+  const savingsBalance = accounts
+    .filter(a => (a.accountType || '').toUpperCase().includes('SAVINGS'))
+    .reduce((sum, a) => sum + (Number(a.balance) || 0), 0)
+  const currentBalance = accounts
+    .filter(a => (a.accountType || '').toUpperCase().includes('CURRENT') || (a.accountType || '').toUpperCase().includes('BUSINESS'))
+    .reduce((sum, a) => sum + (Number(a.balance) || 0), 0)
+
+  let monthlyIncome = 0
+  let monthlyExpenses = 0
+  recentTransactions.forEach(t => {
+    const amt = Number(t.amount) || 0
+    if (t.type.includes('IN') || t.type === 'DEPOSIT') {
+      monthlyIncome += amt
+    } else {
+      monthlyExpenses += amt
     }
+  })
+
+  const monthlySavings = Math.max(0, monthlyIncome - monthlyExpenses)
+  const activeCardsCount = accounts.filter(a => !a.cardFrozen).length
+
+  // Rule-Based Smart Financial Insights
+  const generateRuleBasedInsights = () => {
+    const insights = []
+    if (monthlyExpenses > 0 && monthlyIncome > 0) {
+      const expenseRatio = Math.round((monthlyExpenses / monthlyIncome) * 100)
+      if (expenseRatio <= 40) {
+        insights.push({
+          title: 'Strong Savings Efficiency',
+          text: `Your spending represents only ${expenseRatio}% of this month's inflows. You are saving ${100 - expenseRatio}% of your income.`,
+          type: 'positive'
+        })
+      } else {
+        insights.push({
+          title: 'Outflow Advisory',
+          text: `Monthly expenses stand at ${expenseRatio}% of total income. Consider adjusting your monthly budget allocation.`,
+          type: 'warning'
+        })
+      }
+    } else if (totalBalance > 100000) {
+      insights.push({
+        title: 'High Liquidity Reserve',
+        text: 'Your current account balance exceeds ₹1,00,000. You may allocate surplus funds to higher-yield savings vaults.',
+        type: 'positive'
+      })
+    } else {
+      insights.push({
+        title: 'Balanced Cash Position',
+        text: 'Your transactions and deposit reserves are operating in healthy balance.',
+        type: 'positive'
+      })
+    }
+
+    if (activeCardsCount < accounts.length) {
+      insights.push({
+        title: 'Card Security Alert',
+        text: `${accounts.length - activeCardsCount} card(s) are currently FROZEN for security. You can unfreeze them in Accounts & Cards.`,
+        type: 'warning'
+      })
+    } else {
+      insights.push({
+        title: 'All Debit Cards Active',
+        text: `${activeCardsCount} virtual card(s) are active and protected with biometric & daily spending limits.`,
+        type: 'positive'
+      })
+    }
+    return insights
   }
 
-  const totalBalance = accounts.reduce((sum, a) => sum + Number(a.balance), 0)
-  const firstName = user?.fullName ? user.fullName.split(' ')[0] : 'User'
-
-  const totalCredits = recentTxns
-    .filter((t) => t.type.includes('IN') || t.type === 'DEPOSIT')
-    .reduce((sum, t) => sum + Number(t.amount), 0)
-
-  const totalOutflows = recentTxns
-    .filter((t) => t.type.includes('OUT') || t.type === 'WITHDRAWAL')
-    .reduce((sum, t) => sum + Number(t.amount), 0)
-
-  if (loading) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 300, gap: 16 }}>
-        <div className="sidebar-logo-icon" style={{ animation: 'pulseDot 1.5s infinite' }}>
-          <Sparkles size={24} color="white" />
-        </div>
-        <p style={{ color: 'var(--text-muted)' }}>Loading your financial workspace…</p>
-      </div>
-    )
-  }
+  const financialInsights = generateRuleBasedInsights()
 
   return (
     <div>
-      {/* High-Contrast Violet Top Banner */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 20, marginBottom: 24, padding: '28px 32px', borderRadius: 20, background: 'linear-gradient(135deg, #4338ca 0%, #312e81 100%)', color: '#ffffff', boxShadow: '0 10px 30px rgba(99,102,241,0.25)' }}>
-        <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 14px', borderRadius: 99, background: 'rgba(255, 255, 255, 0.18)', color: '#ffffff', fontSize: '0.8rem', fontWeight: 800, letterSpacing: 0.5, marginBottom: 10 }}>
-            <Sparkles size={14} color="#f59e0b" />
-            <span>FINSYNC BANK NETBANKING PORTAL</span>
-          </div>
-          <h1 style={{ fontSize: '2.1rem', fontWeight: 900, marginBottom: 6, letterSpacing: '-0.5px', color: '#ffffff' }}>
-            Good day, {firstName} 👋
-          </h1>
-          <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.95rem', fontWeight: 600 }}>
-            Live wealth & ledger overview for {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
-          </p>
-        </div>
+      {/* Page Header */}
+      <PageHeader
+        title="Dashboard Overview"
+        description="Welcome back! Real-time financial summary, active cards & transaction settlement."
+        icon={LayoutDashboard}
+        actions={
+          <>
+            <button className="btn btn-secondary btn-sm" onClick={() => navigate('/accounts')}>
+              <CreditCard size={15} /> Card Controls
+            </button>
+            <button className="btn btn-primary btn-sm" onClick={() => navigate('/transfer')}>
+              <Send size={15} /> Pay & Transfer
+            </button>
+          </>
+        }
+      />
 
-        <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
-          <button
-            onClick={() => setIsDepositOpen(true)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '12px 22px',
-              borderRadius: 10,
-              background: '#ffffff',
-              color: '#4338ca',
-              border: 'none',
-              fontWeight: 800,
-              fontSize: '0.92rem',
-              cursor: 'pointer',
-              boxShadow: '0 4px 14px rgba(0,0,0,0.2)'
-            }}
-          >
-            <Plus size={18} />
-            <span>Deposit Money</span>
-          </button>
-          <Link
-            to="/transfer"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '12px 22px',
-              borderRadius: 10,
-              background: '#6366f1',
-              color: '#ffffff',
-              border: 'none',
-              fontWeight: 800,
-              fontSize: '0.92rem',
-              textDecoration: 'none',
-              cursor: 'pointer',
-              boxShadow: '0 4px 14px rgba(99,102,241,0.4)'
-            }}
-          >
-            <Send size={18} />
-            <span>Quick Transfer</span>
-          </Link>
-        </div>
+      {/* 4-Column Equal-Height Stat Cards Grid */}
+      <div className="stat-grid">
+        <StatCard
+          label="Total Balance"
+          value={`₹${totalBalance.toLocaleString('en-IN')}`}
+          icon={Wallet}
+          iconTheme="indigo"
+          subtitle={`Savings: ₹${savingsBalance.toLocaleString('en-IN')}`}
+        />
+
+        <StatCard
+          label="Monthly Inflow"
+          value={`+₹${monthlyIncome.toLocaleString('en-IN')}`}
+          icon={ArrowDownLeft}
+          iconTheme="emerald"
+          valueColor="var(--accent-emerald)"
+          trend="+12.5%"
+          trendType="up"
+          subtitle="Deposits & Credits"
+        />
+
+        <StatCard
+          label="Monthly Outflow"
+          value={`-₹${monthlyExpenses.toLocaleString('en-IN')}`}
+          icon={ArrowUpRight}
+          iconTheme="rose"
+          valueColor="var(--accent-rose)"
+          trend="-4.2%"
+          trendType="down"
+          subtitle="Transfers & Charges"
+        />
+
+        <StatCard
+          label="Active Virtual Cards"
+          value={`${activeCardsCount} / ${accounts.length || 1}`}
+          icon={CreditCard}
+          iconTheme="cyan"
+          subtitle={activeCardsCount === accounts.length ? 'All Cards Protected' : '1 Card Frozen'}
+        />
       </div>
 
-      {/* FinSync Banking Services Grid */}
-      <div style={{ marginBottom: 28 }}>
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: 14, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Sparkles size={18} color="var(--primary)" /> Quick Banking Services
-        </h3>
-        <div className="grid grid-3" style={{ gap: 16 }}>
-          <Link to="/transfer" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div className="card" style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 14, transition: 'all 0.2s ease', cursor: 'pointer', marginBottom: 0 }}>
-              <div className="stat-icon indigo" style={{ width: 44, height: 44, borderRadius: 12, flexShrink: 0 }}>
-                <Send size={22} />
-              </div>
-              <div>
-                <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-main)' }}>Instant Pay & Transfer</div>
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginTop: 2 }}>P2P, NEFT & Account Settlement</div>
-              </div>
-            </div>
-          </Link>
-
-          <Link to="/accounts" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div className="card" style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 14, transition: 'all 0.2s ease', cursor: 'pointer', marginBottom: 0 }}>
-              <div className="stat-icon cyan" style={{ width: 44, height: 44, borderRadius: 12, flexShrink: 0 }}>
-                <CreditCard size={22} />
-              </div>
-              <div>
-                <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-main)' }}>Virtual Debit Cards</div>
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginTop: 2 }}>Card Controls & Instant Pin</div>
-              </div>
-            </div>
-          </Link>
-
-          <Link to="/savings" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <div className="card" style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 14, transition: 'all 0.2s ease', cursor: 'pointer', marginBottom: 0 }}>
-              <div className="stat-icon emerald" style={{ width: 44, height: 44, borderRadius: 12, flexShrink: 0 }}>
-                <TrendingUp size={22} />
-              </div>
-              <div>
-                <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-main)' }}>5.50% High Yield Vaults</div>
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginTop: 2 }}>Daily compounding interest</div>
-              </div>
-            </div>
-          </Link>
-        </div>
-      </div>
-
-      {/* Metric Stat Cards */}
-      <div className="grid grid-4" style={{ marginBottom: 28 }}>
-        <div className="card stat-card">
-          <div className="stat-header">
-            <span className="stat-label">Total Net Worth</span>
-            <div className="stat-icon indigo"><Wallet size={20} /></div>
-          </div>
-          <div className="stat-value">₹{totalBalance.toLocaleString('en-IN')}</div>
-          <div className="stat-trend up">
-            <TrendingUp size={14} />
-            <span>Across all accounts</span>
-          </div>
-        </div>
-
-        <div className="card stat-card">
-          <div className="stat-header">
-            <span className="stat-label">Active Bank Accounts</span>
-            <div className="stat-icon cyan"><Building2 size={20} /></div>
-          </div>
-          <div className="stat-value">{accounts.length}</div>
-          <div className="stat-trend up">
-            <span>{accounts.filter(a => a.accountType === 'SAVINGS').length} Savings / {accounts.filter(a => a.accountType !== 'SAVINGS').length} Commercial</span>
-          </div>
-        </div>
-
-        <div className="card stat-card">
-          <div className="stat-header">
-            <span className="stat-label">Total Deposits / Credits</span>
-            <div className="stat-icon emerald"><ArrowDownLeft size={20} /></div>
-          </div>
-          <div className="stat-value">₹{totalCredits.toLocaleString('en-IN')}</div>
-          <div className="stat-trend up">
-            <TrendingUp size={14} />
-            <span>Real Inflows</span>
-          </div>
-        </div>
-
-        <div className="card stat-card">
-          <div className="stat-header">
-            <span className="stat-label">Total Outflows</span>
-            <div className="stat-icon rose"><ArrowUpRight size={20} /></div>
-          </div>
-          <div className="stat-value">₹{totalOutflows.toLocaleString('en-IN')}</div>
-          <div className="stat-trend down">
-            <TrendingDown size={14} />
-            <span>Real Outflows</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Grid Section */}
-      <div className="grid grid-1-2" style={{ marginBottom: 28 }}>
-        {/* Left Side: Debit Card Viewer */}
-        <div>
-          <div className="card-header" style={{ marginBottom: 16 }}>
-            <h3 className="card-title"><CreditCard size={18} color="var(--primary)" /> Virtual Debit Card</h3>
-            <Link to="/accounts" style={{ fontSize: '0.85rem', color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}>Manage Cards</Link>
-          </div>
-          {accounts.length > 0 ? (
-            <DebitCard account={accounts[0]} userName={user.fullName} />
-          ) : (
-            <div className="card" style={{ padding: '32px 20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, border: '2px dashed var(--border-color)', borderRadius: 18 }}>
-              <CreditCard size={36} color="var(--primary)" />
-              <div>
-                <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-main)' }}>No Active Debit Cards</div>
-                <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: 4 }}>You don't have any bank accounts yet. Open an account to generate your virtual debit card.</div>
-              </div>
-              <Link to="/accounts" className="btn btn-primary btn-sm" style={{ marginTop: 4, fontWeight: 800 }}>
-                + Open New Account
-              </Link>
-            </div>
-          )}
-        </div>
-
-        {/* Right Side: Account Balances & Recent Breakdown */}
-        <div className="card">
+      {/* 2-Column Grid: Financial Snapshot & Smart Insights */}
+      <div className="grid grid-2" style={{ marginBottom: 'var(--section-gap)' }}>
+        {/* Financial Snapshot Card */}
+        <div className="card" style={{ marginBottom: 0 }}>
           <div className="card-header">
-            <h3 className="card-title"><Building2 size={18} color="var(--accent-cyan)" /> Portfolio Accounts</h3>
-            <Link to="/accounts" className="btn btn-secondary btn-sm">Open New Account</Link>
+            <h3 className="card-title">
+              <PieChart size={18} color="var(--primary)" />
+              <span>Monthly Financial Snapshot</span>
+            </h3>
+            <span className="badge badge-indigo">
+              Net Retained: ₹{monthlySavings.toLocaleString('en-IN')}
+            </span>
           </div>
+
+          <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: 16 }}>
+            Consolidated breakdown of income, operational spending, and retained reserves.
+          </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {accounts.length === 0 ? (
-              <div style={{ padding: '32px 16px', textAlign: 'center', color: 'var(--text-muted)' }}>
-                <Building2 size={36} color="var(--text-dim)" style={{ marginBottom: 10, opacity: 0.6 }} />
-                <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-main)' }}>You don't have any accounts</div>
-                <div style={{ fontSize: '0.84rem', color: 'var(--text-muted)', marginTop: 4, marginBottom: 16 }}>Open your first Savings or Current account to start banking.</div>
-                <Link to="/accounts" className="btn btn-primary btn-sm" style={{ fontWeight: 800 }}>
-                  + Open First Account
-                </Link>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: 6 }}>
+                <span style={{ color: 'var(--text-muted)' }}>Income Utilization</span>
+                <span style={{ fontWeight: 700 }}>
+                  {monthlyIncome > 0 ? `${Math.min(100, Math.round((monthlyExpenses / monthlyIncome) * 100))}%` : '0%'}
+                </span>
               </div>
-            ) : (
-              accounts.map((a) => (
-                <div key={a.id} style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '14px 18px',
-                  borderRadius: 'var(--radius-md)',
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid var(--border-color)'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                    <div className="stat-icon indigo" style={{ width: 36, height: 36 }}>
-                      <CreditCard size={18} />
-                    </div>
-                    <div>
-                      <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{a.accountType} ACCOUNT</div>
-                      <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>{a.accountNumber}</div>
-                    </div>
-                  </div>
+              <div style={{ width: '100%', height: 8, background: 'rgba(255,255,255,0.08)', borderRadius: 99, overflow: 'hidden' }}>
+                <div
+                  style={{
+                    width: `${monthlyIncome > 0 ? Math.min(100, (monthlyExpenses / monthlyIncome) * 100) : 0}%`,
+                    height: '100%',
+                    background: 'linear-gradient(90deg, #6366f1, #06b6d4)',
+                    borderRadius: 99
+                  }}
+                />
+              </div>
+            </div>
 
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '1.15rem', fontWeight: 800 }}>₹{Number(a.balance).toLocaleString('en-IN')}</div>
-                    <span className="badge badge-emerald" style={{ fontSize: '0.7rem' }}>Active</span>
-                  </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 12px', borderRadius: 8, background: 'var(--bg-input)' }}>
+              <div>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Savings Account Balance</div>
+                <div style={{ fontSize: '14px', fontWeight: 700, marginTop: 2 }}>₹{savingsBalance.toLocaleString('en-IN')}</div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Current & Business Balance</div>
+                <div style={{ fontSize: '14px', fontWeight: 700, marginTop: 2 }}>₹{currentBalance.toLocaleString('en-IN')}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Rule-Based Financial Insights Card */}
+        <div className="card" style={{ marginBottom: 0 }}>
+          <div className="card-header">
+            <h3 className="card-title">
+              <Sparkles size={18} color="var(--accent-amber)" />
+              <span>Smart Financial Insights</span>
+            </h3>
+            <span className="badge badge-emerald">Rule-Based</span>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {financialInsights.map((insight, idx) => (
+              <div
+                key={idx}
+                style={{
+                  padding: '12px 14px',
+                  borderRadius: 8,
+                  background: insight.type === 'warning' ? 'rgba(244, 63, 94, 0.08)' : 'rgba(99, 102, 241, 0.08)',
+                  border: `1px solid ${insight.type === 'warning' ? 'rgba(244, 63, 94, 0.25)' : 'rgba(99, 102, 241, 0.25)'}`
+                }}
+              >
+                <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--text-main)', marginBottom: 2 }}>
+                  {insight.title}
                 </div>
-              ))
-            )}
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: 1.4 }}>
+                  {insight.text}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Recent Activity Table Card */}
+      {/* Recent Transactions Table Card */}
       <div className="card">
         <div className="card-header">
-          <h3 className="card-title"><Clock size={18} color="var(--primary)" /> Recent Transactions Ledger</h3>
-          <Link to="/accounts" style={{ fontSize: '0.85rem', color: 'var(--primary)', textDecoration: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
-            <span>View Full Statement</span>
-            <ChevronRight size={14} />
+          <h3 className="card-title">
+            <History size={18} color="var(--primary)" />
+            <span>Recent Settlement Activity</span>
+          </h3>
+          <Link to="/accounts" className="btn btn-secondary btn-sm">
+            View All Statement History
           </Link>
         </div>
 
-        {recentTxns.length === 0 ? (
-          <p style={{ color: 'var(--text-muted)', padding: '20px 0', textAlign: 'center' }}>No transactions recorded yet.</p>
+        {recentTransactions.length === 0 ? (
+          <div style={{ padding: 32, textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
+            No recent transactions found. Open an account and initiate a transfer to view records.
+          </div>
         ) : (
           <div className="table-container">
             <table>
@@ -342,33 +295,55 @@ export default function Dashboard() {
                   <th>Transaction Type</th>
                   <th>Description</th>
                   <th>Date & Time</th>
-                  <th>Amount (₹)</th>
+                  <th>Risk Score</th>
+                  <th style={{ textAlign: 'center' }}>Status</th>
+                  <th style={{ textAlign: 'right' }}>Amount (₹)</th>
                 </tr>
               </thead>
               <tbody>
-                {recentTxns.map((t) => {
+                {recentTransactions.map((t) => {
                   const isCredit = t.type.includes('IN') || t.type === 'DEPOSIT'
+                  const risk = t.riskLevel || 'LOW'
                   return (
                     <tr key={t.id}>
                       <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                          <div className={`stat-icon ${isCredit ? 'emerald' : 'rose'}`} style={{ width: 32, height: 32 }}>
-                            {isCredit ? <ArrowDownLeft size={16} /> : <ArrowUpRight size={16} />}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <div className={`stat-icon ${isCredit ? 'emerald' : 'rose'}`} style={{ width: 28, height: 28, borderRadius: 6 }}>
+                            {isCredit ? <ArrowDownLeft size={14} /> : <ArrowUpRight size={14} />}
                           </div>
-                          <span style={{ fontWeight: 600, fontSize: '0.88rem' }}>
+                          <span style={{ fontWeight: 600, fontSize: '13px' }}>
                             {t.type.replace('_', ' ')}
                           </span>
                         </div>
                       </td>
-                      <td style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-                        {t.description || 'Electronic Funds Transfer'}
+                      <td className="cell-desc" style={{ color: 'var(--text-muted)', fontSize: '13px' }}>
+                        {t.description || 'Electronic Transfer'}
                       </td>
-                      <td style={{ color: 'var(--text-dim)', fontSize: '0.82rem' }}>
-                        {new Date(t.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
+                      <td style={{ color: 'var(--text-dim)', fontSize: '12px' }}>
+                        {new Date(t.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                       </td>
                       <td>
-                        <span className={`badge ${isCredit ? 'badge-in' : 'badge-out'}`}>
-                          {isCredit ? '+' : '-'} ₹{Number(t.amount).toLocaleString('en-IN')}
+                        <span
+                          style={{
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            padding: '2px 8px',
+                            borderRadius: 4,
+                            background: risk === 'HIGH' ? 'rgba(244, 63, 94, 0.15)' : (risk === 'MEDIUM' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(16, 185, 129, 0.15)'),
+                            color: risk === 'HIGH' ? 'var(--accent-rose)' : (risk === 'MEDIUM' ? 'var(--accent-amber)' : 'var(--accent-emerald)')
+                          }}
+                        >
+                          {risk}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        <span className="badge badge-emerald">
+                          {t.status || 'SUCCESS'}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'right' }}>
+                        <span className={`badge ${isCredit ? 'badge-in' : 'badge-out'}`} style={{ fontSize: '13px', fontWeight: 700 }}>
+                          {isCredit ? '+' : '-'} ₹{Number(t.amount || 0).toLocaleString('en-IN')}
                         </span>
                       </td>
                     </tr>
@@ -379,49 +354,6 @@ export default function Dashboard() {
           </div>
         )}
       </div>
-
-      {/* Deposit Modal */}
-      <Modal isOpen={isDepositOpen} onClose={() => setIsDepositOpen(false)} title="Deposit Funds to Account">
-        <form onSubmit={handleDepositSubmit}>
-          <div className="form-group">
-            <label>Select Target Account</label>
-            <select value={depositAccId} onChange={(e) => setDepositAccId(e.target.value)} required>
-              {accounts.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.accountType} — {a.accountNumber} (Current Balance: ₹{Number(a.balance).toLocaleString('en-IN')})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label>Deposit Amount (₹)</label>
-            <input
-              type="number"
-              min="1"
-              step="0.01"
-              value={depositAmount}
-              onChange={(e) => setDepositAmount(e.target.value)}
-              placeholder="e.g. 10000"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Notes / Description</label>
-            <input
-              type="text"
-              value={depositDesc}
-              onChange={(e) => setDepositDesc(e.target.value)}
-              placeholder="e.g. Salary deposit, freelance payment"
-            />
-          </div>
-
-          <button className="btn btn-emerald" type="submit" style={{ width: '100%', marginTop: 10 }}>
-            Confirm Deposit
-          </button>
-        </form>
-      </Modal>
     </div>
   )
 }

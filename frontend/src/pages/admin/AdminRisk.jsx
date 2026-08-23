@@ -1,34 +1,33 @@
 import { ShieldAlert, AlertTriangle } from 'lucide-react'
+import PageHeader from '../../components/PageHeader.jsx'
 
 export default function AdminRisk() {
   return (
     <div>
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: '1.9rem', fontWeight: 900, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <ShieldAlert size={28} color="#ef4444" /> Security Risk & Fraud Alert Center
-        </h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.94rem', fontWeight: 600, marginTop: 4 }}>
-          Real-time anomaly monitoring, automated AML alerts & suspicious pattern intercept
-        </p>
-      </div>
+      <PageHeader
+        title="Security Risk & Fraud Alert Center"
+        description="Real-time anomaly monitoring, automated AML alerts & suspicious pattern intercept"
+        icon={ShieldAlert}
+        iconColor="var(--accent-rose)"
+      />
 
-      <div className="card" style={{ padding: 24 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(239,68,68,0.18)', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900 }}>
-            <AlertTriangle size={24} />
+      <div className="card">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 8, background: 'rgba(244, 63, 94, 0.18)', color: 'var(--accent-rose)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <AlertTriangle size={20} />
           </div>
           <div>
-            <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>2 Suspicious Transactions Intercepted</div>
-            <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Automated AML Rule Engine • High Volume Cross-Border SWIFT</div>
+            <div style={{ fontSize: '15px', fontWeight: 700 }}>2 Suspicious Transactions Intercepted</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Automated AML Rule Engine • High Volume Cross-Border SWIFT</div>
           </div>
         </div>
 
-        <div style={{ padding: '14px 18px', borderRadius: 12, background: 'var(--bg-input)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ padding: '12px 14px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <div style={{ fontWeight: 800, color: 'var(--text-main)' }}>TX-99478 (₹28.0 Lakh SWIFT)</div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Unverified offshore counterparty address</div>
+            <div style={{ fontWeight: 700, color: 'var(--text-main)', fontSize: '13px' }}>TX-99478 (₹28.0 Lakh SWIFT)</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Unverified offshore counterparty address</div>
           </div>
-          <span style={{ fontSize: '0.78rem', fontWeight: 900, padding: '4px 12px', borderRadius: 99, background: 'rgba(239,68,68,0.18)', color: '#ef4444' }}>
+          <span className="badge badge-rose">
             FLAGGED FOR REVIEW
           </span>
         </div>

@@ -59,8 +59,12 @@ public class AccountController {
             result.put("userEmail", userEmail);
             result.put("userPhone", userPhone);
             result.put("userRole", userRole);
-            result.put("userId", userId);
             return result;
         }).collect(Collectors.toList()));
+    }
+
+    @PatchMapping("/{accountId}/card-controls")
+    public ResponseEntity<?> updateCardControls(@PathVariable Long accountId, @RequestBody com.finsync.dto.CardControlRequest req) {
+        return ResponseEntity.ok(accountService.updateCardControls(currentUser.id(), accountId, req));
     }
 }

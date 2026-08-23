@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { X } from 'lucide-react'
 
-export default function Modal({ isOpen, onClose, title, children }) {
+export default function Modal({ isOpen, onClose, title, children, isLarge = false }) {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose()
@@ -20,11 +20,15 @@ export default function Modal({ isOpen, onClose, title, children }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>
+      <div className={`modal-content ${isLarge ? 'modal-lg' : ''}`} onClick={(e) => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose} title="Close dialog">
           <X size={18} />
         </button>
-        {title && <h3 style={{ fontSize: '1.2rem', marginBottom: 20, paddingRight: 30 }}>{title}</h3>}
+        {title && (
+          <div className="modal-header">
+            <h3 className="modal-title">{title}</h3>
+          </div>
+        )}
         {children}
       </div>
     </div>

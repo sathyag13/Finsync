@@ -45,7 +45,14 @@ public class User {
 
     private String accountStatus = "ACTIVE";
 
+    private String kycStatus = "VERIFIED";
+
+    private boolean twoFactorEnabled = false;
+
     private LocalDateTime lastLogin;
+
+    @Column(unique = true)
+    private String publicPaymentId;
 
     private LocalDateTime createdAt;
 

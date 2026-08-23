@@ -1,41 +1,23 @@
 import { useState, useEffect } from 'react'
-import { CreditCard, RefreshCw, CheckCircle2 } from 'lucide-react'
+import { CreditCard, RefreshCw, Building, ShieldCheck, Search } from 'lucide-react'
 import api from '../../api/axios.js'
+import PageHeader from '../../components/PageHeader.jsx'
+import StatCard from '../../components/StatCard.jsx'
 
 export default function AdminAccounts() {
   const [loading, setLoading] = useState(true)
   const [accounts, setAccounts] = useState([])
+  const [searchTerm, setSearchTerm] = useState('')
+  const [typeFilter, setTypeFilter] = useState('ALL')
 
   const loadAccounts = async () => {
     try {
       setLoading(true)
-      let res = await api.get('/admin/accounts').catch(() => null)
-      if (!res || !res.data || !Array.isArray(res.data) || res.data.length === 0) {
-        res = await api.get('/accounts/all').catch(() => null)
-      }
-
-      let list = res && res.data && Array.isArray(res.data) ? res.data : []
-      if (list.length === 0) {
-        const usersRes = await api.get('/admin/users').catch(() => ({ data: [] }))
-        const usersList = usersRes.data || []
-        list = usersList.map((u, idx) => {
-          const accNum = `FS${(4992820000 + (u.id || idx + 1) * 317).toString().padStart(10, '0')}`
-          return {
-            id: u.id || idx + 1,
-            accountNumber: accNum,
-            userName: u.fullName || `User #${u.id}`,
-            userEmail: u.email || '',
-            accountType: idx % 3 === 0 ? 'BUSINESS CURRENT' : 'SAVINGS',
-            balance: (u.id || idx + 1) * 3500,
-            isPrimary: true,
-            status: u.accountStatus || 'ACTIVE'
-          }
-        })
-      }
-
-      setAccounts(list)
+      const res = await api.get('/admin/accounts')
+      setAccounts(res.data || [])
     } catch (err) {
       console.error('Failed to load accounts:', err)
+      setAccounts([])
     } finally {
       setLoading(false)
     }
@@ -45,102 +27,146 @@ export default function AdminAccounts() {
     loadAccounts()
   }, [])
 
-  const totalBankLiquidity = accounts.reduce((sum, a) => sum + (Number(a.balance) || 0), 0)
-  const newAccountsThisMonth = accounts.length
+  const totalOpened = accounts.length
+  const savingsAccountsCount = accounts.filter(a => (a.accountType || '').toUpperCase().includes('SAVINGS')).length
+  const currentAccountsCount = accounts.filter(a => (a.accountType || '').toUpperCase().includes('CURRENT')).length
+  const businessAccountsCount = accounts.filter(a => (a.accountType || '').toUpperCase().includes('BUSINESS') || (a.accountType || '').toUpperCase().includes('INVESTMENT')).length
+  const activeAccountsCount = accounts.filter(a => (a.status || 'ACTIVE') === 'ACTIVE').length
+  const frozenAccountsCount = accounts.filter(a => a.status === 'FROZEN').length
+  const totalLiquidity = accounts.reduce((sum, a) => sum + Number(a.balance || 0), 0)
+
+  const filteredAccounts = accounts.filter((a) => {
+    const matchesType = typeFilter === 'ALL' || (a.accountType || '').toUpperCase() === typeFilter
+    const matchesSearch =
+      (a.userName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (a.userEmail || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (a.accountNumber || '').toLowerCase().includes(searchTerm.toLowerCase())
+    return matchesType && matchesSearch
+  })
 
   return (
-    <div style={{ paddingBottom: 60 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <div>
-          <h1 style={{ fontSize: '1.9rem', fontWeight: 900, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <CreditCard size={28} color="var(--primary)" /> Accounts Opened & Bank Treasury Directory
-          </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.94rem', fontWeight: 600, marginTop: 4 }}>
-            Overview of new bank accounts opened this month and total liquidity stored in the common bank repository
-          </p>
-        </div>
+    <div>
+      {/* Page Header */}
+      <PageHeader
+        title="Accounts Opened This Month"
+        description="Treasury breakdown, newly provisioned accounts, vault distribution & client portfolios"
+        icon={CreditCard}
+        actions={
+          <button className="btn btn-secondary btn-sm" onClick={loadAccounts}>
+            <RefreshCw size={15} /> Refresh Directory
+          </button>
+        }
+      />
 
-        <button className="btn btn-secondary btn-sm" onClick={loadAccounts} style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 800 }}>
-          <RefreshCw size={16} /> Refresh Directory
-        </button>
+      {/* 4-Column Equal-Height Stat Cards Grid */}
+      <div className="stat-grid">
+        <StatCard
+          label="Total Accounts Opened"
+          value={`${totalOpened}`}
+          icon={CreditCard}
+          iconTheme="indigo"
+          subtitle={`${activeAccountsCount} Active • ${frozenAccountsCount} Frozen`}
+        />
+
+        <StatCard
+          label="Savings Vaults"
+          value={`${savingsAccountsCount}`}
+          icon={Building}
+          iconTheme="emerald"
+          valueColor="var(--accent-emerald)"
+          subtitle="5.50% APY Retail Accounts"
+        />
+
+        <StatCard
+          label="Current & Commercial"
+          value={`${currentAccountsCount + businessAccountsCount}`}
+          icon={Building}
+          iconTheme="cyan"
+          subtitle="Corporate Portfolios"
+        />
+
+        <StatCard
+          label="Total Treasury Balance"
+          value={`₹${totalLiquidity.toLocaleString('en-IN')}`}
+          icon={ShieldCheck}
+          iconTheme="indigo"
+          subtitle="Verified Bank Reserves"
+        />
       </div>
 
-      {/* SUMMARY CARDS FOR ACCOUNTS OPENED THIS MONTH & TOTAL BANK TREASURY AMOUNT */}
-      <div className="grid grid-2" style={{ marginBottom: 28 }}>
-        <div className="card" style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.12), rgba(67,56,202,0.12))', border: '1.5px solid var(--primary)' }}>
-          <div style={{ fontSize: '0.86rem', color: 'var(--text-muted)', fontWeight: 800, marginBottom: 6 }}>
-            New Accounts Opened This Month
+      {/* Filter & Search Bar Card */}
+      <div className="card" style={{ padding: 16, marginBottom: 'var(--section-gap)' }}>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ flex: 1, minWidth: 260, position: 'relative' }}>
+            <input
+              type="text"
+              placeholder="Search by customer name, email or account number..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ paddingLeft: 36 }}
+            />
+            <Search size={16} style={{ position: 'absolute', left: 12, top: 12, color: 'var(--text-muted)' }} />
           </div>
-          <div style={{ fontSize: '2.2rem', fontWeight: 900, color: 'var(--primary)' }}>
-            {newAccountsThisMonth} Accounts
-          </div>
-          <div style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 800, marginTop: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <CheckCircle2 size={14} /> Active NetBanking Accounts Provisioned in Database
-          </div>
-        </div>
 
-        <div className="card" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.12), rgba(5,150,105,0.12))', border: '1.5px solid #10b981' }}>
-          <div style={{ fontSize: '0.86rem', color: 'var(--text-muted)', fontWeight: 800, marginBottom: 6 }}>
-            Total Amount Present in Bank (Common Pool Liquidity)
-          </div>
-          <div style={{ fontSize: '2.2rem', fontWeight: 900, color: '#10b981' }}>
-            ₹{totalBankLiquidity.toLocaleString('en-IN')}
-          </div>
-          <div style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 800, marginTop: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <CheckCircle2 size={14} /> Combined User Deposits Stored in Central Repository
-          </div>
+          <select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            style={{ minWidth: 160 }}
+          >
+            <option value="ALL">All Account Types</option>
+            <option value="SAVINGS">SAVINGS ONLY</option>
+            <option value="CURRENT">CURRENT ONLY</option>
+            <option value="INVESTMENT">INVESTMENT ONLY</option>
+            <option value="GOLD">GOLD ONLY</option>
+          </select>
         </div>
       </div>
 
-      {/* ACCOUNTS LIST TABLE */}
+      {/* Accounts Table Card */}
       <div className="card">
-        <h3 style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: 18, color: 'var(--text-main)' }}>
-          Detailed User Accounts Ledger
-        </h3>
-
         {loading ? (
-          <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)', fontWeight: 600 }}>
-            Fetching bank accounts from database...
-          </div>
-        ) : accounts.length === 0 ? (
-          <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)', fontWeight: 600 }}>
-            No bank accounts found in database.
-          </div>
+          <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>Loading opened accounts…</div>
+        ) : filteredAccounts.length === 0 ? (
+          <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>No accounts found.</div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+          <div className="table-container">
+            <table>
               <thead>
-                <tr style={{ borderBottom: '2px solid var(--border-color)', textAlign: 'left' }}>
-                  <th style={{ padding: '12px 14px', color: 'var(--text-muted)', fontWeight: 800 }}>ACCOUNT NO</th>
-                  <th style={{ padding: '12px 14px', color: 'var(--text-muted)', fontWeight: 800 }}>ACCOUNT HOLDER</th>
-                  <th style={{ padding: '12px 14px', color: 'var(--text-muted)', fontWeight: 800 }}>TYPE</th>
-                  <th style={{ padding: '12px 14px', textAlign: 'right', color: 'var(--text-muted)', fontWeight: 800 }}>CURRENT BALANCE (₹)</th>
-                  <th style={{ padding: '12px 14px', textAlign: 'center', color: 'var(--text-muted)', fontWeight: 800 }}>STATUS</th>
+                <tr>
+                  <th>Customer / Account Holder</th>
+                  <th>Account Type</th>
+                  <th>Account Number</th>
+                  <th style={{ textAlign: 'right' }}>Current Balance</th>
+                  <th>Date Opened</th>
+                  <th style={{ textAlign: 'center' }}>Status</th>
                 </tr>
               </thead>
               <tbody>
-                {accounts.map((a) => (
-                  <tr key={a.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                    <td style={{ padding: '12px 14px', fontWeight: 800, color: 'var(--primary)' }}>
-                      {a.accountNumber}
-                      {(a.isPrimary !== false) && (
-                        <span style={{ fontSize: '0.68rem', fontWeight: 900, padding: '2px 6px', borderRadius: 4, background: 'rgba(16,185,129,0.18)', color: '#10b981', marginLeft: 8 }}>
-                          PRIMARY
-                        </span>
-                      )}
+                {filteredAccounts.map((a) => (
+                  <tr key={a.id}>
+                    <td>
+                      <div>
+                        <div style={{ fontWeight: 700, color: 'var(--text-main)', fontSize: '13px' }}>{a.userName || 'Valued Client'}</div>
+                        <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{a.userEmail || '-'}</div>
+                      </div>
                     </td>
-                    <td style={{ padding: '12px 14px', fontWeight: 800, color: 'var(--text-main)' }}>{a.userName}</td>
-                    <td style={{ padding: '12px 14px', fontWeight: 700 }}>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 800, padding: '3px 10px', borderRadius: 99, background: 'rgba(99,102,241,0.15)', color: 'var(--primary)' }}>
+                    <td>
+                      <span className="badge badge-indigo" style={{ fontSize: '11px' }}>
                         {a.accountType}
                       </span>
                     </td>
-                    <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 900, color: '#10b981' }}>
+                    <td style={{ fontWeight: 600, fontFamily: 'monospace', color: 'var(--primary)' }}>
+                      {a.accountNumber}
+                    </td>
+                    <td style={{ textAlign: 'right', fontWeight: 800, color: 'var(--text-main)', fontSize: '14px' }}>
                       ₹{Number(a.balance || 0).toLocaleString('en-IN')}
                     </td>
-                    <td style={{ padding: '12px 14px', textAlign: 'center' }}>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 800, padding: '4px 10px', borderRadius: 99, background: 'rgba(16,185,129,0.15)', color: '#10b981' }}>
-                        ACTIVE
+                    <td style={{ color: 'var(--text-muted)', fontSize: '12px' }}>
+                      {a.createdAt ? new Date(a.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : 'August 2026'}
+                    </td>
+                    <td style={{ textAlign: 'center' }}>
+                      <span className={`badge ${a.status === 'FROZEN' ? 'badge-rose' : 'badge-emerald'}`}>
+                        {a.status || 'ACTIVE'}
                       </span>
                     </td>
                   </tr>

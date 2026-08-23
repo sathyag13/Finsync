@@ -1,593 +1,1021 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useState, useRef } from 'react'
 import api from '../api/axios.js'
 import Modal from '../components/Modal.jsx'
+import PageHeader from '../components/PageHeader.jsx'
 import { useToast } from '../context/ToastContext.jsx'
+import jsQR from 'jsqr'
 import {
   Send,
-  ArrowRight,
-  CheckCircle2,
   Building2,
   ShieldCheck,
   CreditCard,
   Search,
   User,
-  Phone,
-  Check
+  Plus,
+  Trash2,
+  CheckCircle2,
+  QrCode,
+  Camera,
+  Upload,
+  Sparkles,
+  ArrowRight,
+  AlertTriangle
 } from 'lucide-react'
 
 export default function Transfer() {
   const { addToast } = useToast()
+  const [activeTab, setActiveTab] = useState('QR_PAY') // 'QR_PAY' | 'STANDARD'
   const [accounts, setAccounts] = useState([])
-  const [allAccounts, setAllAccounts] = useState([])
+  const [beneficiaries, setBeneficiaries] = useState([])
+  const [loading, setLoading] = useState(false)
+
+  // Standard Transfer Form States
   const [fromAccountNumber, setFromAccountNumber] = useState('')
   const [toAccountNumber, setToAccountNumber] = useState('')
-  const [recipientSearchTerm, setRecipientSearchTerm] = useState('')
+  const [recipientName, setRecipientName] = useState('')
   const [amount, setAmount] = useState('')
   const [description, setDescription] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [showSearchResults, setShowSearchResults] = useState(false)
-  const [recipientFilter, setRecipientFilter] = useState('CUSTOMERS_ONLY') // 'CUSTOMERS_ONLY' | 'ALL'
+  const [showReviewModal, setShowReviewModal] = useState(false)
 
-  // Receipt Modal State
+  // QR / Scan & Pay States
+  const [payIdInput, setPayIdInput] = useState('')
+  const [resolvingPayId, setResolvingPayId] = useState(false)
+  const [resolvedRecipient, setResolvedRecipient] = useState(null)
+  const [qrFromAccount, setQrFromAccount] = useState('')
+  const [qrAmount, setQrAmount] = useState('')
+  const [qrRemarks, setQrRemarks] = useState('')
+  const [showQrReviewModal, setShowQrReviewModal] = useState(false)
+
+  // Camera Scanner Modal State
+  const [showCameraScanner, setShowCameraScanner] = useState(false)
+  const [cameraError, setCameraError] = useState(null)
+  const videoRef = useRef(null)
+  const streamRef = useRef(null)
+  const scanIntervalRef = useRef(null)
+
+  // Beneficiary Management States
+  const [isAddBeneficiaryOpen, setIsAddBeneficiaryOpen] = useState(false)
+  const [benName, setBenName] = useState('')
+  const [benBank, setBenBank] = useState('FinSync Bank')
+  const [benAcc, setBenAcc] = useState('')
+  const [benIfsc, setBenIfsc] = useState('FSNB0001001')
+  const [benSearch, setBenSearch] = useState('')
+
+  // Shared Receipt Modal State
   const [receipt, setReceipt] = useState(null)
 
-  useEffect(() => {
-    // Fetch my owned accounts
-    api.get('/accounts').then((res) => {
-      const myAccounts = res.data || []
+  const loadData = async () => {
+    try {
+      const [accRes, benRes] = await Promise.all([
+        api.get('/accounts').catch(() => ({ data: [] })),
+        api.get('/beneficiaries').catch(() => ({ data: [] }))
+      ])
+
+      const myAccounts = accRes.data || []
       setAccounts(myAccounts)
-      if (myAccounts.length > 0) setFromAccountNumber(myAccounts[0].accountNumber)
-    })
-
-    // Fetch all real user accounts from the database for recipient search
-    const loadAllBankAccounts = async () => {
-      try {
-        const [accountsRes, usersRes] = await Promise.all([
-          api.get('/accounts/all').catch(() => ({ data: [] })),
-          api.get('/admin/users').catch(() => ({ data: [] }))
-        ])
-
-        const list = accountsRes.data || []
-        const usersList = usersRes.data || []
-
-        const enriched = list.map((a) => {
-          const matchedUser = usersList.find(
-            u => u.id === a.userId || u.email === a.userEmail || u.fullName === a.userName
-          )
-          return {
-            ...a,
-            userName: a.userName || (matchedUser ? matchedUser.fullName : 'Valued Client'),
-            userPhone: a.userPhone || (matchedUser ? matchedUser.phoneNumber : ''),
-            userEmail: a.userEmail || (matchedUser ? matchedUser.email : ''),
-            userRole: matchedUser?.role || a.userRole || 'CUSTOMER'
-          }
-        })
-
-        setAllAccounts(enriched)
-      } catch (err) {
-        console.error('Could not load recipient accounts:', err)
+      if (myAccounts.length > 0) {
+        if (!fromAccountNumber) setFromAccountNumber(myAccounts[0].accountNumber)
+        if (!qrFromAccount) setQrFromAccount(myAccounts[0].accountNumber)
       }
+
+      setBeneficiaries(benRes.data || [])
+    } catch (err) {
+      console.error('Failed to load transfer data:', err)
     }
-    loadAllBankAccounts()
+  }
+
+  useEffect(() => {
+    loadData()
   }, [])
 
   const selectedSourceAccount = accounts.find(a => a.accountNumber === fromAccountNumber)
+  const selectedQrSourceAccount = accounts.find(a => a.accountNumber === qrFromAccount)
 
-  const handleTransfer = async (e) => {
+  // Risk calculation helper
+  const calculateEstimatedRisk = (amt) => {
+    const num = Number(amt) || 0
+    if (num > 100000) return 'HIGH'
+    if (num > 50000) return 'MEDIUM'
+    return 'LOW'
+  }
+
+  // Resolve Pay ID / QR Data
+  const handleResolveRecipient = async (payIdToResolve) => {
+    const clean = (payIdToResolve || payIdInput).trim()
+    if (!clean) {
+      addToast('Please enter a FinSync Pay ID or scan a QR code', 'error')
+      return
+    }
+
+    try {
+      setResolvingPayId(true)
+      const res = await api.get(`/payments/recipient/${encodeURIComponent(clean)}`)
+      setResolvedRecipient(res.data)
+      setPayIdInput(res.data.publicPaymentId || clean)
+      addToast(`Verified recipient: ${res.data.recipientName}`, 'success')
+    } catch (err) {
+      setResolvedRecipient(null)
+      addToast(err.response?.data?.message || 'Recipient not found for this Pay ID', 'error')
+    } finally {
+      setResolvingPayId(false)
+    }
+  }
+
+  // Upload QR Image File Decoder
+  const handleUploadQrImage = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        canvas.width = img.width
+        canvas.height = img.height
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(img, 0, 0, img.width, img.height)
+        const imageData = ctx.getImageData(0, 0, img.width, img.height)
+        const qrCode = jsQR(imageData.data, imageData.width, imageData.height)
+
+        if (qrCode && qrCode.data) {
+          addToast('QR Code successfully decoded from image!', 'success')
+          let decoded = qrCode.data
+          if (decoded.includes('payId=')) {
+            const idx = decoded.indexOf('payId=')
+            decoded = decoded.substring(idx + 6).split('&')[0]
+          }
+          setPayIdInput(decoded)
+          handleResolveRecipient(decoded)
+        } else {
+          addToast('No readable QR code found in the selected image. Please try another image.', 'error')
+        }
+      }
+      img.src = event.target.result
+    }
+    reader.readAsDataURL(file)
+  }
+
+  // Camera Scanner Functions
+  const startCameraScanner = async () => {
+    setCameraError(null)
+    setShowCameraScanner(true)
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' }
+      })
+      streamRef.current = stream
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream
+        videoRef.current.setAttribute('playsinline', true)
+        videoRef.current.play()
+      }
+
+      // Scanning loop
+      scanIntervalRef.current = setInterval(() => {
+        if (!videoRef.current || videoRef.current.readyState !== videoRef.current.HAVE_ENOUGH_DATA) return
+        const canvas = document.createElement('canvas')
+        canvas.width = videoRef.current.videoWidth
+        canvas.height = videoRef.current.videoHeight
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height)
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+        const code = jsQR(imageData.data, imageData.width, imageData.height)
+
+        if (code && code.data) {
+          clearInterval(scanIntervalRef.current)
+          stopCameraScanner()
+          let decoded = code.data
+          if (decoded.includes('payId=')) {
+            const idx = decoded.indexOf('payId=')
+            decoded = decoded.substring(idx + 6).split('&')[0]
+          }
+          setPayIdInput(decoded)
+          handleResolveRecipient(decoded)
+        }
+      }, 300)
+    } catch (err) {
+      console.warn('Camera access error:', err)
+      setCameraError('Camera access not granted or device camera unavailable. You can use "Upload QR Image" instead.')
+    }
+  }
+
+  const stopCameraScanner = () => {
+    if (scanIntervalRef.current) clearInterval(scanIntervalRef.current)
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop())
+      streamRef.current = null
+    }
+    setShowCameraScanner(false)
+  }
+
+  // QR Transfer Form Review
+  const handleInitiateQrTransfer = (e) => {
     e.preventDefault()
-    let cleanToAcc = (toAccountNumber || recipientSearchTerm || '').trim()
-    const match = cleanToAcc.match(/(FS\d+)/i)
-    if (match) {
-      cleanToAcc = match[1]
-    }
-
-    if (!fromAccountNumber) {
-      addToast('Please select a source account to send funds from.', 'error')
+    if (!resolvedRecipient) {
+      addToast('Please resolve and verify a valid recipient first.', 'error')
       return
     }
 
-    if (!cleanToAcc) {
-      addToast('Please enter or select a valid recipient account number.', 'error')
-      return
-    }
-
-    if (fromAccountNumber === cleanToAcc) {
-      addToast('Cannot transfer money to the same source account.', 'error')
-      return
-    }
-
-    const numAmount = Number(amount)
-    if (!amount || isNaN(numAmount) || numAmount <= 0) {
+    const numAmount = Number(qrAmount)
+    if (isNaN(numAmount) || numAmount <= 0) {
       addToast('Please enter a valid transfer amount greater than ₹0.', 'error')
       return
     }
 
-    if (selectedSourceAccount && Number(selectedSourceAccount.balance) < numAmount) {
-      addToast(`Insufficient balance. Your available balance is ₹${Number(selectedSourceAccount.balance).toLocaleString('en-IN')}`, 'error')
+    const currentBal = Number(selectedQrSourceAccount?.balance || 0)
+    if (numAmount > currentBal) {
+      addToast(`Insufficient funds. Your available balance is ₹${currentBal.toLocaleString('en-IN')}.`, 'error')
       return
     }
 
+    if (selectedQrSourceAccount?.status === 'FROZEN') {
+      addToast('Your source account is FROZEN. Cannot transfer.', 'error')
+      return
+    }
+
+    setShowQrReviewModal(true)
+  }
+
+  // Execute QR Transfer
+  const handleConfirmQrTransfer = async () => {
     setLoading(true)
     try {
-      await api.post('/transfer', {
-        fromAccountNumber,
-        toAccountNumber: cleanToAcc,
-        amount: numAmount,
-        description: description.trim() || 'Direct Peer Transfer'
+      const res = await api.post('/payments/qr-transfer', {
+        payId: resolvedRecipient.publicPaymentId,
+        fromAccountNumber: qrFromAccount,
+        amount: Number(qrAmount),
+        remarks: qrRemarks.trim() || 'QR Instant Transfer'
       })
-      addToast(`₹${numAmount.toLocaleString('en-IN')} transferred to ${cleanToAcc} successfully!`, 'success')
-      window.dispatchEvent(new Event('finsync:activity'))
 
+      setShowQrReviewModal(false)
       setReceipt({
-        txnId: 'TXN' + Math.floor(1000000000 + Math.random() * 9000000000),
-        from: fromAccountNumber,
-        to: cleanToAcc,
-        amount: numAmount,
-        description: description.trim() || 'Direct Peer Transfer',
-        timestamp: new Date().toLocaleString()
+        ...res.data,
+        timestamp: new Date().toISOString(),
+        recipientName: resolvedRecipient.recipientName,
+        payId: resolvedRecipient.publicPaymentId,
+        description: qrRemarks.trim() || 'QR Instant Transfer',
+        isQr: true
       })
 
-      setAmount('')
-      setDescription('')
-      setToAccountNumber('')
-      setRecipientSearchTerm('')
-      // Reload accounts balance
-      const accRes = await api.get('/accounts')
-      setAccounts(accRes.data || [])
+      addToast(`₹${Number(qrAmount).toLocaleString('en-IN')} sent to ${resolvedRecipient.recipientName} successfully!`, 'success')
+      window.dispatchEvent(new Event('finsync:activity'))
+      setQrAmount('')
+      setQrRemarks('')
+      setResolvedRecipient(null)
+      setPayIdInput('')
+      loadData()
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.response?.data?.error || 'Transfer failed. Check balance and recipient details.'
-      addToast(errorMsg, 'error')
+      addToast(err.response?.data?.message || 'QR Transfer failed. Please try again.', 'error')
     } finally {
       setLoading(false)
     }
   }
 
-  const presetAmounts = [500, 1000, 5000, 10000, 25000]
-
-  // Filter out source account
-  const baseCandidates = allAccounts.filter(a => a.accountNumber !== fromAccountNumber)
-
-  // Show all bank customer accounts as banking recipients
-  const recipientCandidates = baseCandidates.filter(a => {
-    if (recipientFilter === 'CUSTOMERS_ONLY') {
-      return (a.userRole || 'CUSTOMER') === 'CUSTOMER'
+  // Standard Transfer Handlers
+  const handleInitiateStandardTransfer = (e) => {
+    e.preventDefault()
+    if (!fromAccountNumber || !toAccountNumber.trim()) {
+      addToast('Please fill in source and recipient details.', 'error')
+      return
     }
-    return true
-  })
-
-  // Dynamic search filtering by Name, Phone Number, or Account Number
-  const searchFilteredRecipients = recipientCandidates.filter(a => {
-    if (!recipientSearchTerm || !recipientSearchTerm.trim()) return true
-    const rawTerm = recipientSearchTerm.toLowerCase().trim()
-    const cleanTerm = rawTerm.replace(/\(fs\d+\)/gi, '').trim() || rawTerm
-
-    const uName = (a.userName || '').toLowerCase()
-    const uPhone = (a.userPhone || a.phoneNumber || '').toLowerCase()
-    const accNo = (a.accountNumber || '').toLowerCase()
-    const uEmail = (a.userEmail || '').toLowerCase()
-
-    return uName.includes(cleanTerm) || uPhone.includes(cleanTerm) || accNo.includes(cleanTerm) || uEmail.includes(cleanTerm)
-  })
-
-  const selectRecipient = (account) => {
-    setToAccountNumber(account.accountNumber)
-    setRecipientSearchTerm(`${account.userName || 'Valued Client'} (${account.accountNumber})`)
-    setShowSearchResults(false)
+    const numAmount = Number(amount)
+    if (isNaN(numAmount) || numAmount <= 0) {
+      addToast('Please enter a valid amount.', 'error')
+      return
+    }
+    const currentBal = Number(selectedSourceAccount?.balance || 0)
+    if (numAmount > currentBal) {
+      addToast(`Insufficient funds. Available: ₹${currentBal.toLocaleString('en-IN')}.`, 'error')
+      return
+    }
+    setShowReviewModal(true)
   }
 
+  const handleConfirmStandardTransfer = async () => {
+    setLoading(true)
+    try {
+      const res = await api.post('/transfer', {
+        fromAccountNumber,
+        toAccountNumber: toAccountNumber.trim(),
+        amount: Number(amount),
+        description: description.trim() || 'Electronic Fund Transfer'
+      })
+
+      setShowReviewModal(false)
+      setReceipt({
+        ...res.data,
+        timestamp: new Date().toISOString(),
+        recipientName: recipientName || 'Payee Account',
+        description: description.trim() || 'Electronic Fund Transfer',
+        isQr: false
+      })
+
+      addToast(`Transfer of ₹${Number(amount).toLocaleString('en-IN')} completed!`, 'success')
+      window.dispatchEvent(new Event('finsync:activity'))
+      setAmount('')
+      setDescription('')
+      setToAccountNumber('')
+      setRecipientName('')
+      loadData()
+    } catch (err) {
+      addToast(err.response?.data?.message || 'Transfer failed', 'error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Beneficiary Management
+  const handleAddBeneficiary = async (e) => {
+    e.preventDefault()
+    try {
+      await api.post('/beneficiaries', {
+        name: benName,
+        bankName: benBank,
+        accountNumber: benAcc,
+        ifsc: benIfsc
+      })
+      addToast(`Beneficiary ${benName} added to directory!`, 'success')
+      setIsAddBeneficiaryOpen(false)
+      setBenName('')
+      setBenAcc('')
+      loadData()
+    } catch (err) {
+      addToast(err.response?.data?.message || 'Failed to add beneficiary', 'error')
+    }
+  }
+
+  const handleDeleteBeneficiary = async (id, name) => {
+    if (!window.confirm(`Are you sure you want to remove ${name} from your payees?`)) return
+    try {
+      await api.delete(`/beneficiaries/${id}`)
+      addToast(`Beneficiary ${name} removed.`, 'info')
+      loadData()
+    } catch (err) {
+      addToast('Failed to delete beneficiary', 'error')
+    }
+  }
+
+  const handleSelectBeneficiary = (b) => {
+    setToAccountNumber(b.accountNumber)
+    setRecipientName(b.name)
+    setActiveTab('STANDARD')
+    addToast(`Selected payee ${b.name}`, 'info')
+  }
+
+  const filteredBeneficiaries = beneficiaries.filter(b =>
+    b.name.toLowerCase().includes(benSearch.toLowerCase()) ||
+    b.accountNumber.toLowerCase().includes(benSearch.toLowerCase()) ||
+    b.bankName.toLowerCase().includes(benSearch.toLowerCase())
+  )
+
   return (
-    <div style={{ width: '100%', paddingBottom: 60 }}>
+    <div>
       {/* Page Header */}
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: '1.85rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: 10, color: 'var(--text-main)' }}>
-          <Send size={26} color="var(--primary)" /> Pay & Transfer Funds
-        </h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.94rem', fontWeight: 600, marginTop: 4 }}>
-          Instant zero-fee transfer across all FinSync bank customer accounts and verified recipients
-        </p>
+      <PageHeader
+        title="Pay & Transfer Center"
+        description="Instant domestic fund transfers, FinSync Scan & Pay QR transfers, and saved beneficiaries"
+        icon={Send}
+        actions={
+          <button className="btn btn-secondary btn-sm" onClick={() => setIsAddBeneficiaryOpen(true)}>
+            <Plus size={15} /> Add Beneficiary
+          </button>
+        }
+      />
+
+      {/* Mode Switcher Tabs */}
+      <div style={{ display: 'flex', gap: 10, marginBottom: 'var(--section-gap)' }}>
+        <button
+          type="button"
+          onClick={() => setActiveTab('QR_PAY')}
+          className={`btn ${activeTab === 'QR_PAY' ? 'btn-primary' : 'btn-secondary'}`}
+          style={{ flex: 1, height: 42, fontWeight: 700 }}
+        >
+          <QrCode size={16} /> Scan & Pay (QR / Pay ID)
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('STANDARD')}
+          className={`btn ${activeTab === 'STANDARD' ? 'btn-primary' : 'btn-secondary'}`}
+          style={{ flex: 1, height: 42, fontWeight: 700 }}
+        >
+          <Building2 size={16} /> Direct Account Transfer
+        </button>
       </div>
 
+      <div className="grid grid-2" style={{ gap: 24, marginBottom: 'var(--section-gap)' }}>
+        {/* Left Column: QR Scan & Pay Form OR Standard Transfer Form */}
+        <div className="grid-col-left">
+          {activeTab === 'QR_PAY' ? (
+            /* SCAN & PAY TAB */
+            <div className="card" style={{ marginBottom: 0 }}>
+              <div className="card-header">
+                <h3 className="card-title">
+                  <QrCode size={18} color="var(--primary)" />
+                  <span>Scan & Pay / Pay using FinSync Pay ID</span>
+                </h3>
+                <span className="badge badge-emerald">Instant Settlement</span>
+              </div>
 
-
-      {accounts.length === 0 ? (
-        <div className="card" style={{ padding: 40, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-          <CreditCard size={42} color="var(--primary)" />
-          <div>
-            <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--text-main)' }}>No Active Bank Accounts</h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: 4 }}>
-              You don't have any bank accounts to transfer money from. Open your first account to get started.
-            </p>
-          </div>
-          <Link to="/accounts" className="btn btn-primary" style={{ fontWeight: 800 }}>
-            + Open First Bank Account
-          </Link>
-        </div>
-      ) : (
-        /* Main Transfer Form Card */
-        <div className="card">
-          <form onSubmit={handleTransfer}>
-            {/* Step 1: Select Source Account */}
-            <div className="form-group">
-              <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>From Source Account</span>
-                {selectedSourceAccount && (
-                  <span style={{ color: '#10b981', fontSize: '0.82rem', fontWeight: 800 }}>
-                    Available Balance: ₹{Number(selectedSourceAccount.balance).toLocaleString('en-IN')}
-                  </span>
-                )}
-              </label>
-              <select
-                value={fromAccountNumber}
-                onChange={(e) => setFromAccountNumber(e.target.value)}
-                required
-              >
-                <option value="">Select source account</option>
-                {accounts.map((a) => (
-                  <option key={a.id} value={a.accountNumber}>
-                    {a.accountType} ACCOUNT — {a.accountNumber} (Balance: ₹{Number(a.balance).toLocaleString('en-IN')})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Step 2: Interactive Recipient Search (ByName, Phone, AccountNumber) */}
-            <div className="form-group" style={{ position: 'relative' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <label style={{ margin: 0, fontWeight: 800 }}>
-                  Banking Recipients / Account
+              {/* Step 1: Input Pay ID or Scan */}
+              <div style={{ marginBottom: 18 }}>
+                <label style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: 8 }}>
+                  Enter Recipient Pay ID or Scan QR Code
                 </label>
-                <div style={{ display: 'flex', gap: 6 }}>
+
+                <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+                  <input
+                    type="text"
+                    placeholder="e.g. FS-PAY-8X72KQ"
+                    value={payIdInput}
+                    onChange={(e) => setPayIdInput(e.target.value.toUpperCase())}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleResolveRecipient() }}
+                    style={{ fontFamily: 'monospace', fontWeight: 700, letterSpacing: 1 }}
+                  />
                   <button
                     type="button"
-                    onClick={() => setRecipientFilter('CUSTOMERS_ONLY')}
-                    style={{
-                      padding: '3px 8px',
-                      borderRadius: 6,
-                      fontSize: '0.72rem',
-                      fontWeight: 800,
-                      border: 'none',
-                      cursor: 'pointer',
-                      background: recipientFilter === 'CUSTOMERS_ONLY' ? 'var(--primary)' : 'rgba(255,255,255,0.08)',
-                      color: '#ffffff'
-                    }}
+                    onClick={() => handleResolveRecipient()}
+                    disabled={resolvingPayId}
+                    className="btn btn-primary"
+                    style={{ flexShrink: 0 }}
                   >
-                    Customers Only
+                    {resolvingPayId ? 'Verifying…' : 'Verify Pay ID'}
                   </button>
+                </div>
+
+                {/* Quick Scan Action Buttons */}
+                <div style={{ display: 'flex', gap: 8 }}>
                   <button
                     type="button"
-                    onClick={() => setRecipientFilter('ALL')}
-                    style={{
-                      padding: '3px 8px',
-                      borderRadius: 6,
-                      fontSize: '0.72rem',
-                      fontWeight: 800,
-                      border: 'none',
-                      cursor: 'pointer',
-                      background: recipientFilter === 'ALL' ? 'var(--primary)' : 'rgba(255,255,255,0.08)',
-                      color: '#ffffff'
-                    }}
+                    onClick={startCameraScanner}
+                    className="btn btn-secondary btn-sm"
+                    style={{ flex: 1 }}
                   >
-                    All Accounts
+                    <Camera size={14} /> Scan with Camera
                   </button>
+
+                  <label
+                    className="btn btn-secondary btn-sm"
+                    style={{ flex: 1, cursor: 'pointer', margin: 0 }}
+                  >
+                    <Upload size={14} /> Upload QR Image
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleUploadQrImage}
+                      style={{ display: 'none' }}
+                    />
+                  </label>
                 </div>
               </div>
 
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="text"
-                  value={recipientSearchTerm}
-                  onFocus={(e) => {
-                    setShowSearchResults(true)
-                    e.target.select()
+              {/* Step 2: Verified Recipient Card Banner */}
+              {resolvedRecipient && (
+                <div
+                  style={{
+                    padding: '14px 16px',
+                    borderRadius: 10,
+                    background: 'rgba(16, 185, 129, 0.08)',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    marginBottom: 18,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 12
                   }}
-                  onChange={(e) => {
-                    setRecipientSearchTerm(e.target.value)
-                    setToAccountNumber(e.target.value)
-                    setShowSearchResults(true)
-                  }}
-                  required
-                  placeholder="Search by recipient name, account number, or phone..."
-                  style={{ paddingLeft: 42, width: '100%' }}
-                />
-                <Search size={18} style={{ position: 'absolute', left: 14, top: 14, color: 'var(--primary)' }} />
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div
+                      style={{
+                        width: 42,
+                        height: 42,
+                        borderRadius: '50%',
+                        background: 'var(--accent-emerald)',
+                        color: '#ffffff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: 800,
+                        fontSize: '16px',
+                        flexShrink: 0
+                      }}
+                    >
+                      {resolvedRecipient.recipientName?.charAt(0).toUpperCase() || 'R'}
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 800, fontSize: '15px', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span>{resolvedRecipient.recipientName}</span>
+                        <CheckCircle2 size={15} color="var(--accent-emerald)" />
+                      </div>
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                        FinSync Pay ID: <strong style={{ color: 'var(--primary)', fontFamily: 'monospace' }}>{resolvedRecipient.publicPaymentId}</strong>
+                      </div>
+                      <div style={{ fontSize: '11px', color: 'var(--accent-emerald)', fontWeight: 600, marginTop: 2 }}>
+                        Verified Primary {resolvedRecipient.primaryAccountType} Account ({resolvedRecipient.maskedAccountNumber})
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { setResolvedRecipient(null); setPayIdInput('') }}
+                    className="btn btn-secondary btn-sm"
+                    style={{ fontSize: '11px', padding: '0 8px' }}
+                  >
+                    Change
+                  </button>
+                </div>
+              )}
+
+              {/* Step 3: Amount & Source Account Form */}
+              <form onSubmit={handleInitiateQrTransfer}>
+                <div className="form-group">
+                  <label>Select Source Debit Account</label>
+                  <select
+                    value={qrFromAccount}
+                    onChange={(e) => setQrFromAccount(e.target.value)}
+                    required
+                  >
+                    {accounts.map((a) => (
+                      <option key={a.id} value={a.accountNumber}>
+                        {a.accountType} — {a.accountNumber} (Available: ₹{Number(a.balance || 0).toLocaleString('en-IN')}) {a.status === 'FROZEN' ? '[FROZEN]' : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Payment Amount (₹)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    step="0.01"
+                    placeholder="e.g. 5000"
+                    value={qrAmount}
+                    onChange={(e) => setQrAmount(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Remarks / Note (Optional)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Lunch, project reimbursement, fees"
+                    value={qrRemarks}
+                    onChange={(e) => setQrRemarks(e.target.value)}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={!resolvedRecipient}
+                  className="btn btn-primary"
+                  style={{ width: '100%', marginTop: 8 }}
+                >
+                  <Send size={15} /> Continue to Confirmation
+                </button>
+              </form>
+            </div>
+          ) : (
+            /* DIRECT ACCOUNT TRANSFER TAB */
+            <div className="card" style={{ marginBottom: 0 }}>
+              <div className="card-header">
+                <h3 className="card-title">
+                  <Building2 size={18} color="var(--primary)" />
+                  <span>Standard Account Transfer</span>
+                </h3>
               </div>
 
-              {/* Dynamic Live Matching Dropdown List */}
-              {showSearchResults && (
+              <form onSubmit={handleInitiateStandardTransfer}>
+                <div className="form-group">
+                  <label>Select Source Debit Account</label>
+                  <select
+                    value={fromAccountNumber}
+                    onChange={(e) => setFromAccountNumber(e.target.value)}
+                    required
+                  >
+                    {accounts.map((a) => (
+                      <option key={a.id} value={a.accountNumber}>
+                        {a.accountType} — {a.accountNumber} (Available: ₹{Number(a.balance || 0).toLocaleString('en-IN')}) {a.status === 'FROZEN' ? '[FROZEN]' : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Recipient Account Number / Payee</label>
+                  <input
+                    type="text"
+                    placeholder="Enter 10-digit Account Number (e.g. FS4992820634)"
+                    value={toAccountNumber}
+                    onChange={(e) => {
+                      setToAccountNumber(e.target.value)
+                      const matched = beneficiaries.find(b => b.accountNumber.toLowerCase() === e.target.value.trim().toLowerCase())
+                      if (matched) setRecipientName(matched.name)
+                    }}
+                    required
+                  />
+                  {recipientName && (
+                    <div style={{ fontSize: '12px', color: 'var(--accent-emerald)', fontWeight: 600, marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <CheckCircle2 size={13} /> Payee Name: {recipientName}
+                    </div>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label>Transfer Amount (₹)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    step="0.01"
+                    placeholder="e.g. 5000"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Remarks / Purpose of Transfer</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Invoice payment, rent, family support"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{ width: '100%', marginTop: 8 }}
+                >
+                  <Send size={15} /> Review & Authorize Transfer
+                </button>
+              </form>
+            </div>
+          )}
+        </div>
+
+        {/* Right Column: Beneficiary Directory & QR Quick Guide */}
+        <div className="grid-col-right">
+          <div className="card" style={{ marginBottom: 'var(--section-gap)' }}>
+            <div className="card-header">
+              <h3 className="card-title">
+                <User size={18} color="var(--primary)" />
+                <span>Saved Payees & Beneficiaries</span>
+              </h3>
+              <span className="badge badge-indigo">
+                {beneficiaries.length} Saved
+              </span>
+            </div>
+
+            <div style={{ position: 'relative', marginBottom: 14 }}>
+              <input
+                type="text"
+                placeholder="Search saved payees by name, bank or account..."
+                value={benSearch}
+                onChange={(e) => setBenSearch(e.target.value)}
+                style={{ paddingLeft: 32 }}
+              />
+              <Search size={14} style={{ position: 'absolute', left: 10, top: 13, color: 'var(--text-muted)' }} />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 320, overflowY: 'auto' }}>
+              {filteredBeneficiaries.length === 0 ? (
+                <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
+                  No saved beneficiaries. Click "Add Beneficiary" to register your payees.
+                </div>
+              ) : (
+                filteredBeneficiaries.map((b) => (
+                  <div
+                    key={b.id}
+                    style={{
+                      padding: '12px 14px',
+                      borderRadius: 8,
+                      background: 'var(--bg-input)',
+                      border: '1px solid var(--border-color)',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div className="stat-icon indigo" style={{ width: 34, height: 34, borderRadius: 8, flexShrink: 0 }}>
+                        <Building2 size={16} />
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--text-main)' }}>{b.name}</div>
+                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
+                          {b.bankName} • {b.accountNumber}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <button
+                        type="button"
+                        onClick={() => handleSelectBeneficiary(b)}
+                        className="btn btn-primary btn-sm"
+                      >
+                        Pay
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteBeneficiary(b.id, b.name)}
+                        style={{ background: 'none', border: 'none', color: 'var(--accent-rose)', cursor: 'pointer', padding: 4 }}
+                        title="Remove Beneficiary"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* QR Transfer Confirmation Modal */}
+      <Modal isOpen={showQrReviewModal} onClose={() => setShowQrReviewModal(false)} title="Confirm QR Transfer">
+        {resolvedRecipient && (
+          <div>
+            <div style={{ padding: '16px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)', marginBottom: 16 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+                <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Recipient</span>
+                <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>{resolvedRecipient.recipientName}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+                <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>FinSync Pay ID</span>
+                <span style={{ fontWeight: 700, fontFamily: 'monospace', color: 'var(--primary)' }}>{resolvedRecipient.publicPaymentId}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+                <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>From Account</span>
+                <span style={{ fontWeight: 600, fontFamily: 'monospace' }}>
+                  {selectedQrSourceAccount?.accountType} ({selectedQrSourceAccount?.accountNumber})
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+                <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Transfer Amount</span>
+                <span style={{ fontWeight: 900, fontSize: '18px', color: 'var(--primary)' }}>₹{Number(qrAmount || 0).toLocaleString('en-IN')}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+                <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Remarks</span>
+                <span style={{ fontWeight: 500 }}>{qrRemarks || 'QR Transfer'}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8, borderTop: '1px solid var(--border-color)' }}>
+                <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Risk Assessment</span>
+                <span className={`badge ${calculateEstimatedRisk(qrAmount) === 'HIGH' ? 'badge-rose' : (calculateEstimatedRisk(qrAmount) === 'MEDIUM' ? 'badge-amber' : 'badge-emerald')}`}>
+                  {calculateEstimatedRisk(qrAmount)} RISK
+                </span>
+              </div>
+            </div>
+
+            <div className="modal-actions">
+              <button
+                type="button"
+                onClick={() => setShowQrReviewModal(false)}
+                className="btn btn-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmQrTransfer}
+                disabled={loading}
+                className="btn btn-primary"
+              >
+                {loading ? 'Processing Transfer…' : 'Confirm & Send Money'}
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Standard Transfer Review Modal */}
+      <Modal isOpen={showReviewModal} onClose={() => setShowReviewModal(false)} title="Review & Confirm Transfer">
+        <div>
+          <div style={{ padding: '14px 16px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)', marginBottom: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+              <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Source Account</span>
+              <span style={{ fontWeight: 700, fontFamily: 'monospace' }}>{fromAccountNumber}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+              <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Recipient Account</span>
+              <span style={{ fontWeight: 700, fontFamily: 'monospace' }}>{toAccountNumber} {recipientName ? `(${recipientName})` : ''}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+              <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Transfer Amount</span>
+              <span style={{ fontWeight: 800, fontSize: '16px', color: 'var(--primary)' }}>₹{Number(amount || 0).toLocaleString('en-IN')}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+              <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Remarks</span>
+              <span style={{ fontWeight: 500 }}>{description || 'Fund Transfer'}</span>
+            </div>
+          </div>
+
+          <div className="modal-actions">
+            <button
+              type="button"
+              onClick={() => setShowReviewModal(false)}
+              className="btn btn-secondary"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleConfirmStandardTransfer}
+              disabled={loading}
+              className="btn btn-primary"
+            >
+              {loading ? 'Processing…' : 'Authorize Transfer'}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Camera QR Scanner Modal */}
+      <Modal isOpen={showCameraScanner} onClose={stopCameraScanner} title="Scan FinSync QR Code">
+        <div>
+          {cameraError ? (
+            <div style={{ padding: 24, textAlign: 'center' }}>
+              <AlertTriangle size={36} color="var(--accent-amber)" style={{ marginBottom: 10 }} />
+              <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: 16 }}>{cameraError}</p>
+              <button onClick={stopCameraScanner} className="btn btn-secondary" style={{ width: '100%' }}>
+                Close Scanner
+              </button>
+            </div>
+          ) : (
+            <div>
+              <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: 12, textAlign: 'center' }}>
+                Position the recipient's FinSync QR code inside the camera viewport.
+              </p>
+              <div
+                style={{
+                  width: '100%',
+                  aspectRatio: '4/3',
+                  background: '#000000',
+                  borderRadius: 12,
+                  overflow: 'hidden',
+                  position: 'relative',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <video
+                  ref={videoRef}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+                {/* Target Frame Overlay */}
                 <div
                   style={{
                     position: 'absolute',
-                    top: '100%',
-                    left: 0,
-                    right: 0,
-                    zIndex: 100,
-                    background: 'var(--bg-card)',
-                    border: '1.5px solid var(--primary)',
-                    borderRadius: 14,
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-                    maxHeight: 280,
-                    overflowY: 'auto',
-                    marginTop: 6
+                    width: 180,
+                    height: 180,
+                    border: '2px solid var(--primary)',
+                    borderRadius: 12,
+                    boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.4)',
+                    pointerEvents: 'none'
                   }}
-                >
-                  <div style={{ padding: '8px 14px', fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', borderBottom: '1px solid var(--border-color)', textTransform: 'uppercase', display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Matching Bank Recipients ({searchFilteredRecipients.length})</span>
-                    <button type="button" onClick={() => setShowSearchResults(false)} style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontWeight: 800 }}>Close ✕</button>
-                  </div>
+                />
+              </div>
 
-                  {searchFilteredRecipients.length === 0 ? (
-                    <div style={{ padding: 20, textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 600 }}>
-                      No recipients match "{recipientSearchTerm}".
-                    </div>
-                  ) : (
-                    searchFilteredRecipients.map((a) => {
-                      const isSelected = toAccountNumber === a.accountNumber
-                      return (
-                        <div
-                          key={a.id || a.accountNumber}
-                          onClick={() => selectRecipient(a)}
-                          style={{
-                            padding: '12px 16px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            borderBottom: '1px solid var(--border-color)',
-                            cursor: 'pointer',
-                            background: isSelected ? 'rgba(99,102,241,0.15)' : 'transparent',
-                            transition: 'background 0.15s ease'
-                          }}
-                          onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(99,102,241,0.1)' }}
-                          onMouseLeave={(e) => { e.currentTarget.style.background = isSelected ? 'rgba(99,102,241,0.15)' : 'transparent' }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                            <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #10b981, #059669)', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.9rem' }}>
-                              {(a.userName || 'C')[0].toUpperCase()}
-                            </div>
-                            <div>
-                              <div style={{ fontWeight: 800, color: 'var(--text-main)', fontSize: '0.92rem', display: 'flex', alignItems: 'center', gap: 6 }}>
-                                {a.userName || 'Valued Client'}
-                                <span style={{ fontSize: '0.68rem', fontWeight: 800, padding: '2px 6px', borderRadius: 4, background: 'rgba(16,185,129,0.18)', color: '#10b981' }}>
-                                  CUSTOMER
-                                </span>
-                              </div>
-                              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', gap: 10, marginTop: 2 }}>
-                                <span style={{ fontFamily: 'monospace', fontWeight: 700 }}>{a.accountNumber}</span>
-                                {(a.userPhone || a.phoneNumber) ? (
-                                  <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                                    <Phone size={12} /> {a.userPhone || a.phoneNumber}
-                                  </span>
-                                ) : null}
-                              </div>
-                            </div>
-                          </div>
-
-                          <div style={{ textAlign: 'right' }}>
-                            <span style={{ fontSize: '0.72rem', fontWeight: 800, padding: '3px 8px', borderRadius: 99, background: 'rgba(99,102,241,0.15)', color: 'var(--primary)' }}>
-                              {a.accountType || 'SAVINGS'}
-                            </span>
-                            {isSelected && <div style={{ color: '#10b981', fontSize: '0.75rem', fontWeight: 800, marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}><Check size={12} /> Selected</div>}
-                          </div>
-                        </div>
-                      )
-                    })
-                  )}
-                </div>
-              )}
-
-              {/* Banking Recipients List — visible always */}
-              {recipientCandidates.length > 0 && (
-                <div style={{ marginTop: 14 }}>
-                  <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)', fontWeight: 800, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    {recipientSearchTerm.trim() ? `Matching Banking Recipients (${searchFilteredRecipients.length})` : `Banking Recipients (${recipientCandidates.length})`}
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 240, overflowY: 'auto', borderRadius: 12, border: '1px solid var(--border-color)', padding: 6 }}>
-                    {(recipientSearchTerm.trim() ? searchFilteredRecipients : recipientCandidates).map((a) => {
-                      const isSelected = toAccountNumber === a.accountNumber
-                      return (
-                        <div
-                          key={a.id || a.accountNumber}
-                          onClick={() => selectRecipient(a)}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            padding: '10px 14px',
-                            borderRadius: 10,
-                            cursor: 'pointer',
-                            background: isSelected ? 'rgba(99,102,241,0.18)' : 'rgba(255,255,255,0.03)',
-                            border: isSelected ? '1.5px solid var(--primary)' : '1px solid transparent',
-                            transition: 'all 0.15s ease'
-                          }}
-                          onMouseEnter={(e) => { if (!isSelected) e.currentTarget.style.background = 'rgba(99,102,241,0.08)' }}
-                          onMouseLeave={(e) => { if (!isSelected) e.currentTarget.style.background = 'rgba(255,255,255,0.03)' }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                            <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.88rem', flexShrink: 0 }}>
-                              {(a.userName || 'C')[0].toUpperCase()}
-                            </div>
-                            <div>
-                              <div style={{ fontWeight: 800, color: 'var(--text-main)', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: 6 }}>
-                                {a.userName || 'Valued Client'}
-                                <span style={{ fontSize: '0.68rem', fontWeight: 800, padding: '1px 6px', borderRadius: 4, background: 'rgba(16,185,129,0.18)', color: '#10b981' }}>
-                                  CUSTOMER
-                                </span>
-                              </div>
-                              <div style={{ fontSize: '0.77rem', color: 'var(--text-muted)', fontFamily: 'monospace', fontWeight: 700, marginTop: 2 }}>
-                                {a.accountNumber}
-                                {(a.userPhone || a.phoneNumber) && (
-                                  <span style={{ marginLeft: 8, fontFamily: 'inherit', fontWeight: 600 }}>· {a.userPhone || a.phoneNumber}</span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span style={{ fontSize: '0.72rem', fontWeight: 800, padding: '3px 8px', borderRadius: 99, background: 'rgba(99,102,241,0.15)', color: 'var(--primary)' }}>
-                              {a.accountType || 'SAVINGS'}
-                            </span>
-                            {isSelected && (
-                              <div style={{ color: '#10b981', display: 'flex', alignItems: 'center', gap: 3 }}>
-                                <Check size={15} />
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Step 3: Transfer Amount + Presets */}
-            <div className="form-group">
-              <label style={{ fontWeight: 800 }}>Transfer Amount (₹)</label>
-              <input
-                type="number"
-                min="1"
-                step="0.01"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                required
-                placeholder="Enter amount in ₹"
-              />
-
-              <div className="preset-pills">
-                {presetAmounts.map((amt) => (
-                  <button
-                    key={amt}
-                    type="button"
-                    className={`preset-pill ${Number(amount) === amt ? 'active' : ''}`}
-                    onClick={() => setAmount(amt.toString())}
-                  >
-                    +₹{amt.toLocaleString('en-IN')}
-                  </button>
-                ))}
+              <div className="modal-actions">
+                <button type="button" className="btn btn-secondary" onClick={stopCameraScanner}>
+                  Cancel
+                </button>
               </div>
             </div>
+          )}
+        </div>
+      </Modal>
 
-            {/* Step 4: Note */}
-            <div className="form-group">
-              <label style={{ fontWeight: 800 }}>Reference Note (Optional)</label>
-              <input
-                type="text"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="e.g. Invoice payout, Project bonus"
-              />
-            </div>
-
-            {/* Features Banner */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 16,
-              padding: 16,
-              borderRadius: 12,
-              background: 'rgba(99, 102, 241, 0.08)',
-              border: '1px solid rgba(99, 102, 241, 0.2)',
-              marginBottom: 24,
-              fontSize: '0.88rem',
-              color: 'var(--text-muted)'
-            }}>
-              <ShieldCheck size={28} color="var(--primary)" style={{ flexShrink: 0 }} />
-              <div>
-                <span style={{ color: 'var(--text-main)', fontWeight: 800 }}>Instant 24/7 IMPS & Peer Transfer</span>
-                <p style={{ margin: 0, fontSize: '0.8rem', marginTop: 2 }}>Transfers are authenticated and recorded directly in the central database ledger.</p>
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn btn-primary"
+      {/* Transaction Receipt Modal */}
+      <Modal isOpen={receipt !== null} onClose={() => setReceipt(null)} title="Transfer Authorization Receipt">
+        {receipt && (
+          <div style={{ textAlign: 'center', padding: '10px 0' }}>
+            <div
               style={{
-                width: '100%',
-                padding: '16px',
-                fontWeight: 800,
-                fontSize: '1.05rem',
+                width: 52,
+                height: 52,
+                borderRadius: '50%',
+                background: 'rgba(16,185,129,0.15)',
+                color: 'var(--accent-emerald)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 10
+                margin: '0 auto 12px auto'
               }}
             >
-              <Send size={18} />
-              <span>{loading ? 'Processing Transfer...' : `Confirm & Send ₹${Number(amount || 0).toLocaleString('en-IN')}`}</span>
-            </button>
-          </form>
-        </div>
-      )}
-
-      {/* Transfer Success Receipt Modal */}
-      {receipt && (
-        <Modal isOpen={!!receipt} onClose={() => setReceipt(null)} title="Transfer Confirmation Receipt">
-          <div style={{ textAlign: 'center', padding: '10px 0' }}>
-            <div style={{
-              width: 56,
-              height: 56,
-              borderRadius: '50%',
-              background: 'rgba(16, 185, 129, 0.15)',
-              color: '#10b981',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 16px auto'
-            }}>
               <CheckCircle2 size={32} />
             </div>
 
-            <h3 style={{ fontSize: '1.35rem', fontWeight: 900, marginBottom: 4, color: 'var(--text-main)' }}>
-              Transfer Completed!
+            <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-main)', marginBottom: 2 }}>
+              Transfer Successful
             </h3>
-            <div style={{ fontSize: '2rem', fontWeight: 900, color: '#10b981', margin: '12px 0' }}>
-              ₹{receipt.amount.toLocaleString('en-IN')}
-            </div>
+            <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: 16 }}>
+              {receipt.isQr ? 'QR Instant Transfer executed and recorded in the audit trail.' : 'Transaction successfully executed.'}
+            </p>
 
-            <div style={{
-              background: 'var(--bg-input)',
-              borderRadius: 14,
-              padding: '16px 20px',
-              textAlign: 'left',
-              margin: '20px 0',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 10,
-              fontSize: '0.88rem'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Transaction Reference</span>
-                <span style={{ fontWeight: 800, color: 'var(--primary)', fontFamily: 'monospace' }}>{receipt.txnId}</span>
+            <div style={{ padding: '14px 16px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)', textAlign: 'left', marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Transaction ID</span>
+                <span style={{ fontWeight: 700, fontFamily: 'monospace', color: 'var(--primary)' }}>{receipt.transactionId || '#TXN-00101'}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Transferred Amount</span>
+                <span style={{ fontWeight: 800, color: 'var(--primary)' }}>₹{Number(receipt.amount || 0).toLocaleString('en-IN')}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Sent To</span>
+                <span style={{ fontWeight: 700 }}>{receipt.recipientName} {receipt.payId ? `[${receipt.payId}]` : ''}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
                 <span style={{ color: 'var(--text-muted)' }}>From Account</span>
-                <span style={{ fontWeight: 700, fontFamily: 'monospace' }}>{receipt.from}</span>
+                <span style={{ fontWeight: 600, fontFamily: 'monospace' }}>{receipt.fromAccount}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-muted)' }}>To Recipient Account</span>
-                <span style={{ fontWeight: 800, color: '#10b981', fontFamily: 'monospace' }}>{receipt.to}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Risk Score</span>
+                <span style={{ fontWeight: 700, color: receipt.riskLevel === 'HIGH' ? 'var(--accent-rose)' : 'var(--accent-emerald)' }}>{receipt.riskLevel || 'LOW'}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Description Note</span>
-                <span style={{ fontWeight: 600 }}>{receipt.description}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Completed At</span>
-                <span style={{ fontWeight: 600 }}>{receipt.timestamp}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                <span style={{ color: 'var(--text-muted)' }}>New Balance</span>
+                <span style={{ fontWeight: 700, color: 'var(--accent-emerald)' }}>₹{Number(receipt.newBalance || 0).toLocaleString('en-IN')}</span>
               </div>
             </div>
 
             <button
-              className="btn btn-primary"
               onClick={() => setReceipt(null)}
-              style={{ width: '100%', padding: '12px', fontWeight: 800 }}
+              className="btn btn-primary"
+              style={{ width: '100%' }}
             >
-              Done & Return
+              Done
             </button>
           </div>
-        </Modal>
-      )}
+        )}
+      </Modal>
+
+      {/* Add Beneficiary Modal */}
+      <Modal isOpen={isAddBeneficiaryOpen} onClose={() => setIsAddBeneficiaryOpen(false)} title="Add Payee Beneficiary">
+        <form onSubmit={handleAddBeneficiary}>
+          <div className="form-group">
+            <label>Beneficiary Full Name</label>
+            <input
+              type="text"
+              placeholder="e.g. Ramesh Kumar"
+              value={benName}
+              onChange={(e) => setBenName(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Bank Name</label>
+            <input
+              type="text"
+              placeholder="e.g. FinSync Bank, HDFC, SBI"
+              value={benBank}
+              onChange={(e) => setBenBank(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Account Number</label>
+            <input
+              type="text"
+              placeholder="e.g. FS4992820634"
+              value={benAcc}
+              onChange={(e) => setBenAcc(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>IFSC Code</label>
+            <input
+              type="text"
+              placeholder="e.g. FSNB0001001"
+              value={benIfsc}
+              onChange={(e) => setBenIfsc(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="modal-actions">
+            <button type="button" className="btn btn-secondary" onClick={() => setIsAddBeneficiaryOpen(false)}>
+              Cancel
+            </button>
+            <button className="btn btn-primary" type="submit">
+              Save Beneficiary
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 package com.finsync.controller;
 
 import com.finsync.dto.AmountRequest;
+import com.finsync.dto.QrTransferRequest;
 import com.finsync.dto.TransferRequest;
 import com.finsync.security.CurrentUser;
 import com.finsync.service.TransactionService;
@@ -35,5 +36,15 @@ public class TransactionController {
     @GetMapping("/accounts/{accountId}/history")
     public ResponseEntity<?> history(@PathVariable Long accountId) {
         return ResponseEntity.ok(transactionService.getTransactionHistory(currentUser.id(), accountId));
+    }
+
+    @GetMapping("/payments/recipient/{payId}")
+    public ResponseEntity<?> resolveRecipient(@PathVariable String payId) {
+        return ResponseEntity.ok(transactionService.resolveQrRecipient(currentUser.id(), payId));
+    }
+
+    @PostMapping("/payments/qr-transfer")
+    public ResponseEntity<?> qrTransfer(@Valid @RequestBody QrTransferRequest req) {
+        return ResponseEntity.ok(transactionService.processQrTransfer(currentUser.id(), req));
     }
 }

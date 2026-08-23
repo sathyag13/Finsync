@@ -42,4 +42,31 @@ public class Account {
 
     @Column(nullable = false)
     private boolean isPrimary = false;
+
+    @Column(nullable = false)
+    private String status = "ACTIVE";
+
+    @Column(nullable = false)
+    private boolean cardFrozen = false;
+
+    @Column(nullable = false)
+    private boolean onlineTxnEnabled = true;
+
+    @Column(nullable = false)
+    private boolean contactlessEnabled = true;
+
+    @Column(nullable = false)
+    private boolean internationalTxnEnabled = false;
+
+    @Column(nullable = false, precision = 15, scale = 2)
+    private BigDecimal dailyLimit = new BigDecimal("50000.00");
+
+    private java.time.LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.createdAt == null) {
+            this.createdAt = java.time.LocalDateTime.now();
+        }
+    }
 }

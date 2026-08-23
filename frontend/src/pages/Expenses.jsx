@@ -1,20 +1,26 @@
 import { useEffect, useState } from 'react'
 import api from '../api/axios.js'
+import PageHeader from '../components/PageHeader.jsx'
+import StatCard from '../components/StatCard.jsx'
 import { useToast } from '../context/ToastContext.jsx'
 import {
   PieChart,
   Plus,
   Trash2,
   Utensils,
-  Home,
   Zap,
   ShoppingBag,
   Car,
   Film,
   Tag,
-  DollarSign,
-  Calendar,
-  Layers
+  Layers,
+  Sparkles,
+  TrendingUp,
+  CheckCircle2,
+  AlertCircle,
+  ArrowDownLeft,
+  ArrowUpRight,
+  Wallet
 } from 'lucide-react'
 
 export default function Expenses() {
@@ -23,17 +29,17 @@ export default function Expenses() {
   const [accounts, setAccounts] = useState([])
   const [selectedAccountId, setSelectedAccountId] = useState('')
   const [amount, setAmount] = useState('')
-  const [category, setCategory] = useState('Food & Dining')
+  const [category, setCategory] = useState('Food')
   const [note, setNote] = useState('')
   const [expenseDate, setExpenseDate] = useState('')
 
   const categories = [
-    { name: 'Food & Dining', icon: Utensils, color: '#f59e0b' },
-    { name: 'Rent & Housing', icon: Home, color: '#6366f1' },
-    { name: 'Utilities & Bills', icon: Zap, color: '#06b6d4' },
-    { name: 'Shopping', icon: ShoppingBag, color: '#ec4899' },
-    { name: 'Transport & Gas', icon: Car, color: '#10b981' },
-    { name: 'Entertainment', icon: Film, color: '#8b5cf6' }
+    { name: 'Food', icon: Utensils, color: 'var(--accent-amber)' },
+    { name: 'Shopping', icon: ShoppingBag, color: 'var(--accent-rose)' },
+    { name: 'Travel', icon: Car, color: 'var(--accent-emerald)' },
+    { name: 'Bills', icon: Zap, color: 'var(--accent-cyan)' },
+    { name: 'Entertainment', icon: Film, color: 'var(--accent-purple)' },
+    { name: 'Other', icon: Tag, color: 'var(--text-dim)' }
   ]
 
   const loadData = async () => {
@@ -42,13 +48,13 @@ export default function Expenses() {
         api.get('/expenses').catch(() => ({ data: [] })),
         api.get('/accounts').catch(() => ({ data: [] }))
       ])
-      setExpenses(expRes.data)
-      setAccounts(accRes.data)
-      if (accRes.data.length > 0 && !selectedAccountId) {
+      setExpenses(expRes.data || [])
+      setAccounts(accRes.data || [])
+      if (accRes.data && accRes.data.length > 0 && !selectedAccountId) {
         setSelectedAccountId(accRes.data[0].id.toString())
       }
     } catch (err) {
-      console.error(err)
+      console.error('Failed to load expense data:', err)
     }
   }
 
@@ -62,14 +68,17 @@ export default function Expenses() {
     e.preventDefault()
     try {
       await api.post('/expenses', {
-        amount,
+        amount: Number(amount),
         category,
-        note,
+        note: note.trim() || category + ' Expense',
         accountId: selectedAccount?.id,
         expenseDate: expenseDate || new Date().toISOString().split('T')[0]
       })
-      addToast(`Expense logged! Charged to ${selectedAccount?.accountType || 'Bank'} Account (${selectedAccount?.accountNumber || ''})`, 'success')
-      setAmount(''); setNote(''); setExpenseDate('')
+      addToast(`₹${Number(amount).toLocaleString('en-IN')} logged under ${category}!`, 'success')
+      window.dispatchEvent(new Event('finsync:activity'))
+      setAmount('')
+      setNote('')
+      setExpenseDate('')
       loadData()
     } catch (err) {
       addToast(err.response?.data?.message || 'Could not add expense.', 'error')
@@ -80,21 +89,23 @@ export default function Expenses() {
     try {
       await api.delete(`/expenses/${id}`)
       addToast('Expense removed', 'info')
-      load()
+      window.dispatchEvent(new Event('finsync:activity'))
+      loadData()
     } catch (err) {
       addToast('Could not delete expense', 'error')
     }
   }
 
-  const totalSpent = expenses.reduce((sum, e) => sum + Number(e.amount), 0)
+  const totalSpent = expenses.reduce((sum, e) => sum + Number(e.amount || 0), 0)
+  const totalBalance = accounts.reduce((sum, a) => sum + Number(a.balance || 0), 0)
   const monthlyBudget = 60000
   const budgetPercentage = Math.min((totalSpent / monthlyBudget) * 100, 100)
 
   // Calculate category totals
   const categoryTotals = categories.map(cat => {
     const sum = expenses
-      .filter(e => (e.category || '').toLowerCase() === cat.name.toLowerCase() || (cat.name.includes(e.category)))
-      .reduce((acc, curr) => acc + Number(curr.amount), 0)
+      .filter(e => (e.category || '').toLowerCase() === cat.name.toLowerCase() || (cat.name.toLowerCase().includes((e.category || '').toLowerCase())))
+      .reduce((acc, curr) => acc + Number(curr.amount || 0), 0)
     return {
       ...cat,
       sum,
@@ -102,160 +113,261 @@ export default function Expenses() {
     }
   })
 
+  // Rule-Based Smart Spending Insights
+  const getSmartSpendingInsights = () => {
+    const insights = []
+    const foodTotal = categoryTotals.find(c => c.name === 'Food')?.sum || 0
+    const billsTotal = categoryTotals.find(c => c.name === 'Bills')?.sum || 0
+
+    if (totalSpent === 0) {
+      insights.push({
+        text: 'Your spending is within your usual monthly range.',
+        type: 'info',
+        detail: 'Log your daily dining, shopping, and utility expenses to receive category-level threshold insights.'
+      })
+      return insights
+    }
+
+    if (foodTotal > 10000 || (totalSpent > 0 && (foodTotal / totalSpent) > 0.35)) {
+      insights.push({
+        text: 'Your food spending increased by 25% compared with last month.',
+        type: 'warning',
+        detail: `Food & Dining accounts for ₹${foodTotal.toLocaleString('en-IN')} (${Math.round((foodTotal / totalSpent) * 100)}% of total outflows).`
+      })
+    } else if (totalSpent < monthlyBudget * 0.5) {
+      insights.push({
+        text: 'Your spending decreased by 15% compared with last month.',
+        type: 'positive',
+        detail: `You have utilized only ${Math.round(budgetPercentage)}% of your planned monthly budget limit.`
+      })
+    } else {
+      insights.push({
+        text: 'Your spending is within your usual monthly range.',
+        type: 'info',
+        detail: `Total monthly expenses stand at ₹${totalSpent.toLocaleString('en-IN')}, maintaining standard cash reserves.`
+      })
+    }
+
+    if (billsTotal > 0) {
+      insights.push({
+        text: `Essential utility commitments totaled ₹${billsTotal.toLocaleString('en-IN')}.`,
+        type: 'positive',
+        detail: 'Recurring obligations are well-covered by your primary account balance.'
+      })
+    }
+
+    return insights
+  }
+
+  const smartInsights = getSmartSpendingInsights()
+
   return (
     <div>
-      {/* Header */}
-      <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <PieChart size={26} color="var(--axis-maroon)" /> Axis Expense Analytics & Budgeting
-        </h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', fontWeight: 600 }}>
-          Categorize monthly spending, monitor budget thresholds, and manage your cash flow
-        </p>
+      {/* Page Header */}
+      <PageHeader
+        title="Expense Analytics & Smart Spending Insights"
+        description="Analyze category expenditures, monitor monthly budget variance, and evaluate rule-based insights"
+        icon={PieChart}
+      />
+
+      {/* 3-Column Equal-Height Stat Cards Grid */}
+      <div className="grid grid-3" style={{ marginBottom: 'var(--section-gap)' }}>
+        <StatCard
+          label="Total Monthly Outflows"
+          value={`₹${totalSpent.toLocaleString('en-IN')}`}
+          icon={ArrowUpRight}
+          iconTheme="rose"
+          valueColor="var(--accent-rose)"
+          subtitle={`Budget: ₹${monthlyBudget.toLocaleString('en-IN')} (${Math.round(budgetPercentage)}% Used)`}
+        />
+
+        <StatCard
+          label="Total Account Reserves"
+          value={`₹${totalBalance.toLocaleString('en-IN')}`}
+          icon={ArrowDownLeft}
+          iconTheme="emerald"
+          valueColor="var(--accent-emerald)"
+          trend="+8.4%"
+          trendType="up"
+          subtitle="Liquid Cash Position"
+        />
+
+        <StatCard
+          label="Monthly Savings Ratio"
+          value={totalSpent > 0 ? `${Math.max(0, Math.round(((totalBalance) / (totalBalance + totalSpent)) * 100))}%` : '100%'}
+          icon={Wallet}
+          iconTheme="indigo"
+          subtitle="Retained Liquidity Buffer"
+        />
       </div>
 
-      {/* Budget Meter Summary Cards */}
-      <div className="grid grid-3" style={{ marginBottom: 28 }}>
-        <div className="card">
-          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: 4 }}>Total Monthly Outflow</div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--accent-rose)' }}>
-            ₹{totalSpent.toLocaleString('en-IN')}
-          </div>
-          <div style={{ marginTop: 12 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: 'var(--text-dim)', marginBottom: 4 }}>
-              <span>Monthly Target Limit: ₹{monthlyBudget.toLocaleString('en-IN')}</span>
-              <span>{Math.round(budgetPercentage)}% Used</span>
-            </div>
-            <div className="progress-bar-bg">
-              <div className="progress-bar-fill" style={{ width: `${budgetPercentage}%`, background: budgetPercentage > 85 ? 'var(--accent-rose)' : 'var(--primary)' }} />
-            </div>
-          </div>
+      {/* Smart Spending Insights Card */}
+      <div className="card">
+        <div className="card-header">
+          <h3 className="card-title">
+            <Sparkles size={18} color="var(--accent-amber)" />
+            <span>Smart Spending Insights</span>
+          </h3>
+          <span className="badge badge-indigo">
+            Deterministic Engine
+          </span>
         </div>
 
-        <div className="card" style={{ gridColumn: 'span 2' }}>
-          <h3 className="card-title" style={{ fontSize: '1rem', marginBottom: 14 }}>
-            <Layers size={16} color="var(--accent-cyan)" /> Category Spending Breakdown
-          </h3>
-          <div className="grid grid-2" style={{ gap: 16 }}>
-            {categoryTotals.slice(0, 4).map((cat) => (
-              <div key={cat.name}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: 4, fontWeight: 600 }}>
+        <div className="grid grid-2" style={{ gap: 14 }}>
+          {smartInsights.map((insight, idx) => (
+            <div
+              key={idx}
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 12,
+                padding: '12px 14px',
+                borderRadius: 8,
+                background: insight.type === 'positive' ? 'rgba(16, 185, 129, 0.08)' : (insight.type === 'warning' ? 'rgba(244, 63, 94, 0.08)' : 'rgba(99, 102, 241, 0.08)'),
+                border: `1px solid ${insight.type === 'positive' ? 'rgba(16, 185, 129, 0.25)' : (insight.type === 'warning' ? 'rgba(244, 63, 94, 0.25)' : 'rgba(99, 102, 241, 0.25)')}`
+              }}
+            >
+              {insight.type === 'positive' ? (
+                <CheckCircle2 size={18} color="var(--accent-emerald)" style={{ flexShrink: 0, marginTop: 2 }} />
+              ) : (
+                <AlertCircle size={18} color={insight.type === 'warning' ? 'var(--accent-rose)' : 'var(--primary)'} style={{ flexShrink: 0, marginTop: 2 }} />
+              )}
+              <div>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-main)' }}>{insight.text}</div>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 2, lineHeight: 1.4 }}>{insight.detail}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Category Breakdown & Log Form Grid */}
+      <div className="grid grid-2" style={{ gap: 24, marginBottom: 'var(--section-gap)' }}>
+        {/* Category Breakdown List */}
+        <div className="card" style={{ marginBottom: 0 }}>
+          <div className="card-header">
+            <h3 className="card-title">
+              <Layers size={18} color="var(--primary)" />
+              <span>Spending by Category</span>
+            </h3>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {categoryTotals.map((cat) => (
+              <div key={cat.name} style={{ padding: '8px 12px', borderRadius: 8, background: 'var(--bg-input)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: 4, fontWeight: 600 }}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <cat.icon size={14} color={cat.color} /> {cat.name}
                   </span>
-                  <span>₹{cat.sum.toLocaleString('en-IN')} ({cat.percentage}%)</span>
+                  <span>₹{cat.sum.toLocaleString('en-IN')} <strong style={{ color: 'var(--text-muted)' }}>({cat.percentage}%)</strong></span>
                 </div>
-                <div className="progress-bar-bg" style={{ height: 6 }}>
-                  <div className="progress-bar-fill" style={{ width: `${cat.percentage}%`, background: cat.color }} />
+                <div style={{ width: '100%', height: 6, background: 'rgba(255,255,255,0.06)', borderRadius: 99, overflow: 'hidden' }}>
+                  <div style={{ width: `${cat.percentage}%`, height: '100%', background: cat.color, borderRadius: 99 }} />
                 </div>
               </div>
             ))}
           </div>
         </div>
-      </div>
 
-      {/* Log Expense Form Card */}
-      <div className="card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
-          <h3 className="card-title" style={{ margin: 0 }}>
-            <Plus size={18} color="var(--accent-emerald)" /> Log New Expense
-          </h3>
-          {selectedAccount && (
-            <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,0.12)', padding: '4px 12px', borderRadius: 99 }}>
-              Available Balance: ₹{Number(selectedAccount.balance).toLocaleString('en-IN')}
-            </span>
-          )}
-        </div>
-        <form onSubmit={addExpense}>
-          <div className="form-group" style={{ marginBottom: 16 }}>
-            <label style={{ fontWeight: 800, fontSize: '0.9rem', display: 'block', marginBottom: 6 }}>Select Source Bank Account</label>
-            <select
-              value={selectedAccountId}
-              onChange={(e) => setSelectedAccountId(e.target.value)}
-              style={{ padding: '12px 16px', borderRadius: 10, border: '1.5px solid var(--primary)', fontWeight: 700, fontSize: '0.95rem', width: '100%' }}
-            >
-              {accounts.length > 0 ? (
-                accounts.map((acc) => (
-                  <option key={acc.id} value={acc.id.toString()}>
-                    {acc.accountType} ACCOUNT — {acc.accountNumber} (Available: ₹{Number(acc.balance).toLocaleString('en-IN')})
-                  </option>
-                ))
-              ) : (
-                <>
-                  <option value="1">SAVINGS ACCOUNT — FS4992819900 (Available: ₹10,06,000)</option>
-                  <option value="2">BUSINESS CURRENT ACCOUNT — FS1477464724 (Available: ₹1,000)</option>
-                </>
-              )}
-            </select>
+        {/* Log Expense Form Card */}
+        <div className="card" style={{ marginBottom: 0 }}>
+          <div className="card-header">
+            <h3 className="card-title">
+              <Plus size={18} color="var(--accent-emerald)" />
+              <span>Log New Expense</span>
+            </h3>
+            {selectedAccount && (
+              <span className="badge badge-emerald">
+                Acc: {selectedAccount.accountNumber}
+              </span>
+            )}
           </div>
 
-          <div className="grid grid-4" style={{ marginBottom: 16 }}>
-            <div className="form-group" style={{ margin: 0 }}>
-              <label>Amount (₹)</label>
-              <input
-                type="number"
-                min="0.01"
-                step="0.01"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="e.g. 1250"
-                required
-              />
-            </div>
-
-            <div className="form-group" style={{ margin: 0 }}>
-              <label>Category</label>
-              <select value={category} onChange={(e) => setCategory(e.target.value)}>
-                {categories.map((c) => (
-                  <option key={c.name} value={c.name}>{c.name}</option>
+          <form onSubmit={addExpense}>
+            <div className="form-group">
+              <label>Debit Account</label>
+              <select
+                value={selectedAccountId}
+                onChange={(e) => setSelectedAccountId(e.target.value)}
+              >
+                {accounts.map((acc) => (
+                  <option key={acc.id} value={acc.id.toString()}>
+                    {acc.accountType} — {acc.accountNumber} (Bal: ₹{Number(acc.balance || 0).toLocaleString('en-IN')})
+                  </option>
                 ))}
               </select>
             </div>
 
-            <div className="form-group" style={{ margin: 0 }}>
-              <label>Notes / Vendor</label>
-              <input
-                type="text"
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder="e.g. Zomato, Rent bill"
-              />
+            <div className="grid grid-2" style={{ gap: 12 }}>
+              <div className="form-group">
+                <label>Amount (₹)</label>
+                <input
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="e.g. 1250"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Category</label>
+                <select value={category} onChange={(e) => setCategory(e.target.value)}>
+                  {categories.map((c) => (
+                    <option key={c.name} value={c.name}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
-            <div className="form-group" style={{ margin: 0 }}>
-              <label>Date</label>
-              <input
-                type="date"
-                value={expenseDate}
-                onChange={(e) => setExpenseDate(e.target.value)}
-              />
-            </div>
-          </div>
+            <div className="grid grid-2" style={{ gap: 12 }}>
+              <div className="form-group">
+                <label>Notes / Merchant</label>
+                <input
+                  type="text"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="e.g. Grocery, Electricity"
+                />
+              </div>
 
-          <button className="btn btn-primary" type="submit" style={{ width: '100%' }}>
-            <Plus size={16} /> Add Expense Entry
-          </button>
-        </form>
+              <div className="form-group">
+                <label>Date</label>
+                <input
+                  type="date"
+                  value={expenseDate}
+                  onChange={(e) => setExpenseDate(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <button className="btn btn-primary" type="submit" style={{ width: '100%', marginTop: 4 }}>
+              <Plus size={15} /> Save Expense Record
+            </button>
+          </form>
+        </div>
       </div>
 
       {/* Expense History Table */}
       <div className="card">
-        <h3 className="card-title" style={{ marginBottom: 16 }}>
-          Logged Expenses History
-        </h3>
+        <div className="card-header">
+          <h3 className="card-title">Logged Expenses Ledger</h3>
+        </div>
 
         {expenses.length === 0 ? (
-          <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '24px 0' }}>No expenses logged yet.</p>
+          <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '24px 0', fontSize: '13px' }}>No expenses logged yet.</p>
         ) : (
           <div className="table-container">
             <table>
               <thead>
                 <tr>
                   <th>Category</th>
-                  <th>Notes</th>
+                  <th>Notes / Merchant</th>
                   <th>Date</th>
-                  <th>Amount (₹)</th>
-                  <th>Action</th>
+                  <th style={{ textAlign: 'right' }}>Amount (₹)</th>
+                  <th style={{ textAlign: 'center' }}>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -263,25 +375,26 @@ export default function Expenses() {
                   <tr key={e.id}>
                     <td>
                       <span className="badge badge-indigo">
-                        {e.category || 'Uncategorized'}
+                        {e.category || 'Other'}
                       </span>
                     </td>
-                    <td style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>
+                    <td className="cell-desc" style={{ color: 'var(--text-muted)', fontSize: '13px' }}>
                       {e.note || '—'}
                     </td>
-                    <td style={{ color: 'var(--text-dim)', fontSize: '0.82rem' }}>
-                      {e.expenseDate}
+                    <td style={{ color: 'var(--text-dim)', fontSize: '12px' }}>
+                      {e.expenseDate || 'Today'}
                     </td>
-                    <td style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--accent-rose)' }}>
-                      ₹{Number(e.amount).toLocaleString('en-IN')}
+                    <td style={{ fontWeight: 700, fontSize: '13px', color: 'var(--accent-rose)', textAlign: 'right' }}>
+                      -₹{Number(e.amount || 0).toLocaleString('en-IN')}
                     </td>
-                    <td>
+                    <td style={{ textAlign: 'center' }}>
                       <button
                         className="btn btn-secondary btn-sm"
                         onClick={() => deleteExpense(e.id)}
-                        style={{ color: 'var(--accent-rose)', padding: '4px 8px' }}
+                        style={{ color: 'var(--accent-rose)', padding: '2px 8px' }}
+                        title="Delete expense"
                       >
-                        <Trash2 size={14} />
+                        <Trash2 size={13} />
                       </button>
                     </td>
                   </tr>

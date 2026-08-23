@@ -44,6 +44,12 @@ public class Transaction {
 
     private String description;
 
+    @Column(nullable = false)
+    private String status = "SUCCESS";
+
+    @Column(nullable = false)
+    private String riskLevel = "LOW";
+
     private LocalDateTime createdAt;
 
     @PrePersist
