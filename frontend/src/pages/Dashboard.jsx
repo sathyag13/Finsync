@@ -25,13 +25,10 @@ import {
   Check,
   PiggyBank,
   ArrowRight,
-  TrendingDown,
   ShoppingBag,
   Utensils,
   Zap,
-  Plane,
-  Car,
-  HelpCircle
+  Car
 } from 'lucide-react'
 
 export default function Dashboard() {
@@ -40,6 +37,7 @@ export default function Dashboard() {
   const navigate = useNavigate()
 
   const [accounts, setAccounts] = useState([])
+  const [allTransactions, setAllTransactions] = useState([])
   const [recentTransactions, setRecentTransactions] = useState([])
   const [savingsGoals, setSavingsGoals] = useState([])
   const [expenses, setExpenses] = useState([])
@@ -77,7 +75,11 @@ export default function Dashboard() {
         )
         const allHistories = await Promise.all(historyPromises)
         const combined = allHistories.flat().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        setRecentTransactions(combined.slice(0, 6))
+        setAllTransactions(combined)
+        setRecentTransactions(combined.slice(0, 5))
+      } else {
+        setAllTransactions([])
+        setRecentTransactions([])
       }
     } catch (err) {
       console.error('Failed to load dashboard:', err)
@@ -90,7 +92,7 @@ export default function Dashboard() {
     loadDashboardData()
   }, [])
 
-  // Calculate Balances
+  // 1. Calculate Real Balances
   const totalBalance = accounts.reduce((sum, a) => sum + (Number(a.balance) || 0), 0)
   const savingsBalance = accounts
     .filter(a => (a.accountType || '').toUpperCase().includes('SAVINGS'))
@@ -99,12 +101,98 @@ export default function Dashboard() {
     .filter(a => (a.accountType || '').toUpperCase().includes('CURRENT') || (a.accountType || '').toUpperCase().includes('BUSINESS'))
     .reduce((sum, a) => sum + (Number(a.balance) || 0), 0)
 
-  // Calculate Monthly Spending & Categories
-  const totalSpentThisMonth = expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0)
-  const foodSpending = expenses.filter(e => (e.category || '').toLowerCase().includes('food') || (e.category || '').toLowerCase().includes('dining')).reduce((s, e) => s + Number(e.amount), 0)
-  const shoppingSpending = expenses.filter(e => (e.category || '').toLowerCase().includes('shop')).reduce((s, e) => s + Number(e.amount), 0)
-  const billsSpending = expenses.filter(e => (e.category || '').toLowerCase().includes('bill') || (e.category || '').toLowerCase().includes('util')).reduce((s, e) => s + Number(e.amount), 0)
-  const travelSpending = expenses.filter(e => (e.category || '').toLowerCase().includes('travel') || (e.category || '').toLowerCase().includes('trans')).reduce((s, e) => s + Number(e.amount), 0)
+  // 2. Calculate Real Inflow & Outflow strictly from data (No fake fallbacks)
+  const totalInflow = allTransactions
+    .filter(t => t.type === 'DEPOSIT' || t.type === 'TRANSFER_IN' || (t.type && t.type.includes('IN')))
+    .reduce((s, t) => s + Number(t.amount || 0), 0)
+
+  const outgoingTxns = allTransactions
+    .filter(t => t.type === 'WITHDRAWAL' || t.type === 'TRANSFER_OUT' || t.type === 'QR_TRANSFER' || (t.type && t.type.includes('OUT')))
+
+  const totalOutflow = outgoingTxns.reduce((s, t) => s + Number(t.amount || 0), 0)
+
+  // 3. Dynamic Spending Calculation & Category Grouping
+  const totalSpentThisMonth = expenses.length > 0
+    ? expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0)
+    : totalOutflow
+
+  // Dynamic Spending Categories List (Only non-zero categories)
+  const spendingCategories = (() => {
+    if (expenses.length > 0) {
+      const map = {}
+      expenses.forEach(e => {
+        const cat = e.category || 'General'
+        map[cat] = (map[cat] || 0) + Number(e.amount || 0)
+      })
+      return Object.entries(map)
+        .map(([name, amount]) => ({ name, amount }))
+        .filter(c => c.amount > 0)
+        .sort((a, b) => b.amount - a.amount)
+    }
+    if (outgoingTxns.length > 0) {
+      const map = {}
+      outgoingTxns.forEach(t => {
+        const { category } = getFriendlyTxnInfo(t)
+        map[category] = (map[category] || 0) + Number(t.amount || 0)
+      })
+      return Object.entries(map)
+        .map(([name, amount]) => ({ name, amount }))
+        .filter(c => c.amount > 0)
+        .sort((a, b) => b.amount - a.amount)
+    }
+    return []
+  })()
+
+  // Monthly Budget
+  const monthlyBudget = totalInflow > 0 ? Math.max(50000, totalInflow) : 50000
+  const budgetRemaining = Math.max(0, monthlyBudget - totalSpentThisMonth)
+
+  // Helper for Transaction Label
+  function getFriendlyTxnInfo(txn) {
+    const isCredit = (txn.type && txn.type.includes('IN')) || txn.type === 'DEPOSIT'
+    let label = txn.description || 'Transaction'
+    let category = 'Transfer'
+
+    if (txn.type === 'DEPOSIT') {
+      label = 'Deposit'
+      category = 'Added Money'
+    } else if (txn.type === 'WITHDRAWAL') {
+      label = 'Cash Withdrawal'
+      category = 'Cash'
+    } else if (txn.type === 'QR_TRANSFER') {
+      category = 'Scan & Pay'
+    } else if (txn.description && txn.description.toLowerCase().includes('food')) {
+      category = 'Food & Dining'
+    } else if (txn.description && txn.description.toLowerCase().includes('amazon')) {
+      category = 'Shopping'
+    } else if (txn.description && txn.description.toLowerCase().includes('bill')) {
+      category = 'Bills & Utilities'
+    } else if (txn.description && txn.description.toLowerCase().includes('travel')) {
+      category = 'Travel & Transit'
+    } else if (txn.description && txn.description.toLowerCase().includes('salary')) {
+      category = 'Salary'
+    }
+
+    return { isCredit, label, category }
+  }
+
+  // Category Icon & Color Helper
+  const getCategoryDetails = (catName) => {
+    const c = (catName || '').toLowerCase()
+    if (c.includes('food') || c.includes('dining') || c.includes('restaurant') || c.includes('swiggy') || c.includes('zomato')) {
+      return { label: catName, icon: Utensils, color: 'var(--primary)' }
+    }
+    if (c.includes('shop') || c.includes('amazon') || c.includes('flipkart') || c.includes('retail')) {
+      return { label: catName, icon: ShoppingBag, color: 'var(--accent-emerald)' }
+    }
+    if (c.includes('bill') || c.includes('util') || c.includes('electric') || c.includes('recharge') || c.includes('wifi')) {
+      return { label: catName, icon: Zap, color: 'var(--accent-amber)' }
+    }
+    if (c.includes('travel') || c.includes('flight') || c.includes('transit') || c.includes('uber') || c.includes('ola') || c.includes('transport')) {
+      return { label: catName, icon: Car, color: 'var(--accent-cyan)' }
+    }
+    return { label: catName, icon: PieChart, color: 'var(--primary)' }
+  }
 
   // Quick Deposit Handler
   const handleQuickDeposit = async (e) => {
@@ -157,40 +245,10 @@ export default function Dashboard() {
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
 
-  // Helper for Transaction Label
-  const getFriendlyTxnInfo = (txn) => {
-    const isCredit = txn.type.includes('IN') || txn.type === 'DEPOSIT'
-    let label = txn.description || 'Transaction'
-    let category = 'Transfer'
-
-    if (txn.type === 'DEPOSIT') {
-      label = 'Deposit'
-      category = 'Added Money'
-    } else if (txn.type === 'WITHDRAWAL') {
-      label = 'Cash Withdrawal'
-      category = 'Cash'
-    } else if (txn.type === 'QR_TRANSFER') {
-      category = 'Scan & Pay'
-    } else if (txn.description && txn.description.toLowerCase().includes('amazon')) {
-      category = 'Shopping'
-    } else if (txn.description && txn.description.toLowerCase().includes('salary')) {
-      category = 'Salary'
-    }
-
-    return { isCredit, label, category }
-  }
-
-  // Calculate Monthly Inflow & Outflow
-  const totalInflow = recentTransactions
-    .filter(t => t.type === 'DEPOSIT' || t.type.includes('IN'))
-    .reduce((s, t) => s + Number(t.amount || 0), 0) || (totalBalance > 0 ? totalBalance : 15666)
-
-  const totalOutflow = expenses.reduce((s, e) => s + Number(e.amount || 0), 0) || 7500
-
   return (
     <div>
-      {/* Bold Modern Welcome Header */}
-      <div style={{ marginBottom: 26 }}>
+      {/* 1. Bold Modern Welcome Header */}
+      <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: '2.4rem', fontWeight: 900, color: 'var(--text-main)', margin: 0, letterSpacing: '-0.8px', lineHeight: 1.2 }}>
           {greeting}, {user?.fullName?.split(' ')[0] || 'SCOTT'} 👋
         </h1>
@@ -199,7 +257,7 @@ export default function Dashboard() {
         </p>
       </div>
 
-      {/* Main Money Overview Banner with Inflow & Outflow (Zero Empty Space) */}
+      {/* 2. Main Money Overview Banner with Dynamic Inflow & Outflow */}
       <div
         className="card"
         style={{
@@ -221,7 +279,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Inflow & Outflow Metrics (Fills Middle Area) */}
+          {/* Inflow & Outflow Metrics (Calculated Strictly from Real Data) */}
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
             <div style={{ padding: '10px 18px', borderRadius: 12, background: 'var(--bg-card)', border: '1px solid rgba(16, 185, 129, 0.3)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 2px 8px rgba(16,185,129,0.08)' }}>
               <div style={{ width: 34, height: 34, borderRadius: 8, background: 'rgba(16, 185, 129, 0.15)', color: 'var(--accent-emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -248,7 +306,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Account Breakdown */}
+          {/* Account Breakdown (From Real Accounts Array) */}
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
             <div style={{ padding: '10px 18px', borderRadius: 12, background: 'var(--bg-card)', border: '1px solid var(--border-color)', textAlign: 'right' }}>
               <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-muted)' }}>SAVINGS ACCOUNT</div>
@@ -267,7 +325,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* QUICK ACTIONS SECTION (Distinct Clickable Interactive Button Cards) */}
+      {/* 3. QUICK ACTIONS SECTION (Preserved Clickable Interactive Buttons) */}
       <div style={{ marginBottom: 'var(--section-gap)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
           <h2 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-main)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -278,7 +336,7 @@ export default function Dashboard() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 16 }}>
-          {/* Send Money Button */}
+          {/* Send Money */}
           <button
             type="button"
             onClick={() => navigate('/transfer')}
@@ -295,16 +353,6 @@ export default function Dashboard() {
               textAlign: 'left',
               transition: 'all 0.2s ease',
               boxShadow: '0 4px 14px rgba(0,0,0,0.05)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-3px)'
-              e.currentTarget.style.borderColor = 'var(--primary)'
-              e.currentTarget.style.boxShadow = '0 8px 20px rgba(99, 102, 241, 0.2)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.25)'
-              e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.05)'
             }}
           >
             <div
@@ -328,7 +376,7 @@ export default function Dashboard() {
             </div>
           </button>
 
-          {/* Scan & Pay Button */}
+          {/* Scan & Pay */}
           <button
             type="button"
             onClick={() => navigate('/transfer')}
@@ -345,16 +393,6 @@ export default function Dashboard() {
               textAlign: 'left',
               transition: 'all 0.2s ease',
               boxShadow: '0 4px 14px rgba(0,0,0,0.05)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-3px)'
-              e.currentTarget.style.borderColor = 'var(--accent-emerald)'
-              e.currentTarget.style.boxShadow = '0 8px 20px rgba(16, 185, 129, 0.2)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.25)'
-              e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.05)'
             }}
           >
             <div
@@ -378,7 +416,7 @@ export default function Dashboard() {
             </div>
           </button>
 
-          {/* Receive Money Button */}
+          {/* Receive Money */}
           <button
             type="button"
             onClick={() => setShowReceiveModal(true)}
@@ -395,16 +433,6 @@ export default function Dashboard() {
               textAlign: 'left',
               transition: 'all 0.2s ease',
               boxShadow: '0 4px 14px rgba(0,0,0,0.05)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-3px)'
-              e.currentTarget.style.borderColor = 'var(--accent-cyan)'
-              e.currentTarget.style.boxShadow = '0 8px 20px rgba(6, 182, 212, 0.2)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.25)'
-              e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.05)'
             }}
           >
             <div
@@ -428,7 +456,7 @@ export default function Dashboard() {
             </div>
           </button>
 
-          {/* Add Money (Deposit) Button */}
+          {/* Add Money (Deposit) */}
           <button
             type="button"
             onClick={() => setShowDepositModal(true)}
@@ -445,16 +473,6 @@ export default function Dashboard() {
               textAlign: 'left',
               transition: 'all 0.2s ease',
               boxShadow: '0 4px 14px rgba(0,0,0,0.05)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-3px)'
-              e.currentTarget.style.borderColor = 'var(--accent-amber)'
-              e.currentTarget.style.boxShadow = '0 8px 20px rgba(245, 158, 11, 0.2)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.25)'
-              e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.05)'
             }}
           >
             <div
@@ -478,7 +496,7 @@ export default function Dashboard() {
             </div>
           </button>
 
-          {/* View Transactions Button */}
+          {/* Transactions */}
           <button
             type="button"
             onClick={() => navigate('/accounts')}
@@ -495,16 +513,6 @@ export default function Dashboard() {
               textAlign: 'left',
               transition: 'all 0.2s ease',
               boxShadow: '0 4px 14px rgba(0,0,0,0.05)'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-3px)'
-              e.currentTarget.style.borderColor = '#8b5cf6'
-              e.currentTarget.style.boxShadow = '0 8px 20px rgba(139, 92, 246, 0.2)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.25)'
-              e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.05)'
             }}
           >
             <div
@@ -530,40 +538,77 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* 2-Column Main Section: Recent Transactions & Spending Overview (Matched Heights, Zero Dead Space) */}
-      <div className="grid grid-2" style={{ gap: 24, marginBottom: 'var(--section-gap)', alignItems: 'stretch' }}>
-        {/* Left: Recent Transactions (Clean & Friendly) */}
+      {/* 4. 2-Column Main Section: Recent Transactions & Spending Overview */}
+      <div className="grid grid-2" style={{ gap: 24, marginBottom: 'var(--section-gap)', alignItems: 'start' }}>
+        {/* Left: Recent Transactions (Content-Based Responsive Height) */}
         <div className="grid-col-left" style={{ display: 'flex', flexDirection: 'column' }}>
-          <div className="card" style={{ marginBottom: 0, flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <div className="card" style={{ marginBottom: 0 }}>
             <div className="card-header">
               <h3 className="card-title">
                 <History size={18} color="var(--primary)" />
                 <span>Recent Transactions</span>
               </h3>
-              <Link to="/accounts" className="btn btn-secondary btn-sm" style={{ fontSize: '12px' }}>
-                View All <ArrowRight size={13} />
-              </Link>
+              {recentTransactions.length > 0 && (
+                <Link to="/accounts" className="btn btn-secondary btn-sm" style={{ fontSize: '12px' }}>
+                  View All <ArrowRight size={13} />
+                </Link>
+              )}
             </div>
 
             <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: 16 }}>
-              Click any transaction to view details.
+              {recentTransactions.length > 0 ? 'Click any transaction to view details.' : 'Your recent banking activity will appear here.'}
             </p>
 
+            {/* Scenario 1: 0 Transactions Clean Empty State */}
             {recentTransactions.length === 0 ? (
-              <div style={{ padding: '32px 16px', textAlign: 'center', color: 'var(--text-muted)', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ fontSize: '14px', fontWeight: 700 }}>No transactions yet.</div>
-                <div style={{ fontSize: '12px', marginTop: 4 }}>Your payments and deposits will appear here.</div>
-                <button
-                  type="button"
-                  onClick={() => navigate('/transfer')}
-                  className="btn btn-primary btn-sm"
-                  style={{ marginTop: 14 }}
+              <div style={{ padding: '36px 16px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                <div
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 12,
+                    background: 'rgba(99, 102, 241, 0.1)',
+                    color: 'var(--primary)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 12px auto'
+                  }}
                 >
-                  <Send size={14} /> Send Money
-                </button>
+                  <History size={24} />
+                </div>
+                <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-main)' }}>No transactions yet</div>
+                <div style={{ fontSize: '13px', marginTop: 4 }}>Your payments, transfers, and deposits will appear here.</div>
+                <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 18 }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowDepositModal(true)}
+                    className="btn btn-primary btn-sm"
+                  >
+                    <Plus size={14} /> Add Money
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/transfer')}
+                    className="btn btn-secondary btn-sm"
+                  >
+                    <Send size={14} /> Send Money
+                  </button>
+                </div>
               </div>
             ) : (
-              <div className="custom-scroll" style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: 1, minHeight: 0, maxHeight: 480, overflowY: 'auto', paddingRight: 6 }}>
+              /* Scenario 2 & 3: 1-4 Transactions fit naturally; 5+ scroll smoothly */
+              <div
+                className={recentTransactions.length > 4 ? 'custom-scroll' : ''}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 10,
+                  maxHeight: recentTransactions.length > 4 ? 420 : 'none',
+                  overflowY: recentTransactions.length > 4 ? 'auto' : 'visible',
+                  paddingRight: recentTransactions.length > 4 ? 6 : 0
+                }}
+              >
                 {recentTransactions.map((txn) => {
                   const { isCredit, label, category } = getFriendlyTxnInfo(txn)
                   const amt = Number(txn.amount || 0)
@@ -625,157 +670,167 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Right: Spending This Month & Savings Goals (Expanded & Filled) */}
+        {/* Right: Spending This Month & Savings Goals */}
         <div className="grid-col-right" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          {/* Spending This Month Card */}
-          <div className="card" style={{ marginBottom: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-            <div>
-              <div className="card-header">
-                <h3 className="card-title">
-                  <PieChart size={18} color="var(--primary)" />
-                  <span>Spending This Month</span>
-                </h3>
-                <Link to="/expenses" className="btn btn-secondary btn-sm" style={{ fontSize: '12px' }}>
-                  Analytics <ArrowRight size={13} />
-                </Link>
-              </div>
+          {/* Spending This Month Card (Dynamic & Responsive to Real Data) */}
+          <div className="card" style={{ marginBottom: 0 }}>
+            <div className="card-header">
+              <h3 className="card-title">
+                <PieChart size={18} color="var(--primary)" />
+                <span>Spending This Month</span>
+              </h3>
+              <Link to="/expenses" className="btn btn-secondary btn-sm" style={{ fontSize: '12px' }}>
+                Analytics <ArrowRight size={13} />
+              </Link>
+            </div>
 
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Total Spent</div>
-                <div style={{ fontSize: '28px', fontWeight: 900, color: 'var(--text-main)', marginTop: 2 }}>
-                  ₹{totalSpentThisMonth.toLocaleString('en-IN')}
-                </div>
-              </div>
-
-              {/* Spending Category Breakdown (with custom-scroll slider) */}
-              <div className="custom-scroll" style={{ display: 'flex', flexDirection: 'column', gap: 14, maxHeight: 180, overflowY: 'auto', paddingRight: 6 }}>
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: 6 }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-main)', fontWeight: 700 }}>
-                      <Utensils size={15} color="var(--primary)" /> Food & Dining
-                    </span>
-                    <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>₹{foodSpending.toLocaleString('en-IN')}</span>
-                  </div>
-                  <div style={{ width: '100%', height: 8, background: 'var(--bg-input)', borderRadius: 99, overflow: 'hidden' }}>
-                    <div style={{ width: `${totalSpentThisMonth > 0 ? Math.min(100, Math.round((foodSpending / totalSpentThisMonth) * 100)) : 0}%`, height: '100%', background: 'var(--primary)', borderRadius: 99 }} />
-                  </div>
-                </div>
-
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: 6 }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-main)', fontWeight: 700 }}>
-                      <ShoppingBag size={15} color="var(--accent-emerald)" /> Shopping
-                    </span>
-                    <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>₹{shoppingSpending.toLocaleString('en-IN')}</span>
-                  </div>
-                  <div style={{ width: '100%', height: 8, background: 'var(--bg-input)', borderRadius: 99, overflow: 'hidden' }}>
-                    <div style={{ width: `${totalSpentThisMonth > 0 ? Math.min(100, Math.round((shoppingSpending / totalSpentThisMonth) * 100)) : 0}%`, height: '100%', background: 'var(--accent-emerald)', borderRadius: 99 }} />
-                  </div>
-                </div>
-
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: 6 }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-main)', fontWeight: 700 }}>
-                      <Zap size={15} color="var(--accent-amber)" /> Bills & Utilities
-                    </span>
-                    <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>₹{billsSpending.toLocaleString('en-IN')}</span>
-                  </div>
-                  <div style={{ width: '100%', height: 8, background: 'var(--bg-input)', borderRadius: 99, overflow: 'hidden' }}>
-                    <div style={{ width: `${totalSpentThisMonth > 0 ? Math.min(100, Math.round((billsSpending / totalSpentThisMonth) * 100)) : 0}%`, height: '100%', background: 'var(--accent-amber)', borderRadius: 99 }} />
-                  </div>
-                </div>
-
-                {travelSpending > 0 && (
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: 6 }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-main)', fontWeight: 700 }}>
-                        <Car size={15} color="var(--accent-cyan)" /> Travel & Transit
-                      </span>
-                      <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>₹{travelSpending.toLocaleString('en-IN')}</span>
-                    </div>
-                    <div style={{ width: '100%', height: 8, background: 'var(--bg-input)', borderRadius: 99, overflow: 'hidden' }}>
-                      <div style={{ width: `${totalSpentThisMonth > 0 ? Math.min(100, Math.round((travelSpending / totalSpentThisMonth) * 100)) : 0}%`, height: '100%', background: 'var(--accent-cyan)', borderRadius: 99 }} />
-                    </div>
-                  </div>
-                )}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Total Spent</div>
+              <div style={{ fontSize: '28px', fontWeight: 900, color: 'var(--text-main)', marginTop: 2 }}>
+                ₹{totalSpentThisMonth.toLocaleString('en-IN')}
               </div>
             </div>
 
+            {/* Dynamic Spending Category Breakdown (Only display categories that actually have spending) */}
+            {spendingCategories.length === 0 ? (
+              <div style={{ padding: '24px 16px', borderRadius: 10, background: 'var(--bg-input)', border: '1px solid var(--border-color)', textAlign: 'center', color: 'var(--text-muted)' }}>
+                <div
+                  style={{
+                    width: 42,
+                    height: 42,
+                    borderRadius: 10,
+                    background: 'rgba(99, 102, 241, 0.1)',
+                    color: 'var(--primary)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 10px auto'
+                  }}
+                >
+                  <PieChart size={20} />
+                </div>
+                <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-main)' }}>No spending yet</div>
+                <div style={{ fontSize: '12px', marginTop: 4 }}>Your spending insights will appear here when you make a payment.</div>
+              </div>
+            ) : (
+              <div
+                className={spendingCategories.length > 3 ? 'custom-scroll' : ''}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 14,
+                  maxHeight: spendingCategories.length > 3 ? 200 : 'none',
+                  overflowY: spendingCategories.length > 3 ? 'auto' : 'visible',
+                  paddingRight: spendingCategories.length > 3 ? 6 : 0
+                }}
+              >
+                {spendingCategories.map((cat) => {
+                  const { label, icon: IconComponent, color } = getCategoryDetails(cat.name)
+                  const pct = totalSpentThisMonth > 0 ? Math.min(100, Math.round((cat.amount / totalSpentThisMonth) * 100)) : 0
+                  return (
+                    <div key={cat.name}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: 6 }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-main)', fontWeight: 700 }}>
+                          <IconComponent size={15} color={color} /> {label}
+                        </span>
+                        <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>₹{cat.amount.toLocaleString('en-IN')}</span>
+                      </div>
+                      <div style={{ width: '100%', height: 8, background: 'var(--bg-input)', borderRadius: 99, overflow: 'hidden' }}>
+                        <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 99, transition: 'width 0.4s ease' }} />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
             {/* Bottom Budget Health Bar */}
             <div style={{ marginTop: 16, paddingTop: 12, borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: 'var(--text-muted)' }}>
-              <span>Monthly Budget: <strong>₹60,000</strong></span>
+              <span>Monthly Budget: <strong>₹{monthlyBudget.toLocaleString('en-IN')}</strong></span>
               <span className="badge badge-emerald" style={{ fontSize: '11px' }}>
-                ₹{Math.max(0, 60000 - totalSpentThisMonth).toLocaleString('en-IN')} remaining
+                ₹{budgetRemaining.toLocaleString('en-IN')} remaining
               </span>
             </div>
           </div>
 
-          {/* Savings Goals Preview Card (Expanded & Rich) */}
-          <div className="card" style={{ marginBottom: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-            <div>
-              <div className="card-header">
-                <h3 className="card-title">
-                  <PiggyBank size={18} color="var(--accent-emerald)" />
-                  <span>Savings Goals</span>
-                </h3>
-                <Link to="/savings" className="btn btn-secondary btn-sm" style={{ fontSize: '12px' }}>
-                  View Goals <ArrowRight size={13} />
-                </Link>
-              </div>
-
-              <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: 14 }}>
-                Earn 5.50% APY return by setting aside funds for your goals.
-              </p>
-
-              {savingsGoals.length === 0 ? (
-                <div style={{ padding: '20px 16px', borderRadius: 10, background: 'var(--bg-input)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(16, 185, 129, 0.15)', color: 'var(--accent-emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px auto' }}>
-                    <PiggyBank size={24} />
-                  </div>
-                  <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-main)' }}>Emergency Fund & Vacation Vault</div>
-                  <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 4 }}>Lock savings and track milestone progress automatically.</div>
-                  <button
-                    type="button"
-                    onClick={() => navigate('/savings')}
-                    className="btn btn-emerald btn-sm"
-                    style={{ marginTop: 14, width: '100%' }}
-                  >
-                    <Plus size={14} /> Create Savings Goal
-                  </button>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {savingsGoals.slice(0, 2).map((g) => {
-                    const curr = Number(g.currentAmount || 0)
-                    const tgt = Number(g.targetAmount || 1)
-                    const pct = Math.min(100, Math.round((curr / tgt) * 100))
-                    return (
-                      <div
-                        key={g.id}
-                        style={{
-                          padding: '14px 16px',
-                          borderRadius: 10,
-                          background: 'var(--bg-input)',
-                          border: '1px solid var(--border-color)'
-                        }}
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: 6 }}>
-                          <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>{g.name}</span>
-                          <span style={{ fontWeight: 800, color: 'var(--accent-emerald)' }}>{pct}%</span>
-                        </div>
-                        <div style={{ width: '100%', height: 8, background: 'rgba(255,255,255,0.08)', borderRadius: 99, marginBottom: 8 }}>
-                          <div style={{ width: `${pct}%`, height: '100%', background: 'var(--accent-emerald)', borderRadius: 99 }} />
-                        </div>
-                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', fontWeight: 600 }}>
-                          <span>Saved: ₹{curr.toLocaleString('en-IN')}</span>
-                          <span>Target: ₹{tgt.toLocaleString('en-IN')}</span>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
+          {/* Savings Goals Preview Card (Dynamic Empty vs Populated) */}
+          <div className="card" style={{ marginBottom: 0 }}>
+            <div className="card-header">
+              <h3 className="card-title">
+                <PiggyBank size={18} color="var(--accent-emerald)" />
+                <span>Savings Goals</span>
+              </h3>
+              <Link to="/savings" className="btn btn-secondary btn-sm" style={{ fontSize: '12px' }}>
+                {savingsGoals.length > 0 ? 'View Goals' : 'Start Saving'} <ArrowRight size={13} />
+              </Link>
             </div>
+
+            <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: 14 }}>
+              Earn 5.50% APY return by setting aside funds for your goals.
+            </p>
+
+            {/* Scenario: 0 Savings Goals Clean Empty State */}
+            {savingsGoals.length === 0 ? (
+              <div style={{ padding: '24px 16px', borderRadius: 10, background: 'var(--bg-input)', border: '1px solid var(--border-color)', textAlign: 'center', color: 'var(--text-muted)' }}>
+                <div
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 12,
+                    background: 'rgba(16, 185, 129, 0.12)',
+                    color: 'var(--accent-emerald)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 10px auto'
+                  }}
+                >
+                  <PiggyBank size={22} />
+                </div>
+                <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-main)' }}>No savings goals yet</div>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 4 }}>Create a goal and start saving toward something important.</div>
+                <button
+                  type="button"
+                  onClick={() => navigate('/savings')}
+                  className="btn btn-emerald btn-sm"
+                  style={{ marginTop: 14 }}
+                >
+                  <Plus size={14} /> Create Goal
+                </button>
+              </div>
+            ) : (
+              /* Scenario: Populated Real Goals */
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {savingsGoals.slice(0, 2).map((g) => {
+                  const curr = Number(g.currentAmount || 0)
+                  const tgt = Number(g.targetAmount || 1)
+                  const pct = Math.min(100, Math.round((curr / tgt) * 100))
+                  return (
+                    <div
+                      key={g.id}
+                      style={{
+                        padding: '14px 16px',
+                        borderRadius: 10,
+                        background: 'var(--bg-input)',
+                        border: '1px solid var(--border-color)'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: 6 }}>
+                        <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>{g.name}</span>
+                        <span style={{ fontWeight: 800, color: 'var(--accent-emerald)' }}>{pct}%</span>
+                      </div>
+                      <div style={{ width: '100%', height: 8, background: 'rgba(255,255,255,0.08)', borderRadius: 99, marginBottom: 8 }}>
+                        <div style={{ width: `${pct}%`, height: '100%', background: 'var(--accent-emerald)', borderRadius: 99 }} />
+                      </div>
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', fontWeight: 600 }}>
+                        <span>Saved: ₹{curr.toLocaleString('en-IN')}</span>
+                        <span>Target: ₹{tgt.toLocaleString('en-IN')}</span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
 
             <div style={{ marginTop: 14, paddingTop: 10, borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: 'var(--text-muted)' }}>
               <span>Interest Yield: <strong style={{ color: 'var(--accent-emerald)' }}>+5.50% APY</strong></span>
@@ -944,7 +999,7 @@ export default function Dashboard() {
             </div>
 
             <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-              {selectedTxn.type.includes('IN') || selectedTxn.type === 'DEPOSIT' ? 'Money Received' : 'Payment Successful'}
+              {(selectedTxn.type && selectedTxn.type.includes('IN')) || selectedTxn.type === 'DEPOSIT' ? 'Money Received' : 'Payment Successful'}
             </div>
             <div style={{ fontSize: '28px', fontWeight: 900, color: 'var(--text-main)', margin: '4px 0 16px 0' }}>
               ₹{Number(selectedTxn.amount || 0).toLocaleString('en-IN')}
