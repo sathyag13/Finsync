@@ -8,13 +8,11 @@ export default function AccessDenied({ requiredRoles }) {
 
   const getDashboardPath = () => {
     if (user?.role === 'ADMIN') return '/admin'
-    if (user?.role === 'ANALYST') return '/analyst'
     return '/dashboard'
   }
 
   const getDashboardLabel = () => {
     if (user?.role === 'ADMIN') return 'Admin Control Center'
-    if (user?.role === 'ANALYST') return 'Analyst Workspace'
     return 'Customer Dashboard'
   }
 

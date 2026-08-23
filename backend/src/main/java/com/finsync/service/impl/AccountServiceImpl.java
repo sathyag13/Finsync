@@ -17,6 +17,9 @@ import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
+import com.finsync.model.Transaction;
+import com.finsync.model.TransactionType;
+import com.finsync.repository.TransactionRepository;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -26,6 +29,7 @@ public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
+    private final TransactionRepository transactionRepository;
     private static final SecureRandom RANDOM = new SecureRandom();
 
     @Override
@@ -34,22 +38,40 @@ public class AccountServiceImpl implements AccountService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
+        List<Account> existingUserAccounts = accountRepository.findByUserId(userId);
+        boolean isFirstAccount = existingUserAccounts.isEmpty();
+
+        BigDecimal initialDeposit = req.openingBalance != null ? req.openingBalance : BigDecimal.ZERO;
+
         Account account = new Account();
         account.setAccountNumber(generateUniqueAccountNumber());
         account.setUser(user);
         account.setAccountType(req.accountType);
-        account.setBalance(req.openingBalance != null ? req.openingBalance : BigDecimal.ZERO);
+        account.setBalance(initialDeposit);
+        account.setPrimary(isFirstAccount); // First created account is Primary Account
 
         account = accountRepository.save(account);
-        return toMap(account);
+
+        // If opening deposit > 0, record initial deposit transaction in ledger
+        if (initialDeposit.compareTo(BigDecimal.ZERO) > 0) {
+            Transaction txn = new Transaction();
+            txn.setAccount(account);
+            txn.setType(TransactionType.DEPOSIT);
+            txn.setAmount(initialDeposit);
+            txn.setBalanceAfter(initialDeposit);
+            txn.setDescription("Opening Deposit upon Account Creation");
+            transactionRepository.save(txn);
+        }
+
+        return toMap(account, isFirstAccount);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getUserAccounts(Long userId) {
-        return accountRepository.findByUserId(userId)
-                .stream()
-                .map(this::toMap)
+        List<Account> userAccounts = accountRepository.findByUserId(userId);
+        return userAccounts.stream()
+                .map(a -> toMap(a, a.isPrimary() || userAccounts.indexOf(a) == 0))
                 .collect(Collectors.toList());
     }
 
@@ -73,12 +95,13 @@ public class AccountServiceImpl implements AccountService {
         return accountNumber;
     }
 
-    private Map<String, Object> toMap(Account a) {
+    private Map<String, Object> toMap(Account a, boolean isPrimary) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", a.getId());
         map.put("accountNumber", a.getAccountNumber());
         map.put("accountType", a.getAccountType().name());
         map.put("balance", a.getBalance());
+        map.put("isPrimary", a.isPrimary() || isPrimary);
         return map;
     }
 }

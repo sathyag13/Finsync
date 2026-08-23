@@ -53,6 +53,7 @@ export default function Accounts() {
     try {
       await api.post('/accounts', { accountType, openingBalance: openingBalance || 0 })
       addToast(`New ${accountType} account opened successfully!`, 'success')
+      window.dispatchEvent(new Event('finsync:activity'))
       setOpeningBalance('')
       setIsCreateOpen(false)
       loadAccounts()
@@ -77,6 +78,7 @@ export default function Accounts() {
     try {
       await api.post(`/accounts/${selectedAccount.id}/${endpoint}`, { amount, description })
       addToast(`${actionModalType === 'DEPOSIT' ? 'Deposit' : 'Withdrawal'} of ₹${Number(amount).toLocaleString('en-IN')} completed!`, 'success')
+      window.dispatchEvent(new Event('finsync:activity'))
       setAmount('')
       setDescription('')
       setActionModalType(null)
@@ -108,60 +110,115 @@ export default function Accounts() {
             display: 'flex',
             alignItems: 'center',
             gap: 8,
-            padding: '12px 22px',
-            borderRadius: 8,
-            background: 'var(--axis-maroon-gradient)',
+            padding: '12px 24px',
+            borderRadius: 12,
+            background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
             color: '#ffffff',
             border: 'none',
             fontWeight: 800,
-            fontSize: '0.92rem',
+            fontSize: '0.95rem',
             cursor: 'pointer',
-            boxShadow: '0 4px 14px rgba(151,20,77,0.3)'
+            boxShadow: '0 6px 18px rgba(99,102,241,0.45)',
+            transition: 'all 0.2s ease'
           }}
         >
-          <Plus size={18} />
-          <span>Open New Account</span>
+          <Plus size={20} color="#ffffff" />
+          <span>OPEN NEW ACCOUNT</span>
         </button>
       </div>
 
-      {/* Accounts Virtual Cards Showcase (3 Cards per Row) */}
-      <div className="grid grid-3" style={{ marginBottom: 32, gap: 18 }}>
+      {/* Accounts Virtual Cards Showcase (Cards + "+ ADD ACCOUNT / CARD" Tile) */}
+      <div className="grid grid-3" style={{ marginBottom: 32, gap: 20 }}>
         {accounts.length > 0 ? (
-          accounts.map((a, idx) => (
-            <div
-              key={a.id}
-              onClick={() => viewHistory(a)}
-              style={{
-                cursor: 'pointer',
-                border: selectedAccount?.id === a.id ? '2px solid var(--primary)' : '2px solid transparent',
-                borderRadius: 'var(--radius-lg)',
-                transition: 'all 0.25s ease'
-              }}
-            >
-              <DebitCard account={a} userName={user?.fullName || 'VALUED CLIENT'} index={idx} />
-            </div>
-          ))
+          accounts.map((a, idx) => {
+            const isSelected = selectedAccount?.id === a.id
+            return (
+              <div
+                key={a.id}
+                onClick={() => viewHistory(a)}
+                style={{
+                  cursor: 'pointer',
+                  borderRadius: 18,
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  transform: isSelected ? 'translateY(-8px) scale(1.01)' : 'none',
+                  boxShadow: isSelected
+                    ? '0 22px 42px -8px rgba(0, 0, 0, 0.5), 0 10px 22px -4px rgba(99, 102, 241, 0.4)'
+                    : '0 8px 20px -4px rgba(0, 0, 0, 0.25)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-10px) scale(1.025)'
+                  e.currentTarget.style.boxShadow = '0 28px 56px -10px rgba(0, 0, 0, 0.6), 0 14px 28px -4px rgba(99, 102, 241, 0.5)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = isSelected ? 'translateY(-8px) scale(1.01)' : 'none'
+                  e.currentTarget.style.boxShadow = isSelected
+                    ? '0 22px 42px -8px rgba(0, 0, 0, 0.5), 0 10px 22px -4px rgba(99, 102, 241, 0.4)'
+                    : '0 8px 20px -4px rgba(0, 0, 0, 0.25)'
+                }}
+              >
+                <DebitCard account={a} userName={user?.fullName || 'VALUED CLIENT'} index={idx} />
+              </div>
+            )
+          })
         ) : (
-          <>
-            {/* Demo Savings Blue Debit Card */}
-            <div onClick={() => setIsCreateOpen(true)} style={{ cursor: 'pointer' }}>
-              <DebitCard
-                account={{ id: 1, accountType: 'SAVINGS', accountNumber: 'FS8829401920', balance: 149500 }}
-                userName={user?.fullName || 'VALUED CLIENT'}
-                index={0}
-              />
+          <div
+            onClick={() => setIsCreateOpen(true)}
+            style={{
+              aspectRatio: '1.586 / 1',
+              borderRadius: 18,
+              border: '2px dashed var(--border-color)',
+              background: 'var(--bg-card)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 10,
+              padding: 20,
+              cursor: 'pointer'
+            }}
+          >
+            <CreditCard size={36} color="var(--primary)" />
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontWeight: 800, fontSize: '0.98rem', color: 'var(--text-main)' }}>No Accounts Registered</div>
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>Click "+ ADD ACCOUNT / CARD" to issue your card</div>
             </div>
-
-            {/* Demo Current Dark Charcoal Debit Card */}
-            <div onClick={() => setIsCreateOpen(true)} style={{ cursor: 'pointer' }}>
-              <DebitCard
-                account={{ id: 2, accountType: 'CURRENT', accountNumber: 'FS9940182740', balance: 319000.5 }}
-                userName={user?.fullName || 'VALUED CLIENT'}
-                index={1}
-              />
-            </div>
-          </>
+          </div>
         )}
+
+        {/* Interactive "ADD ACCOUNT / CARD" Tile as requested in annotated screenshot */}
+        <div
+          onClick={() => setIsCreateOpen(true)}
+          style={{
+            aspectRatio: '1.586 / 1',
+            borderRadius: 18,
+            border: '2.5px dashed var(--primary)',
+            background: 'rgba(99, 102, 241, 0.08)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 12,
+            cursor: 'pointer',
+            transition: 'all 0.25s ease',
+            padding: 20
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(99, 102, 241, 0.16)'
+            e.currentTarget.style.transform = 'translateY(-3px)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'rgba(99, 102, 241, 0.08)'
+            e.currentTarget.style.transform = 'none'
+          }}
+        >
+          <div style={{ width: 50, height: 50, borderRadius: '50%', background: 'linear-gradient(135deg, #6366f1, #4338ca)', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(99,102,241,0.4)' }}>
+            <Plus size={28} />
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontWeight: 900, fontSize: '1.1rem', color: 'var(--text-main)', letterSpacing: 0.5 }}>+ ADD ACCOUNT / CARD</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, marginTop: 4 }}>Open new Savings or Current Vault</div>
+          </div>
+        </div>
       </div>
 
       {/* Selected Account Manager */}
@@ -174,6 +231,11 @@ export default function Accounts() {
                   {selectedAccount.accountType} ACCOUNT
                 </h2>
                 <span className="badge badge-indigo">{selectedAccount.accountNumber}</span>
+                {(selectedAccount.isPrimary || accounts.indexOf(selectedAccount) === 0) && (
+                  <span className="badge badge-emerald" style={{ background: 'rgba(16,185,129,0.18)', color: '#10b981', fontWeight: 800 }}>
+                    PRIMARY ACCOUNT
+                  </span>
+                )}
               </div>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: 2 }}>
                 Opened on {new Date(selectedAccount.createdAt).toLocaleDateString()} • Verified Tier 1 Vault

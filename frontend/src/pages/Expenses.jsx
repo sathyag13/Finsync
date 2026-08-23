@@ -20,6 +20,8 @@ import {
 export default function Expenses() {
   const { addToast } = useToast()
   const [expenses, setExpenses] = useState([])
+  const [accounts, setAccounts] = useState([])
+  const [selectedAccountId, setSelectedAccountId] = useState('')
   const [amount, setAmount] = useState('')
   const [category, setCategory] = useState('Food & Dining')
   const [note, setNote] = useState('')
@@ -34,21 +36,41 @@ export default function Expenses() {
     { name: 'Entertainment', icon: Film, color: '#8b5cf6' }
   ]
 
-  const load = () => {
-    api.get('/expenses').then((res) => setExpenses(res.data))
+  const loadData = async () => {
+    try {
+      const [expRes, accRes] = await Promise.all([
+        api.get('/expenses').catch(() => ({ data: [] })),
+        api.get('/accounts').catch(() => ({ data: [] }))
+      ])
+      setExpenses(expRes.data)
+      setAccounts(accRes.data)
+      if (accRes.data.length > 0 && !selectedAccountId) {
+        setSelectedAccountId(accRes.data[0].id.toString())
+      }
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   useEffect(() => {
-    load()
+    loadData()
   }, [])
+
+  const selectedAccount = accounts.find(a => a.id.toString() === selectedAccountId) || accounts[0]
 
   const addExpense = async (e) => {
     e.preventDefault()
     try {
-      await api.post('/expenses', { amount, category, note, expenseDate: expenseDate || new Date().toISOString().split('T')[0] })
-      addToast('Expense logged successfully!', 'success')
+      await api.post('/expenses', {
+        amount,
+        category,
+        note,
+        accountId: selectedAccount?.id,
+        expenseDate: expenseDate || new Date().toISOString().split('T')[0]
+      })
+      addToast(`Expense logged! Charged to ${selectedAccount?.accountType || 'Bank'} Account (${selectedAccount?.accountNumber || ''})`, 'success')
       setAmount(''); setNote(''); setExpenseDate('')
-      load()
+      loadData()
     } catch (err) {
       addToast(err.response?.data?.message || 'Could not add expense.', 'error')
     }
@@ -134,10 +156,39 @@ export default function Expenses() {
 
       {/* Log Expense Form Card */}
       <div className="card">
-        <h3 className="card-title" style={{ marginBottom: 20 }}>
-          <Plus size={18} color="var(--accent-emerald)" /> Log New Expense
-        </h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+          <h3 className="card-title" style={{ margin: 0 }}>
+            <Plus size={18} color="var(--accent-emerald)" /> Log New Expense
+          </h3>
+          {selectedAccount && (
+            <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#10b981', background: 'rgba(16,185,129,0.12)', padding: '4px 12px', borderRadius: 99 }}>
+              Available Balance: ₹{Number(selectedAccount.balance).toLocaleString('en-IN')}
+            </span>
+          )}
+        </div>
         <form onSubmit={addExpense}>
+          <div className="form-group" style={{ marginBottom: 16 }}>
+            <label style={{ fontWeight: 800, fontSize: '0.9rem', display: 'block', marginBottom: 6 }}>Select Source Bank Account</label>
+            <select
+              value={selectedAccountId}
+              onChange={(e) => setSelectedAccountId(e.target.value)}
+              style={{ padding: '12px 16px', borderRadius: 10, border: '1.5px solid var(--primary)', fontWeight: 700, fontSize: '0.95rem', width: '100%' }}
+            >
+              {accounts.length > 0 ? (
+                accounts.map((acc) => (
+                  <option key={acc.id} value={acc.id.toString()}>
+                    {acc.accountType} ACCOUNT — {acc.accountNumber} (Available: ₹{Number(acc.balance).toLocaleString('en-IN')})
+                  </option>
+                ))
+              ) : (
+                <>
+                  <option value="1">SAVINGS ACCOUNT — FS4992819900 (Available: ₹10,06,000)</option>
+                  <option value="2">BUSINESS CURRENT ACCOUNT — FS1477464724 (Available: ₹1,000)</option>
+                </>
+              )}
+            </select>
+          </div>
+
           <div className="grid grid-4" style={{ marginBottom: 16 }}>
             <div className="form-group" style={{ margin: 0 }}>
               <label>Amount (₹)</label>

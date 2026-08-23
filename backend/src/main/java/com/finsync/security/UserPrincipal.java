@@ -50,7 +50,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return user.getAccountStatus() == null || !"LOCKED".equalsIgnoreCase(user.getAccountStatus());
     }
 
     @Override
@@ -60,6 +60,6 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return user.getAccountStatus() == null || (!"INACTIVE".equalsIgnoreCase(user.getAccountStatus()) && !"SUSPENDED".equalsIgnoreCase(user.getAccountStatus()));
     }
 }

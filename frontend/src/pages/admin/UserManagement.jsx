@@ -200,7 +200,6 @@ export default function UserManagement() {
           <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} className="input-field" style={{ padding: '6px 12px', fontSize: '0.82rem', width: 'auto' }}>
             <option value="ALL">All Roles</option>
             <option value="CUSTOMER">CUSTOMER</option>
-            <option value="ANALYST">ANALYST</option>
             <option value="ADMIN">ADMIN</option>
           </select>
 
@@ -252,24 +251,16 @@ export default function UserManagement() {
                   </td>
                   <td style={{ padding: '12px 14px', color: 'var(--text-muted)' }}>{u.email}</td>
                   <td style={{ padding: '12px 14px' }}>
-                    <select
-                      value={u.role}
-                      onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                      style={{
-                        padding: '4px 8px',
-                        fontSize: '0.78rem',
-                        fontWeight: 800,
-                        borderRadius: 8,
-                        border: '1px solid var(--border-color)',
-                        background: u.role === 'ADMIN' ? 'rgba(99,102,241,0.2)' : u.role === 'ANALYST' ? 'rgba(16,185,129,0.2)' : 'var(--bg-input)',
-                        color: u.role === 'ADMIN' ? 'var(--primary)' : u.role === 'ANALYST' ? '#10b981' : 'var(--text-main)',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <option value="CUSTOMER">CUSTOMER</option>
-                      <option value="ANALYST">ANALYST</option>
-                      <option value="ADMIN">ADMIN</option>
-                    </select>
+                    <span style={{
+                      fontSize: '0.75rem',
+                      fontWeight: 800,
+                      padding: '4px 10px',
+                      borderRadius: 99,
+                      background: u.role === 'ADMIN' ? 'rgba(99,102,241,0.18)' : 'rgba(16,185,129,0.15)',
+                      color: u.role === 'ADMIN' ? 'var(--primary)' : '#10b981'
+                    }}>
+                      {u.role}
+                    </span>
                   </td>
                   <td style={{ padding: '12px 14px', textAlign: 'center' }}>
                     <span style={{
@@ -372,17 +363,8 @@ export default function UserManagement() {
           </div>
 
           <div className="form-group" style={{ marginBottom: 14 }}>
-            <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, marginBottom: 4 }}>Employee ID (empNo)</label>
-            <input type="text" value={editForm.empNo} onChange={(e) => setEditForm({ ...editForm, empNo: e.target.value })} className="input-field" />
-          </div>
-
-          <div className="form-group" style={{ marginBottom: 14 }}>
-            <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, marginBottom: 4 }}>Assigned Role</label>
-            <select value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })} className="input-field">
-              <option value="CUSTOMER">CUSTOMER</option>
-              <option value="ANALYST">ANALYST</option>
-              <option value="ADMIN">ADMIN</option>
-            </select>
+            <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, marginBottom: 4 }}>Employee ID Number</label>
+            <input type="text" maxLength={5} value={editForm.empNo} onChange={(e) => setEditForm({ ...editForm, empNo: e.target.value })} className="input-field" placeholder="e.g. 10492" />
           </div>
 
           <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
@@ -399,7 +381,6 @@ export default function UserManagement() {
             <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, marginBottom: 4 }}>Role Clearance</label>
             <select value={createForm.role} onChange={(e) => setCreateForm({ ...createForm, role: e.target.value })} className="input-field">
               <option value="CUSTOMER">Retail Client (Customer)</option>
-              <option value="ANALYST">Financial Analyst</option>
               <option value="ADMIN">System Security Admin</option>
             </select>
           </div>
@@ -419,10 +400,10 @@ export default function UserManagement() {
             <input type="password" value={createForm.password} onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })} className="input-field" required />
           </div>
 
-          {(createForm.role === 'ANALYST' || createForm.role === 'ADMIN') && (
+          {createForm.role === 'ADMIN' && (
             <div className="form-group" style={{ marginBottom: 14 }}>
-              <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, marginBottom: 4 }}>Employee ID (empNo)</label>
-              <input type="text" value={createForm.empNo} onChange={(e) => setCreateForm({ ...createForm, empNo: e.target.value })} className="input-field" placeholder="e.g. EMP-3091" required />
+              <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, marginBottom: 4 }}>Employee ID Number (5 Digits)</label>
+              <input type="text" maxLength={5} value={createForm.empNo} onChange={(e) => setCreateForm({ ...createForm, empNo: e.target.value })} className="input-field" placeholder="e.g. 10492" required />
             </div>
           )}
 

@@ -1,7 +1,11 @@
 package com.finsync.controller;
 
+import com.finsync.model.Account;
 import com.finsync.model.Role;
+import com.finsync.model.Transaction;
 import com.finsync.model.User;
+import com.finsync.repository.AccountRepository;
+import com.finsync.repository.TransactionRepository;
 import com.finsync.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +21,8 @@ import java.util.*;
 public class AdminUserController {
 
     private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
     private final PasswordEncoder passwordEncoder;
 
     @GetMapping("/users")
@@ -125,14 +131,98 @@ public class AdminUserController {
     }
 
     @GetMapping("/audit-logs")
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public ResponseEntity<List<Map<String, Object>>> getAuditLogs() {
-        List<Map<String, Object>> logs = List.of(
-                Map.of("id", 1, "action", "USER_ROLE_CHANGE", "performedBy", "Admin Sathya", "target", "Aarav Sharma (ID #2)", "timestamp", "2026-08-16 00:30:12", "status", "SUCCESS"),
-                Map.of("id", 2, "action", "ACCOUNT_STATUS_LOCK", "performedBy", "Admin Sathya", "target", "Priya Patel (ID #3)", "timestamp", "2026-08-15 22:14:05", "status", "SUCCESS"),
-                Map.of("id", 3, "action", "SYSTEM_SETTINGS_UPDATE", "performedBy", "Admin Sathya", "target", "Security Parameters", "timestamp", "2026-08-15 19:45:00", "status", "SUCCESS"),
-                Map.of("id", 4, "action", "USER_REGISTERED", "performedBy", "System Self-Reg", "target", "Rahul Verma (ID #4)", "timestamp", "2026-08-14 11:20:10", "status", "SUCCESS"),
-                Map.of("id", 5, "action", "HIGH_VALUE_TX_FLAGGED", "performedBy", "Fraud Detection Rules", "target", "Tx #99482 (₹18.5L)", "timestamp", "2026-08-13 14:05:44", "status", "REVIEWED")
-        );
-        return ResponseEntity.ok(logs);
+        List<Transaction> transactions = transactionRepository.findAll();
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Transaction t : transactions) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", t.getId());
+            map.put("action", t.getType() != null ? t.getType().name() : "DEPOSIT");
+            
+            String holderName = "Valued Client";
+            String accNo = "";
+            try {
+                if (t.getAccount() != null) {
+                    accNo = t.getAccount().getAccountNumber() != null ? t.getAccount().getAccountNumber() : "";
+                    if (t.getAccount().getUser() != null && t.getAccount().getUser().getFullName() != null) {
+                        holderName = t.getAccount().getUser().getFullName();
+                    }
+                }
+            } catch (Exception ignored) {}
+
+            map.put("performedBy", holderName);
+            map.put("accountNumber", accNo);
+            map.put("amount", t.getAmount() != null ? t.getAmount() : java.math.BigDecimal.ZERO);
+            map.put("balanceAfter", t.getBalanceAfter() != null ? t.getBalanceAfter() : java.math.BigDecimal.ZERO);
+            map.put("target", t.getDescription() != null ? t.getDescription() : (t.getCounterpartyAccountNumber() != null ? "Transfer to " + t.getCounterpartyAccountNumber() : "Bank Operation"));
+            map.put("timestamp", t.getCreatedAt() != null ? t.getCreatedAt().toString() : LocalDateTime.now().toString());
+            map.put("status", "SUCCESS");
+            result.add(map);
+        }
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/accounts")
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public ResponseEntity<List<Map<String, Object>>> getAllAccounts() {
+        List<Account> accounts = accountRepository.findAll();
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Account a : accounts) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", a.getId());
+            map.put("accountNumber", a.getAccountNumber());
+            map.put("accountType", a.getAccountType() != null ? a.getAccountType().name() : "SAVINGS");
+            map.put("balance", a.getBalance() != null ? a.getBalance() : java.math.BigDecimal.ZERO);
+            
+            String holderName = "Valued Client";
+            String email = "";
+            try {
+                if (a.getUser() != null) {
+                    if (a.getUser().getFullName() != null) holderName = a.getUser().getFullName();
+                    if (a.getUser().getEmail() != null) email = a.getUser().getEmail();
+                }
+            } catch (Exception ignored) {}
+
+            map.put("userName", holderName);
+            map.put("userEmail", email);
+            map.put("createdAt", LocalDateTime.now().toString());
+            result.add(map);
+        }
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/transactions")
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public ResponseEntity<List<Map<String, Object>>> getAllTransactions() {
+        List<Transaction> transactions = transactionRepository.findAll();
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Transaction t : transactions) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", t.getId());
+            
+            String accNo = "";
+            String holderName = "Valued Client";
+            try {
+                if (t.getAccount() != null) {
+                    accNo = t.getAccount().getAccountNumber() != null ? t.getAccount().getAccountNumber() : "";
+                    if (t.getAccount().getUser() != null && t.getAccount().getUser().getFullName() != null) {
+                        holderName = t.getAccount().getUser().getFullName();
+                    }
+                }
+            } catch (Exception ignored) {}
+
+            map.put("accountNumber", accNo);
+            map.put("userName", holderName);
+            map.put("type", t.getType() != null ? t.getType().name() : "DEPOSIT");
+            map.put("amount", t.getAmount() != null ? t.getAmount() : java.math.BigDecimal.ZERO);
+            map.put("balanceAfter", t.getBalanceAfter() != null ? t.getBalanceAfter() : java.math.BigDecimal.ZERO);
+            map.put("counterpartyAccountNumber", t.getCounterpartyAccountNumber());
+            map.put("description", t.getDescription() != null ? t.getDescription() : "Bank Operation");
+            map.put("createdAt", t.getCreatedAt() != null ? t.getCreatedAt().toString() : LocalDateTime.now().toString());
+            map.put("status", "SUCCESS");
+            result.add(map);
+        }
+        return ResponseEntity.ok(result);
     }
 }

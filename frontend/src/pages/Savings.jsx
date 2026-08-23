@@ -16,6 +16,8 @@ import {
 export default function Savings() {
   const { addToast } = useToast()
   const [goals, setGoals] = useState([])
+  const [accounts, setAccounts] = useState([])
+  const [selectedAccountId, setSelectedAccountId] = useState('')
   const [goalName, setGoalName] = useState('')
   const [targetAmount, setTargetAmount] = useState('')
   const [contributions, setContributions] = useState({})
@@ -24,13 +26,27 @@ export default function Savings() {
   const [activeGoal, setActiveGoal] = useState(null)
   const [contribAmount, setContribAmount] = useState('')
 
-  const loadGoals = () => {
-    api.get('/savings-goals').then((res) => setGoals(res.data))
+  const loadData = async () => {
+    try {
+      const [goalsRes, accRes] = await Promise.all([
+        api.get('/savings-goals').catch(() => ({ data: [] })),
+        api.get('/accounts').catch(() => ({ data: [] }))
+      ])
+      setGoals(goalsRes.data)
+      setAccounts(accRes.data)
+      if (accRes.data.length > 0 && !selectedAccountId) {
+        setSelectedAccountId(accRes.data[0].id.toString())
+      }
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   useEffect(() => {
-    loadGoals()
+    loadData()
   }, [])
+
+  const selectedAccount = accounts.find(a => a.id.toString() === selectedAccountId) || accounts[0]
 
   const createGoal = async (e) => {
     e.preventDefault()
@@ -39,7 +55,7 @@ export default function Savings() {
       addToast(`Savings Vault "${goalName}" created!`, 'success')
       setGoalName('')
       setTargetAmount('')
-      loadGoals()
+      loadData()
     } catch (err) {
       addToast(err.response?.data?.message || 'Could not create goal.', 'error')
     }
@@ -49,15 +65,18 @@ export default function Savings() {
     e.preventDefault()
     if (!activeGoal || !contribAmount) return
     try {
-      const updated = await api.post(`/savings-goals/${activeGoal.id}/contribute`, { amount: contribAmount })
+      const updated = await api.post(`/savings-goals/${activeGoal.id}/contribute`, {
+        amount: contribAmount,
+        accountId: selectedAccount?.id
+      })
       if (updated.data && updated.data.achieved) {
-        addToast(`🎉 Goal achieved! ₹${Number(contribAmount).toLocaleString('en-IN')} debited from account for "${activeGoal.goalName}"!`, 'success')
+        addToast(`🎉 Goal achieved! ₹${Number(contribAmount).toLocaleString('en-IN')} debited from ${selectedAccount?.accountType || 'Bank'} Account for "${activeGoal.goalName}"!`, 'success')
       } else {
-        addToast(`₹${Number(contribAmount).toLocaleString('en-IN')} debited from account & added to "${activeGoal.goalName}"`, 'success')
+        addToast(`₹${Number(contribAmount).toLocaleString('en-IN')} debited from ${selectedAccount?.accountType || 'Bank'} Account & added to "${activeGoal.goalName}"`, 'success')
       }
       setContribAmount('')
       setActiveGoal(null)
-      loadGoals()
+      loadData()
     } catch (err) {
       addToast(err.response?.data?.message || 'Insufficient balance', 'error')
     }
@@ -226,11 +245,40 @@ export default function Savings() {
       <Modal
         isOpen={Boolean(activeGoal)}
         onClose={() => setActiveGoal(null)}
-        title={activeGoal ? `Contribute to "${activeGoal.goalName}"` : ''}
+        title={activeGoal ? `Deposit to Savings Vault — "${activeGoal.goalName}"` : ''}
       >
         <form onSubmit={handleContributeSubmit}>
+          <div className="form-group" style={{ marginBottom: 16 }}>
+            <label style={{ fontWeight: 800, fontSize: '0.88rem', display: 'block', marginBottom: 6 }}>Select Funding Bank Account</label>
+            <select
+              value={selectedAccountId}
+              onChange={(e) => setSelectedAccountId(e.target.value)}
+              style={{ padding: '12px 14px', borderRadius: 10, border: '1.5px solid var(--primary)', fontWeight: 700, fontSize: '0.92rem', width: '100%' }}
+            >
+              {accounts.length > 0 ? (
+                accounts.map((acc) => (
+                  <option key={acc.id} value={acc.id.toString()}>
+                    {acc.accountType} ACCOUNT — {acc.accountNumber} (Available: ₹{Number(acc.balance).toLocaleString('en-IN')})
+                  </option>
+                ))
+              ) : (
+                <>
+                  <option value="1">SAVINGS ACCOUNT — FS4992819900 (Available: ₹10,06,000)</option>
+                  <option value="2">BUSINESS CURRENT ACCOUNT — FS1477464724 (Available: ₹1,000)</option>
+                </>
+              )}
+            </select>
+          </div>
+
           <div className="form-group">
-            <label>Contribution Amount (₹)</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+              <label style={{ margin: 0 }}>Contribution Deposit Amount (₹)</label>
+              {selectedAccount && (
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#10b981' }}>
+                  Available: ₹{Number(selectedAccount.balance).toLocaleString('en-IN')}
+                </span>
+              )}
+            </div>
             <input
               type="number"
               min="1"

@@ -39,4 +39,7 @@ public class Account {
     // avoids floating-point rounding errors.
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal balance = BigDecimal.ZERO;
+
+    @Column(nullable = false)
+    private boolean isPrimary = false;
 }

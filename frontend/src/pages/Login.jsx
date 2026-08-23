@@ -13,7 +13,7 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { login } = useAuth()
+  const { login, logout } = useAuth()
   const { addToast } = useToast()
   const navigate = useNavigate()
 
@@ -30,11 +30,23 @@ export default function Login() {
     setLoading(true)
     try {
       const data = await login(email.trim(), password)
+
+      // Strict Portal Role Clearance Guard
+      if (isAdminMode && data.role !== 'ADMIN') {
+        logout()
+        addToast('Access Denied: This portal is for Administrators only. Please sign in via the Client Portal.', 'error')
+        return
+      }
+
+      if (!isAdminMode && data.role === 'ADMIN') {
+        logout()
+        addToast('Access Denied: Administrative accounts must sign in via the Admin Security Portal.', 'error')
+        return
+      }
+
       addToast(`Authentication successful! Welcome, ${data.fullName || 'User'}.`, 'success')
       if (data.role === 'ADMIN') {
         navigate('/admin')
-      } else if (data.role === 'ANALYST') {
-        navigate('/analyst')
       } else {
         navigate('/dashboard')
       }
@@ -46,193 +58,204 @@ export default function Login() {
   }
 
   return (
-    <div style={{ maxWidth: 1050, margin: '40px auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 36, alignItems: 'stretch' }}>
-      {/* FinSync Violet Security Sidebar */}
-      <div style={{ background: 'linear-gradient(135deg, #4338ca 0%, #312e81 100%)', borderRadius: 20, padding: 40, color: '#ffffff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 12px 36px rgba(99,102,241,0.25)' }}>
+    <div style={{ width: '100%', maxWidth: 1240, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.1fr 1fr', borderRadius: 24, overflow: 'hidden', border: '1px solid var(--border-color)', boxShadow: '0 16px 40px rgba(0,0,0,0.15)' }}>
+      {/* Left Side: Theme 1 - Deep Midnight Violet Banking Showcase */}
+      <div style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4338ca 100%)', padding: '48px 40px', color: '#ffffff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRight: '4px solid #f59e0b', position: 'relative' }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32 }}>
-            <div style={{ width: 44, height: 44, borderRadius: 12, background: '#ffffff', color: '#4338ca', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900 }}>
-              <Building2 size={26} />
-            </div>
-            <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 900, letterSpacing: '-0.5px', color: '#ffffff' }}>FINSYNC BANK</div>
-              <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#a7f3d0', letterSpacing: 1.2, textTransform: 'uppercase' }}>ALWAYS WITH YOU</div>
-            </div>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, padding: '8px 18px', background: 'rgba(255, 255, 255, 0.15)', borderRadius: 30, color: '#ffffff', backdropFilter: 'blur(10px)', width: 'fit-content', marginBottom: 28 }}>
+            <Building2 size={22} color="#a7f3d0" />
+            <span style={{ fontSize: '0.85rem', fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase' }}>FinSync NetBanking Portal</span>
           </div>
 
-          <h2 style={{ fontSize: '2rem', fontWeight: 900, lineHeight: 1.25, marginBottom: 16, color: '#ffffff' }}>
-            NetBanking Gateway Portal
-          </h2>
-          <p style={{ opacity: 0.9, fontSize: '0.95rem', lineHeight: 1.6, marginBottom: 32, color: 'rgba(255,255,255,0.9)' }}>
-            Access multi-currency accounts, instant P2P money transfers, 5.5% APY savings vaults, and virtual debit card controls securely.
+          <h1 style={{ fontSize: '2.6rem', fontWeight: 900, lineHeight: 1.25, color: '#ffffff', marginBottom: 20, letterSpacing: '-0.6px', textAlign: 'left' }}>
+            Secure Access to Your Digital Banking Vault
+          </h1>
+
+          <p style={{ fontSize: '1.1rem', lineHeight: 1.7, color: 'rgba(255,255,255,0.92)', marginBottom: 36, fontWeight: 500, textAlign: 'justify' }}>
+            Manage multi-currency accounts, execute instant zero-fee transfers, monitor vault savings goals, and control virtual debit cards with bank-grade security.
           </p>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: '0.9rem', fontWeight: 700, color: '#ffffff' }}>
-              <CheckCircle2 size={20} color="#a7f3d0" />
-              <span>Stateless JWT & BCrypt Encryption</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 36, width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: '1.05rem', fontWeight: 700, color: '#ffffff', textAlign: 'left' }}>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(16, 185, 129, 0.25)', color: '#a7f3d0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <CheckCircle2 size={20} />
+              </div>
+              <span>Stateless JWT Session Tokens & BCrypt Encryption</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: '0.9rem', fontWeight: 700, color: '#ffffff' }}>
-              <CheckCircle2 size={20} color="#a7f3d0" />
-              <span>ACID Double-Entry Ledger Bookkeeping</span>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: '1.05rem', fontWeight: 700, color: '#ffffff', textAlign: 'left' }}>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(16, 185, 129, 0.25)', color: '#a7f3d0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <CheckCircle2 size={20} />
+              </div>
+              <span>ACID Double-Entry Ledger & Real-Time Balance Updates</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: '0.9rem', fontWeight: 700, color: '#ffffff' }}>
-              <CheckCircle2 size={20} color="#a7f3d0" />
-              <span>Instant Digital Receipts & Balance Toggles</span>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: '1.05rem', fontWeight: 700, color: '#ffffff', textAlign: 'left' }}>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(16, 185, 129, 0.25)', color: '#a7f3d0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <CheckCircle2 size={20} />
+              </div>
+              <span>Instant Digital Receipts & Virtual Debit Card Controls</span>
             </div>
           </div>
         </div>
 
-        <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.85)', borderTop: '1px solid rgba(255,255,255,0.2)', paddingTop: 20 }}>
-          <strong>Security Advisory:</strong> FinSync Bank never requests your password or OTP over email/SMS.
+        <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.85)', paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.2)', fontWeight: 600, textAlign: 'justify', width: '100%' }}>
+          <strong>Security Notice:</strong> FinSync Bank will never ask for your confidential password or OTP.
         </div>
       </div>
 
-      {/* Auth Form Container */}
-      <div style={{ background: 'var(--bg-secondary)', borderRadius: 20, padding: 40, border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-md)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        {/* Mode Selector Pills */}
-        <div style={{ display: 'flex', gap: 8, padding: 4, background: 'var(--bg-card)', borderRadius: 12, border: '1px solid var(--border-color)', marginBottom: 24 }}>
-          <button
-            type="button"
-            onClick={() => setIsAdminMode(false)}
-            style={{
-              flex: 1,
-              padding: '8px 14px',
-              borderRadius: 8,
-              border: 'none',
-              fontSize: '0.85rem',
-              fontWeight: 800,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 6,
-              background: !isAdminMode ? 'linear-gradient(135deg, #6366f1, #4338ca)' : 'transparent',
-              color: !isAdminMode ? '#ffffff' : 'var(--text-muted)'
-            }}
-          >
-            <User size={15} /> Client NetBanking
-          </button>
+      {/* Right Side: Theme 2 - Clean Form Theme (Centered in Right Half) */}
+      <div style={{ background: 'var(--bg-secondary)', padding: '48px 40px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '100%', maxWidth: 460, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          {/* Mode Selector Tabs */}
+          <div style={{ display: 'flex', gap: 12, borderBottom: '2px solid var(--border-color)', marginBottom: 32, paddingBottom: 4, width: '100%', justifyContent: 'flex-start' }}>
+            <button
+              type="button"
+              onClick={() => setIsAdminMode(false)}
+              style={{
+                padding: '12px 20px 12px 0',
+                border: 'none',
+                borderBottom: !isAdminMode ? '3px solid var(--primary)' : '3px solid transparent',
+                marginBottom: -6,
+                background: 'transparent',
+                fontSize: '1.05rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                color: !isAdminMode ? 'var(--primary)' : 'var(--text-muted)',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <User size={20} /> Client Sign In
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setIsAdminMode(true)}
-            style={{
-              flex: 1,
-              padding: '8px 14px',
-              borderRadius: 8,
-              border: 'none',
-              fontSize: '0.85rem',
-              fontWeight: 800,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 6,
-              background: isAdminMode ? 'linear-gradient(135deg, #6366f1, #4338ca)' : 'transparent',
-              color: isAdminMode ? '#ffffff' : 'var(--text-muted)'
-            }}
-          >
-            <ShieldCheck size={15} /> Admin Portal
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={() => setIsAdminMode(true)}
+              style={{
+                padding: '12px 20px',
+                border: 'none',
+                borderBottom: isAdminMode ? '3px solid var(--primary)' : '3px solid transparent',
+                marginBottom: -6,
+                background: 'transparent',
+                fontSize: '1.05rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                color: isAdminMode ? 'var(--primary)' : 'var(--text-muted)',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <ShieldCheck size={20} /> Admin Portal
+            </button>
+          </div>
 
-        <div style={{ marginBottom: 28 }}>
-          <h2 style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--text-main)', marginBottom: 6 }}>
-            {isAdminMode ? 'Admin Security Portal' : 'NetBanking Sign In'}
-          </h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', fontWeight: 600 }}>
-            {isAdminMode ? 'Authenticate with administrative credentials to access system RBAC & analytics.' : 'Enter your registered email and NetBanking password.'}
+          <div style={{ marginBottom: 28, textAlign: 'left', width: '100%' }}>
+            <h2 style={{ fontSize: '2.1rem', fontWeight: 900, color: 'var(--text-main)', marginBottom: 8, textAlign: 'left' }}>
+              {isAdminMode ? 'Admin Security Portal' : 'NetBanking Sign In'}
+            </h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '1.02rem', fontWeight: 600, textAlign: 'justify' }}>
+              {isAdminMode ? 'Authenticate with administrative credentials to access system RBAC & analytics.' : 'Enter your registered email and password to log in.'}
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+            <div className="form-group" style={{ marginBottom: 24, textAlign: 'left' }}>
+              <label style={{ display: 'block', fontSize: '0.98rem', fontWeight: 700, marginBottom: 8, color: 'var(--text-main)', textAlign: 'left' }}>Registered Email Address</label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="user@domain.com"
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '15px 20px 15px 50px',
+                    borderRadius: 12,
+                    border: '1.5px solid var(--border-color)',
+                    background: 'var(--bg-input)',
+                    color: 'var(--text-main)',
+                    fontSize: '1.05rem',
+                    outline: 'none'
+                  }}
+                />
+                <Mail size={22} style={{ position: 'absolute', left: 16, top: 15, color: 'var(--primary)' }} />
+              </div>
+            </div>
+
+            <div className="form-group" style={{ marginBottom: 28, textAlign: 'left' }}>
+              <label style={{ display: 'block', fontSize: '0.98rem', fontWeight: 700, marginBottom: 8, color: 'var(--text-main)', textAlign: 'left' }}>NetBanking Password</label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••••••"
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '15px 50px 15px 50px',
+                    borderRadius: 12,
+                    border: '1.5px solid var(--border-color)',
+                    background: 'var(--bg-input)',
+                    color: 'var(--text-main)',
+                    fontSize: '1.05rem',
+                    outline: 'none'
+                  }}
+                />
+                <Lock size={22} style={{ position: 'absolute', left: 16, top: 15, color: 'var(--primary)' }} />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{ position: 'absolute', right: 16, top: 15, background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
+                >
+                  {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn btn-primary"
+              style={{
+                width: '100%',
+                padding: '16px',
+                fontWeight: 800,
+                fontSize: '1.1rem',
+                background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: 12,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 10,
+                boxShadow: '0 6px 20px rgba(99,102,241,0.35)',
+                cursor: 'pointer'
+              }}
+            >
+              <span>{loading ? 'Authenticating…' : 'Sign In to NetBanking'}</span>
+              <ArrowRight size={22} />
+            </button>
+          </form>
+
+          <p style={{ marginTop: 28, textAlign: 'center', fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 600, width: '100%' }}>
+            New to FinSync Bank?{' '}
+            <Link to="/register" style={{ color: 'var(--primary)', fontWeight: 800, textDecoration: 'none' }}>
+              Open Account Online
+            </Link>
           </p>
         </div>
-
-        <form onSubmit={handleSubmit}>
-          <div className="form-group" style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 700, marginBottom: 8, color: 'var(--text-main)' }}>Registered Email Address</label>
-            <div style={{ position: 'relative' }}>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="user@domain.com"
-                required
-                style={{
-                  width: '100%',
-                  padding: '12px 16px 12px 42px',
-                  borderRadius: 8,
-                  border: '1px solid var(--border-color)',
-                  background: 'var(--bg-input)',
-                  color: 'var(--text-main)',
-                  fontSize: '0.95rem'
-                }}
-              />
-              <Mail size={18} style={{ position: 'absolute', left: 14, top: 14, color: 'var(--primary)' }} />
-            </div>
-          </div>
-
-          <div className="form-group" style={{ marginBottom: 24 }}>
-            <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 700, marginBottom: 8, color: 'var(--text-main)' }}>NetBanking Password</label>
-            <div style={{ position: 'relative' }}>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••••••"
-                required
-                style={{
-                  width: '100%',
-                  padding: '12px 42px 12px 42px',
-                  borderRadius: 8,
-                  border: '1px solid var(--border-color)',
-                  background: 'var(--bg-input)',
-                  color: 'var(--text-main)',
-                  fontSize: '0.95rem'
-                }}
-              />
-              <Lock size={18} style={{ position: 'absolute', left: 14, top: 14, color: 'var(--primary)' }} />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                style={{ position: 'absolute', right: 14, top: 14, background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn btn-primary"
-            style={{
-              width: '100%',
-              padding: '14px',
-              fontWeight: 800,
-              fontSize: '1rem',
-              background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: 10,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              boxShadow: '0 4px 14px rgba(99,102,241,0.35)',
-              cursor: 'pointer'
-            }}
-          >
-            <span>{loading ? 'Authenticating…' : 'Sign In to NetBanking'}</span>
-            <ArrowRight size={18} />
-          </button>
-        </form>
-
-        <p style={{ marginTop: 24, textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-          New to FinSync Bank?{' '}
-          <Link to="/register" style={{ color: 'var(--primary)', fontWeight: 800, textDecoration: 'none' }}>
-            Open Account Online
-          </Link>
-        </p>
       </div>
     </div>
   )
 }
+
+
+

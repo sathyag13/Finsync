@@ -102,7 +102,7 @@ export default function DebitCard({ account, userName = 'VALUED CLIENT', index =
             FINSYNC <span style={{ fontWeight: 600, opacity: 0.9 }}>BANK</span>
           </div>
           <div style={{ fontSize: '0.62rem', fontWeight: 800, padding: '2px 8px', borderRadius: 4, background: cardThemeStyle.badgeBg, letterSpacing: 0.8, textTransform: 'uppercase', marginTop: 2, display: 'inline-block' }}>
-            {cardThemeStyle.cardTypeLabel}
+            {(account.isPrimary || index === 0) ? `PRIMARY • ${cardThemeStyle.cardTypeLabel}` : cardThemeStyle.cardTypeLabel}
           </div>
         </div>
       </div>

@@ -34,46 +34,18 @@ public class RbacServiceImpl implements RbacService {
                 .sum();
 
         long customerCount = users.stream().filter(u -> u.getRole() == Role.CUSTOMER).count();
-        long analystCount = users.stream().filter(u -> u.getRole() == Role.ANALYST).count();
         long adminCount = users.stream().filter(u -> u.getRole() == Role.ADMIN).count();
 
         RbacAnalyticsResponse response = new RbacAnalyticsResponse();
         response.totalUsers = users.size();
-        response.totalAccounts = Math.max(accounts.size(), 24850);
+        response.totalAccounts = accounts.size();
         response.customerCount = customerCount;
-        response.analystCount = analystCount;
+        response.analystCount = 0;
         response.adminCount = adminCount;
 
-        // Interactive Time Period Reach Metrics Map
-        response.timePeriodReach = Map.of(
-                "7_DAYS", 1840L,
-                "30_DAYS", 5620L,
-                "QUARTER", 9850L,
-                "YTD", 12500L,
-                "ALL_TIME", 24850L
-        );
-
-        // Frequent Transactors Analysis
-        response.frequentTransactors = List.of(
-                new RbacAnalyticsResponse.FrequentTransactorDto(1L, "Sathya Narayanan", "gsathya131104@gmail.com", "FS-8829-4019", 142, 1850000.0, "P2P Transfers", "VIP PLATINUM"),
-                new RbacAnalyticsResponse.FrequentTransactorDto(2L, "Aarav Sharma", "aarav.sharma@finsync.in", "FS-9912-3021", 118, 1420000.0, "SIP Mutual Funds", "POWER USER"),
-                new RbacAnalyticsResponse.FrequentTransactorDto(3L, "Priya Patel", "priya.patel@gmail.com", "FS-7734-9102", 96, 980000.0, "Bill Payments", "ACTIVE CLIENT"),
-                new RbacAnalyticsResponse.FrequentTransactorDto(4L, "Rahul Verma", "rahul.v@techcorp.com", "FS-5512-8472", 84, 1250000.0, "Merchant POS", "POWER USER"),
-                new RbacAnalyticsResponse.FrequentTransactorDto(5L, "Ananya Roy", "ananya.roy@investors.org", "FS-4419-2098", 72, 2100000.0, "Fixed Deposit", "VIP PLATINUM")
-        );
-
-        // Currencies Deposited Ledger
-        response.currencyDeposits = List.of(
-                new RbacAnalyticsResponse.CurrencyDepositDto("INR", "Indian Rupee", "₹", 123600000.0, 82.4, 123600000.0),
-                new RbacAnalyticsResponse.CurrencyDepositDto("USD", "United States Dollar", "$", 1880000.0, 10.5, 15750000.0),
-                new RbacAnalyticsResponse.CurrencyDepositDto("EUR", "Euro", "€", 780000.0, 4.2, 6300000.0),
-                new RbacAnalyticsResponse.CurrencyDepositDto("GBP", "British Pound", "£", 340000.0, 1.8, 2700000.0),
-                new RbacAnalyticsResponse.CurrencyDepositDto("AED", "UAE Dirham", "د.إ", 1650000.0, 1.1, 1650000.0)
-        );
-
-        // Assets Under Management (Combined user account liquidity + managed investments base)
-        response.totalAssetsUnderManagement = Math.max(totalBalances + 145000000.0, 150000000.0);
-        response.totalTransactionsVolume = 84250000.0;
+        // Assets Under Management (Sum of all real account balances in database)
+        response.totalAssetsUnderManagement = totalBalances;
+        response.totalTransactionsVolume = totalBalances;
 
         // Asset Class Allocation Breakdown
         response.assetAllocations = List.of(

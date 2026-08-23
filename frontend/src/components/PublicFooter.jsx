@@ -37,29 +37,34 @@ export default function PublicFooter() {
           </div>
 
           {/* Column 2: Digital Banking Services */}
-          <div>
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
             <div style={{ color: '#ffffff', fontWeight: 800, fontSize: '0.95rem', marginBottom: 16, borderBottom: '2px solid #6366f1', paddingBottom: 6 }}>
               Banking Services
             </div>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10, fontSize: '0.85rem' }}>
-              <li><Link to="/accounts" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none' }}>Multi-Currency Accounts</Link></li>
-              <li><Link to="/accounts" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none' }}>ISO 7810 Virtual Debit Cards</Link></li>
-              <li><Link to="/transfer" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none' }}>Atomic P2P Money Transfer</Link></li>
-              <li><Link to="/expenses" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none' }}>Categorized Expense Logs</Link></li>
-              <li><Link to="/savings" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none' }}>5.50% APY Vault Savings</Link></li>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12, fontSize: '0.86rem' }}>
+              <li style={{ color: 'rgba(255,255,255,0.82)', cursor: 'default' }}>Multi-Currency Accounts</li>
+              <li style={{ color: 'rgba(255,255,255,0.82)', cursor: 'default' }}>ISO 7810 Virtual Debit Cards</li>
+              <li style={{ color: 'rgba(255,255,255,0.82)', cursor: 'default' }}>Atomic P2P Money Transfer</li>
+              <li style={{ color: 'rgba(255,255,255,0.82)', cursor: 'default' }}>Categorized Expense Logs</li>
+              <li style={{ color: 'rgba(255,255,255,0.82)', cursor: 'default' }}>5.50% APY Vault Savings</li>
+              <li style={{ color: 'rgba(255,255,255,0.82)', cursor: 'default' }}>Instant Wire & NEFT Transfer</li>
+              <li style={{ color: 'rgba(255,255,255,0.82)', cursor: 'default' }}>Recurring Deposit & Fixed Vaults</li>
             </ul>
           </div>
 
           {/* Column 3: Client Security & Access */}
-          <div>
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
             <div style={{ color: '#ffffff', fontWeight: 800, fontSize: '0.95rem', marginBottom: 16, borderBottom: '2px solid #6366f1', paddingBottom: 6 }}>
               Security & Compliance
             </div>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10, fontSize: '0.85rem' }}>
-              <li><Link to="/dashboard" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none' }}>NetBanking Dashboard</Link></li>
-              <li><Link to="/profile" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none' }}>Daily Transfer Limits (₹5 Lakhs)</Link></li>
-              <li><Link to="/login" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none' }}>Secure Client Sign In</Link></li>
-              <li><Link to="/register" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none' }}>Instant Online Onboarding</Link></li>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12, fontSize: '0.86rem' }}>
+              <li style={{ color: 'rgba(255,255,255,0.82)', cursor: 'default' }}>NetBanking Dashboard</li>
+              <li style={{ color: 'rgba(255,255,255,0.82)', cursor: 'default' }}>Daily Transfer Limits (₹5 Lakhs)</li>
+              <li style={{ color: 'rgba(255,255,255,0.82)', cursor: 'default' }}>Secure Client Sign In</li>
+              <li style={{ color: 'rgba(255,255,255,0.82)', cursor: 'default' }}>Instant Online Onboarding</li>
+              <li style={{ color: 'rgba(255,255,255,0.82)', cursor: 'default' }}>256-Bit SSL Data Encryption</li>
+              <li style={{ color: 'rgba(255,255,255,0.82)', cursor: 'default' }}>RBI Scheduled Bank Compliance</li>
+              <li style={{ color: 'rgba(255,255,255,0.82)', cursor: 'default' }}>DICGC Deposit Cover (₹5 Lakhs)</li>
             </ul>
           </div>
         </div>

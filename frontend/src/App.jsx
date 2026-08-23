@@ -17,15 +17,6 @@ import Savings from './pages/Savings.jsx'
 import Profile from './pages/Profile.jsx'
 import RoleBasedAccess from './pages/RoleBasedAccess.jsx'
 
-// Analyst Pages
-import AnalystDashboard from './pages/analyst/AnalystDashboard.jsx'
-import AnalystAccounts from './pages/analyst/AnalystAccounts.jsx'
-import AnalystTransactions from './pages/analyst/AnalystTransactions.jsx'
-import AnalystExpenses from './pages/analyst/AnalystExpenses.jsx'
-import AnalystSavings from './pages/analyst/AnalystSavings.jsx'
-import AnalystCustomers from './pages/analyst/AnalystCustomers.jsx'
-import AnalystReports from './pages/analyst/AnalystReports.jsx'
-
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard.jsx'
 import UserManagement from './pages/admin/UserManagement.jsx'
@@ -41,11 +32,11 @@ import AdminSettings from './pages/admin/AdminSettings.jsx'
 export default function App() {
   const { user } = useAuth()
   const location = useLocation()
-  const isHomePage = location.pathname === '/'
+  const isHomePage = location.pathname === '/' || location.pathname === '/home'
 
   if (user) {
     // Authenticated App Shell with Dynamic Role Sidebar
-    const defaultLanding = user.role === 'ADMIN' ? <AdminDashboard /> : user.role === 'ANALYST' ? <AnalystDashboard /> : <Dashboard />
+    const defaultLanding = user.role === 'ADMIN' ? <AdminDashboard /> : <Dashboard />
 
     return (
       <div className="app-container">
@@ -57,22 +48,13 @@ export default function App() {
               <Route path="/" element={defaultLanding} />
               <Route path="/home" element={<Home />} />
 
-              {/* Customer Access Routes */}
-              <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['CUSTOMER', 'ANALYST', 'ADMIN']}><Dashboard /></ProtectedRoute>} />
-              <Route path="/accounts" element={<ProtectedRoute allowedRoles={['CUSTOMER', 'ANALYST', 'ADMIN']}><Accounts /></ProtectedRoute>} />
-              <Route path="/transfer" element={<ProtectedRoute allowedRoles={['CUSTOMER', 'ANALYST', 'ADMIN']}><Transfer /></ProtectedRoute>} />
-              <Route path="/expenses" element={<ProtectedRoute allowedRoles={['CUSTOMER', 'ANALYST', 'ADMIN']}><Expenses /></ProtectedRoute>} />
-              <Route path="/savings" element={<ProtectedRoute allowedRoles={['CUSTOMER', 'ANALYST', 'ADMIN']}><Savings /></ProtectedRoute>} />
-              <Route path="/profile" element={<ProtectedRoute allowedRoles={['CUSTOMER', 'ANALYST', 'ADMIN']}><Profile /></ProtectedRoute>} />
-
-              {/* Financial Analyst Clearance Routes */}
-              <Route path="/analyst" element={<ProtectedRoute allowedRoles={['ANALYST', 'ADMIN']}><AnalystDashboard /></ProtectedRoute>} />
-              <Route path="/analyst/accounts" element={<ProtectedRoute allowedRoles={['ANALYST', 'ADMIN']}><AnalystAccounts /></ProtectedRoute>} />
-              <Route path="/analyst/transactions" element={<ProtectedRoute allowedRoles={['ANALYST', 'ADMIN']}><AnalystTransactions /></ProtectedRoute>} />
-              <Route path="/analyst/expenses" element={<ProtectedRoute allowedRoles={['ANALYST', 'ADMIN']}><AnalystExpenses /></ProtectedRoute>} />
-              <Route path="/analyst/savings" element={<ProtectedRoute allowedRoles={['ANALYST', 'ADMIN']}><AnalystSavings /></ProtectedRoute>} />
-              <Route path="/analyst/customers" element={<ProtectedRoute allowedRoles={['ANALYST', 'ADMIN']}><AnalystCustomers /></ProtectedRoute>} />
-              <Route path="/analyst/reports" element={<ProtectedRoute allowedRoles={['ANALYST', 'ADMIN']}><AnalystReports /></ProtectedRoute>} />
+              {/* Customer Portal Clearance Routes */}
+              <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['CUSTOMER']}><Dashboard /></ProtectedRoute>} />
+              <Route path="/accounts" element={<ProtectedRoute allowedRoles={['CUSTOMER']}><Accounts /></ProtectedRoute>} />
+              <Route path="/transfer" element={<ProtectedRoute allowedRoles={['CUSTOMER']}><Transfer /></ProtectedRoute>} />
+              <Route path="/expenses" element={<ProtectedRoute allowedRoles={['CUSTOMER']}><Expenses /></ProtectedRoute>} />
+              <Route path="/savings" element={<ProtectedRoute allowedRoles={['CUSTOMER']}><Savings /></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute allowedRoles={['CUSTOMER', 'ADMIN']}><Profile /></ProtectedRoute>} />
 
               {/* System Admin Clearance Routes */}
               <Route path="/admin" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminDashboard /></ProtectedRoute>} />
@@ -87,7 +69,7 @@ export default function App() {
               <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminSettings /></ProtectedRoute>} />
 
               {/* Global Role Access Matrix */}
-              <Route path="/rbac" element={<ProtectedRoute allowedRoles={['ANALYST', 'ADMIN']}><RoleBasedAccess /></ProtectedRoute>} />
+              <Route path="/rbac" element={<ProtectedRoute allowedRoles={['ADMIN']}><RoleBasedAccess /></ProtectedRoute>} />
 
               <Route path="/login" element={defaultLanding} />
               <Route path="/register" element={defaultLanding} />
@@ -102,7 +84,7 @@ export default function App() {
   return (
     <div className="public-portal">
       <PublicNavbar />
-      <main style={{ minHeight: '75vh', padding: isHomePage ? 0 : '36px 24px', maxWidth: isHomePage ? '100%' : 1200, margin: '0 auto' }}>
+      <main style={{ minHeight: 'calc(100vh - 180px)', padding: isHomePage ? 0 : '24px 20px', maxWidth: isHomePage ? '100%' : 1280, margin: '0 auto' }}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/home" element={<Home />} />

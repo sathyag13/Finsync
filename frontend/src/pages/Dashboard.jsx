@@ -61,6 +61,7 @@ export default function Dashboard() {
     try {
       await api.post(`/accounts/${depositAccId}/deposit`, { amount: depositAmount, description: depositDesc })
       addToast(`₹${Number(depositAmount).toLocaleString('en-IN')} deposited successfully!`, 'success')
+      window.dispatchEvent(new Event('finsync:activity'))
       setIsDepositOpen(false)
       setDepositAmount('')
       setDepositDesc('')
@@ -259,10 +260,16 @@ export default function Dashboard() {
           {accounts.length > 0 ? (
             <DebitCard account={accounts[0]} userName={user.fullName} />
           ) : (
-            <DebitCard
-              account={{ id: 1, accountType: 'SAVINGS', accountNumber: 'FS8829401920', balance: 149500 }}
-              userName={user?.fullName || 'VALUED CLIENT'}
-            />
+            <div className="card" style={{ padding: '32px 20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, border: '2px dashed var(--border-color)', borderRadius: 18 }}>
+              <CreditCard size={36} color="var(--primary)" />
+              <div>
+                <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-main)' }}>No Active Debit Cards</div>
+                <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: 4 }}>You don't have any bank accounts yet. Open an account to generate your virtual debit card.</div>
+              </div>
+              <Link to="/accounts" className="btn btn-primary btn-sm" style={{ marginTop: 4, fontWeight: 800 }}>
+                + Open New Account
+              </Link>
+            </div>
           )}
         </div>
 
@@ -274,32 +281,43 @@ export default function Dashboard() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {accounts.map((a) => (
-              <div key={a.id} style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '14px 18px',
-                borderRadius: 'var(--radius-md)',
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid var(--border-color)'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                  <div className="stat-icon indigo" style={{ width: 36, height: 36 }}>
-                    <CreditCard size={18} />
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{a.accountType} ACCOUNT</div>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>{a.accountNumber}</div>
-                  </div>
-                </div>
-
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '1.15rem', fontWeight: 800 }}>₹{Number(a.balance).toLocaleString('en-IN')}</div>
-                  <span className="badge badge-emerald" style={{ fontSize: '0.7rem' }}>Active</span>
-                </div>
+            {accounts.length === 0 ? (
+              <div style={{ padding: '32px 16px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                <Building2 size={36} color="var(--text-dim)" style={{ marginBottom: 10, opacity: 0.6 }} />
+                <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-main)' }}>You don't have any accounts</div>
+                <div style={{ fontSize: '0.84rem', color: 'var(--text-muted)', marginTop: 4, marginBottom: 16 }}>Open your first Savings or Current account to start banking.</div>
+                <Link to="/accounts" className="btn btn-primary btn-sm" style={{ fontWeight: 800 }}>
+                  + Open First Account
+                </Link>
               </div>
-            ))}
+            ) : (
+              accounts.map((a) => (
+                <div key={a.id} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '14px 18px',
+                  borderRadius: 'var(--radius-md)',
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid var(--border-color)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <div className="stat-icon indigo" style={{ width: 36, height: 36 }}>
+                      <CreditCard size={18} />
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{a.accountType} ACCOUNT</div>
+                      <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>{a.accountNumber}</div>
+                    </div>
+                  </div>
+
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '1.15rem', fontWeight: 800 }}>₹{Number(a.balance).toLocaleString('en-IN')}</div>
+                    <span className="badge badge-emerald" style={{ fontSize: '0.7rem' }}>Active</span>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
