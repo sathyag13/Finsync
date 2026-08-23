@@ -40,7 +40,7 @@ export default function PublicNavbar() {
       if (user.role !== 'ADMIN') switchRole('ADMIN')
       navigate('/admin')
     } else {
-      navigate('/login?mode=admin')
+      navigate('/login')
     }
   }
 
