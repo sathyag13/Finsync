@@ -20,7 +20,11 @@ import {
   Wifi,
   Smartphone,
   Calendar,
-  AlertTriangle
+  AlertTriangle,
+  ChevronDown,
+  ChevronUp,
+  CheckCircle2,
+  HelpCircle
 } from 'lucide-react'
 
 export default function Accounts() {
@@ -29,6 +33,8 @@ export default function Accounts() {
   const [accounts, setAccounts] = useState([])
   const [selectedAccount, setSelectedAccount] = useState(null)
   const [history, setHistory] = useState([])
+  const [showMoreDetails, setShowMoreDetails] = useState(false)
+  const [selectedTxn, setSelectedTxn] = useState(null)
 
   // New Account State
   const [accountType, setAccountType] = useState('SAVINGS')
@@ -72,7 +78,7 @@ export default function Accounts() {
       setIsCreateOpen(false)
       loadAccounts()
     } catch (err) {
-      addToast(err.response?.data?.message || 'Could not create account.', 'error')
+      addToast(err.response?.data?.message || 'Could not open account.', 'error')
     }
   }
 
@@ -146,7 +152,7 @@ export default function Accounts() {
       setSelectedAccount(res.data)
       setAccounts(prev => prev.map(a => a.id === res.data.id ? res.data : a))
       window.dispatchEvent(new Event('finsync:activity'))
-      addToast(`Daily transaction limit set to ₹${num.toLocaleString('en-IN')}`, 'success')
+      addToast(`Daily spending limit set to ₹${num.toLocaleString('en-IN')}`, 'success')
     } catch (err) {
       addToast(err.response?.data?.message || 'Failed to update daily limit', 'error')
     } finally {
@@ -163,8 +169,8 @@ export default function Accounts() {
     <div>
       {/* Page Header */}
       <PageHeader
-        title="Accounts & Virtual Debit Cards"
-        description="Manage your deposit accounts, security card controls, limits, and statements"
+        title="My Accounts & Cards"
+        description="Your money and cards in one place."
         icon={CreditCard}
         actions={
           <button className="btn btn-primary btn-sm" onClick={() => setIsCreateOpen(true)}>
@@ -174,10 +180,10 @@ export default function Accounts() {
       />
 
       <div className="grid grid-1-2" style={{ gap: 24, marginBottom: 'var(--section-gap)' }}>
-        {/* Left Column: Accounts List & Debit Card */}
+        {/* Left Column: Accounts & Debit Card Controls */}
         <div className="grid-col-left">
           <div className="card-header" style={{ marginBottom: 12 }}>
-            <h3 className="card-title">Select Account & Card</h3>
+            <h3 className="card-title">Choose Account</h3>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
@@ -222,7 +228,7 @@ export default function Accounts() {
                       ₹{Number(a.balance || 0).toLocaleString('en-IN')}
                     </div>
                     <div style={{ fontSize: '11px', color: 'var(--accent-emerald)', fontWeight: 600 }}>
-                      Avail: ₹{Number(a.availableBalance || a.balance || 0).toLocaleString('en-IN')}
+                      Available
                     </div>
                   </div>
                 </div>
@@ -258,7 +264,7 @@ export default function Accounts() {
 
               {selectedAccount.cardFrozen && (
                 <div style={{ padding: '8px 12px', borderRadius: 8, background: 'rgba(244, 63, 94, 0.1)', border: '1px solid rgba(244, 63, 94, 0.25)', color: 'var(--accent-rose)', fontSize: '12px', fontWeight: 600, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <AlertTriangle size={14} /> Card transactions are currently disabled.
+                  <AlertTriangle size={14} /> Card transactions are currently frozen.
                 </div>
               )}
 
@@ -269,7 +275,7 @@ export default function Accounts() {
                     <Smartphone size={15} color="var(--primary)" />
                     <div>
                       <div style={{ fontSize: '13px', fontWeight: 600 }}>Online Transactions</div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>E-commerce & web portals</div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Shopping and payments online</div>
                     </div>
                   </div>
                   <input
@@ -285,8 +291,8 @@ export default function Accounts() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <Wifi size={15} color="var(--accent-emerald)" />
                     <div>
-                      <div style={{ fontSize: '13px', fontWeight: 600 }}>Contactless (NFC)</div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>POS terminal tap payments</div>
+                      <div style={{ fontSize: '13px', fontWeight: 600 }}>Contactless Payments</div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Tap and pay at stores</div>
                     </div>
                   </div>
                   <input
@@ -303,7 +309,7 @@ export default function Accounts() {
                     <Globe size={15} color="var(--accent-amber)" />
                     <div>
                       <div style={{ fontSize: '13px', fontWeight: 600 }}>International Payments</div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Foreign currency & overseas</div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Usage outside India</div>
                     </div>
                   </div>
                   <input
@@ -315,10 +321,10 @@ export default function Accounts() {
                   />
                 </div>
 
-                {/* Daily Transaction Limit */}
+                {/* Daily Spending Limit */}
                 <div style={{ padding: '10px 12px', borderRadius: 8, background: 'var(--bg-input)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                    <span style={{ fontSize: '13px', fontWeight: 600 }}>Daily Transaction Limit</span>
+                    <span style={{ fontSize: '13px', fontWeight: 600 }}>Daily Spending Limit</span>
                     <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--primary)' }}>₹{Number(selectedAccount.dailyLimit || 50000).toLocaleString('en-IN')}</span>
                   </div>
                   <div style={{ display: 'flex', gap: 8 }}>
@@ -344,48 +350,86 @@ export default function Accounts() {
           )}
         </div>
 
-        {/* Right Column: Account Details, Fast Actions & History */}
+        {/* Right Column: Account Balance & Transactions History */}
         <div className="grid-col-right">
           {selectedAccount ? (
             <>
-              {/* Account Details Card */}
+              {/* Account Details Card with Progressive Disclosure */}
               <div className="card" style={{ marginBottom: 'var(--section-gap)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
                   <div>
                     <span className="badge badge-indigo" style={{ textTransform: 'uppercase', fontSize: '11px', fontWeight: 700 }}>
-                      {selectedAccount.accountType} SPECIFICATION
+                      {selectedAccount.accountType} ACCOUNT
                     </span>
-                    <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-main)', marginTop: 4, marginBottom: 4 }}>
+                    <h2 style={{ fontSize: '26px', fontWeight: 900, color: 'var(--text-main)', marginTop: 4, marginBottom: 4 }}>
                       ₹{Number(selectedAccount.balance || 0).toLocaleString('en-IN')}
                     </h2>
                     <div style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                      <span>Acc: <strong style={{ fontFamily: 'monospace' }}>{selectedAccount.accountNumber}</strong></span>
+                      <span>Account No: <strong style={{ fontFamily: 'monospace' }}>{selectedAccount.accountNumber}</strong></span>
                       <span>•</span>
                       <span>Status: <strong style={{ color: selectedAccount.status === 'FROZEN' ? 'var(--accent-rose)' : 'var(--accent-emerald)' }}>{selectedAccount.status || 'ACTIVE'}</strong></span>
-                      <span>•</span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <Calendar size={13} /> {selectedAccount.createdAt ? new Date(selectedAccount.createdAt).toLocaleDateString('en-IN') : 'Recently'}
-                      </span>
                     </div>
                   </div>
 
                   <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
                     <button onClick={() => setActionModalType('DEPOSIT')} className="btn btn-emerald btn-sm">
-                      <Plus size={14} /> Deposit
+                      <Plus size={14} /> Add Money
                     </button>
                     <button onClick={() => setActionModalType('WITHDRAW')} className="btn btn-secondary btn-sm">
                       <ArrowUpRight size={14} /> Withdraw
                     </button>
                   </div>
                 </div>
+
+                {/* Progressive Disclosure: More Account Details */}
+                <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid var(--border-color)' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowMoreDetails(!showMoreDetails)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--primary)',
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      padding: 0
+                    }}
+                  >
+                    {showMoreDetails ? 'Hide account details' : 'Show account details'}
+                    {showMoreDetails ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                  </button>
+
+                  {showMoreDetails && (
+                    <div className="grid grid-3" style={{ gap: 10, marginTop: 12 }}>
+                      <div style={{ padding: '8px 10px', background: 'var(--bg-input)', borderRadius: 6 }}>
+                        <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700 }}>IFSC CODE</div>
+                        <div style={{ fontSize: '13px', fontWeight: 700, fontFamily: 'monospace' }}>FSNB0001001</div>
+                      </div>
+                      <div style={{ padding: '8px 10px', background: 'var(--bg-input)', borderRadius: 6 }}>
+                        <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700 }}>DAILY LIMIT</div>
+                        <div style={{ fontSize: '13px', fontWeight: 700 }}>₹{Number(selectedAccount.dailyLimit || 50000).toLocaleString('en-IN')}</div>
+                      </div>
+                      <div style={{ padding: '8px 10px', background: 'var(--bg-input)', borderRadius: 6 }}>
+                        <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700 }}>OPENED ON</div>
+                        <div style={{ fontSize: '13px', fontWeight: 600 }}>
+                          {selectedAccount.createdAt ? new Date(selectedAccount.createdAt).toLocaleDateString('en-IN') : 'August 2026'}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
-              {/* Transactions History Ledger */}
+              {/* Transactions History */}
               <div className="card">
                 <div className="card-header">
                   <h3 className="card-title">
                     <History size={16} color="var(--primary)" />
-                    <span>Transaction Statement</span>
+                    <span>Transaction History</span>
                   </h3>
                   <div style={{ position: 'relative', width: '100%', maxWidth: 280 }}>
                     <input
@@ -401,17 +445,16 @@ export default function Accounts() {
 
                 {filteredHistory.length === 0 ? (
                   <div style={{ padding: 32, textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
-                    No transactions found for this account.
+                    No transactions yet for this account.
                   </div>
                 ) : (
                   <div className="table-container">
                     <table>
                       <thead>
                         <tr>
-                          <th>Action Type</th>
+                          <th>Type</th>
                           <th>Description</th>
                           <th>Date</th>
-                          <th>Risk</th>
                           <th style={{ textAlign: 'center' }}>Status</th>
                           <th style={{ textAlign: 'right' }}>Amount (₹)</th>
                           <th style={{ textAlign: 'right' }}>Balance</th>
@@ -420,50 +463,37 @@ export default function Accounts() {
                       <tbody>
                         {filteredHistory.map((t) => {
                           const isCredit = t.type.includes('IN') || t.type === 'DEPOSIT'
-                          const risk = t.riskLevel || 'LOW'
                           return (
-                            <tr key={t.id}>
+                            <tr
+                              key={t.id}
+                              onClick={() => setSelectedTxn(t)}
+                              style={{ cursor: 'pointer' }}
+                            >
                               <td>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                   <div className={`stat-icon ${isCredit ? 'emerald' : 'rose'}`} style={{ width: 28, height: 28, borderRadius: 6, flexShrink: 0 }}>
                                     {isCredit ? <ArrowDownLeft size={13} /> : <ArrowUpRight size={13} />}
                                   </div>
                                   <span style={{ fontWeight: 600, fontSize: '13px' }}>
-                                    {t.type.replace('_', ' ')}
+                                    {t.type === 'DEPOSIT' ? 'Deposit' : t.type === 'WITHDRAWAL' ? 'Withdrawal' : isCredit ? 'Received' : 'Sent'}
                                   </span>
                                 </div>
                               </td>
                               <td className="cell-desc" style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-                                {t.description || 'Electronic Transfer'}
+                                {t.description || 'Transfer'}
                               </td>
                               <td style={{ fontSize: '12px', color: 'var(--text-dim)' }}>
-                                {new Date(t.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                              </td>
-                              <td>
-                                <span
-                                  style={{
-                                    fontSize: '11px',
-                                    fontWeight: 700,
-                                    padding: '2px 6px',
-                                    borderRadius: 4,
-                                    background: risk === 'HIGH' ? 'rgba(244, 63, 94, 0.15)' : (risk === 'MEDIUM' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(16, 185, 129, 0.15)'),
-                                    color: risk === 'HIGH' ? 'var(--accent-rose)' : (risk === 'MEDIUM' ? 'var(--accent-amber)' : 'var(--accent-emerald)')
-                                  }}
-                                >
-                                  {risk}
-                                </span>
+                                {new Date(t.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}
                               </td>
                               <td style={{ textAlign: 'center' }}>
-                                <span className="badge badge-emerald">
-                                  {t.status || 'SUCCESS'}
+                                <span className="badge badge-emerald" style={{ fontSize: '11px' }}>
+                                  Successful
                                 </span>
                               </td>
-                              <td style={{ textAlign: 'right' }}>
-                                <span className={`badge ${isCredit ? 'badge-in' : 'badge-out'}`} style={{ fontSize: '13px', fontWeight: 700 }}>
-                                  {isCredit ? '+' : '-'} ₹{Number(t.amount || 0).toLocaleString('en-IN')}
-                                </span>
+                              <td style={{ textAlign: 'right', fontWeight: 800, fontSize: '13px', color: isCredit ? 'var(--accent-emerald)' : 'var(--text-main)' }}>
+                                {isCredit ? '+' : '-'}₹{Number(t.amount || 0).toLocaleString('en-IN')}
                               </td>
-                              <td style={{ textAlign: 'right', fontWeight: 700, fontSize: '13px' }}>
+                              <td style={{ textAlign: 'right', fontWeight: 600, fontSize: '13px', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
                                 ₹{Number(t.balanceAfter || 0).toLocaleString('en-IN')}
                               </td>
                             </tr>
@@ -476,90 +506,161 @@ export default function Accounts() {
               </div>
             </>
           ) : (
-            <div className="card" style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
-              Select an account on the left to view details and card settings.
+            <div className="card" style={{ padding: 48, textAlign: 'center', color: 'var(--text-muted)' }}>
+              No account selected. Please select an account from the left.
             </div>
           )}
         </div>
       </div>
 
-      {/* Create Account Modal */}
-      <Modal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} title="Open New Bank Account">
-        <form onSubmit={handleCreateAccount}>
-          <div className="form-group">
-            <label>Select Account Type</label>
-            <select value={accountType} onChange={(e) => setAccountType(e.target.value)} required>
-              <option value="SAVINGS">SAVINGS ACCOUNT (5.50% APY Vault)</option>
-              <option value="CURRENT">BUSINESS CURRENT ACCOUNT (High Limit)</option>
-              <option value="INVESTMENT">INVESTMENT PORTFOLIO ACCOUNT</option>
-              <option value="GOLD">GOLD PREMIER WEALTH VAULT</option>
-            </select>
-          </div>
+      {/* Transaction Details Modal */}
+      <Modal isOpen={selectedTxn !== null} onClose={() => setSelectedTxn(null)} title="Transaction Details">
+        {selectedTxn && (
+          <div style={{ textAlign: 'center', padding: '10px 0' }}>
+            <div
+              style={{
+                width: 52,
+                height: 52,
+                borderRadius: '50%',
+                background: 'rgba(16, 185, 129, 0.15)',
+                color: 'var(--accent-emerald)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 12px auto'
+              }}
+            >
+              <CheckCircle2 size={30} />
+            </div>
 
-          <div className="form-group">
-            <label>Initial Opening Deposit (₹)</label>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              value={openingBalance}
-              onChange={(e) => setOpeningBalance(e.target.value)}
-              placeholder="e.g. 5000 (Optional)"
-            />
-          </div>
+            <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+              {selectedTxn.type.includes('IN') || selectedTxn.type === 'DEPOSIT' ? 'Money Received' : 'Payment Successful'}
+            </div>
+            <div style={{ fontSize: '28px', fontWeight: 900, color: 'var(--text-main)', margin: '4px 0 16px 0' }}>
+              ₹{Number(selectedTxn.amount || 0).toLocaleString('en-IN')}
+            </div>
 
-          <div className="modal-actions">
-            <button type="button" className="btn btn-secondary" onClick={() => setIsCreateOpen(false)}>
-              Cancel
-            </button>
-            <button className="btn btn-primary" type="submit">
-              Create Account
+            <div style={{ padding: '14px 16px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)', textAlign: 'left', marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Description</span>
+                <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>{selectedTxn.description || 'Transfer'}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Date & Time</span>
+                <span style={{ fontWeight: 600 }}>
+                  {selectedTxn.createdAt ? new Date(selectedTxn.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : 'Recently'}
+                </span>
+              </div>
+              {selectedTxn.counterpartyAccountNumber && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Counterparty Account</span>
+                  <span style={{ fontWeight: 600, fontFamily: 'monospace' }}>{selectedTxn.counterpartyAccountNumber}</span>
+                </div>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Status</span>
+                <span style={{ fontWeight: 700, color: 'var(--accent-emerald)' }}>Successful</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Transaction Reference</span>
+                <span style={{ fontWeight: 700, fontFamily: 'monospace', color: 'var(--primary)' }}>
+                  #TXN-00{selectedTxn.id}
+                </span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setSelectedTxn(null)}
+              className="btn btn-primary"
+              style={{ width: '100%' }}
+            >
+              Done
             </button>
           </div>
-        </form>
+        )}
       </Modal>
 
       {/* Deposit / Withdraw Action Modal */}
-      <Modal isOpen={actionModalType !== null} onClose={() => setActionModalType(null)} title={`${actionModalType === 'DEPOSIT' ? 'Deposit Money into' : 'Withdraw Funds from'} Account`}>
+      <Modal
+        isOpen={actionModalType !== null}
+        onClose={() => setActionModalType(null)}
+        title={actionModalType === 'DEPOSIT' ? 'Add Money to Account' : 'Withdraw Money from Account'}
+      >
         <form onSubmit={handleTransaction}>
-          <div className="form-group">
-            <label>Target Account</label>
-            <input
-              type="text"
-              value={`${selectedAccount?.accountType} — ${selectedAccount?.accountNumber}`}
-              disabled
-            />
-          </div>
-
           <div className="form-group">
             <label>Amount (₹)</label>
             <input
               type="number"
               min="1"
               step="0.01"
+              placeholder="e.g. 5000"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              placeholder="e.g. 5000"
               required
             />
           </div>
 
           <div className="form-group">
-            <label>Remarks / Description</label>
+            <label>Description / Note</label>
             <input
               type="text"
+              placeholder="e.g. Self deposit, ATM withdrawal"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="e.g. ATM cash withdrawal, payroll credit"
             />
           </div>
 
           <div className="modal-actions">
-            <button type="button" className="btn btn-secondary" onClick={() => setActionModalType(null)}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => setActionModalType(null)}
+            >
               Cancel
             </button>
-            <button className={`btn ${actionModalType === 'DEPOSIT' ? 'btn-emerald' : 'btn-primary'}`} type="submit">
-              Confirm {actionModalType === 'DEPOSIT' ? 'Deposit' : 'Withdrawal'}
+            <button
+              type="submit"
+              className={`btn ${actionModalType === 'DEPOSIT' ? 'btn-emerald' : 'btn-primary'}`}
+            >
+              {actionModalType === 'DEPOSIT' ? 'Add Money' : 'Withdraw Money'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Create Account Modal */}
+      <Modal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} title="Open New Bank Account">
+        <form onSubmit={handleCreateAccount}>
+          <div className="form-group">
+            <label>Account Type</label>
+            <select value={accountType} onChange={(e) => setAccountType(e.target.value)}>
+              <option value="SAVINGS">Savings Account</option>
+              <option value="CURRENT">Current Account</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Initial Deposit (₹)</label>
+            <input
+              type="number"
+              min="0"
+              placeholder="0.00"
+              value={openingBalance}
+              onChange={(e) => setOpeningBalance(e.target.value)}
+            />
+          </div>
+
+          <div className="modal-actions">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => setIsCreateOpen(false)}
+            >
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-primary">
+              Open Account
             </button>
           </div>
         </form>

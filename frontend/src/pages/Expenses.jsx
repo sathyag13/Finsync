@@ -165,15 +165,15 @@ export default function Expenses() {
     <div>
       {/* Page Header */}
       <PageHeader
-        title="Expense Analytics & Smart Spending Insights"
-        description="Analyze category expenditures, monitor monthly budget variance, and evaluate rule-based insights"
+        title="Expense Analytics"
+        description="See where your money goes and track your monthly budget."
         icon={PieChart}
       />
 
       {/* 3-Column Equal-Height Stat Cards Grid */}
       <div className="grid grid-3" style={{ marginBottom: 'var(--section-gap)' }}>
         <StatCard
-          label="Total Monthly Outflows"
+          label="Total Spent This Month"
           value={`₹${totalSpent.toLocaleString('en-IN')}`}
           icon={ArrowUpRight}
           iconTheme="rose"
@@ -182,22 +182,20 @@ export default function Expenses() {
         />
 
         <StatCard
-          label="Total Account Reserves"
+          label="Available Balance"
           value={`₹${totalBalance.toLocaleString('en-IN')}`}
           icon={ArrowDownLeft}
           iconTheme="emerald"
           valueColor="var(--accent-emerald)"
-          trend="+8.4%"
-          trendType="up"
-          subtitle="Liquid Cash Position"
+          subtitle="Across all active accounts"
         />
 
         <StatCard
-          label="Monthly Savings Ratio"
+          label="Savings Rate"
           value={totalSpent > 0 ? `${Math.max(0, Math.round(((totalBalance) / (totalBalance + totalSpent)) * 100))}%` : '100%'}
           icon={Wallet}
           iconTheme="indigo"
-          subtitle="Retained Liquidity Buffer"
+          subtitle="Saved from inflows"
         />
       </div>
 
@@ -206,10 +204,10 @@ export default function Expenses() {
         <div className="card-header">
           <h3 className="card-title">
             <Sparkles size={18} color="var(--accent-amber)" />
-            <span>Smart Spending Insights</span>
+            <span>Spending Insights</span>
           </h3>
-          <span className="badge badge-indigo">
-            Deterministic Engine
+          <span className="badge badge-emerald">
+            Smart Advice
           </span>
         </div>
 

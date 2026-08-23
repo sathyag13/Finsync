@@ -99,30 +99,30 @@ export default function Savings() {
     <div>
       {/* Page Header */}
       <PageHeader
-        title="Savings Vaults & Goal Tracking"
-        description="Earn 5.50% APY return by locking liquid funds into customized savings targets"
+        title="Savings Goals"
+        description="Set goals and track your progress."
         icon={PiggyBank}
       />
 
       {/* 3-Column Equal-Height Stat Cards Grid */}
       <div className="grid grid-3" style={{ marginBottom: 'var(--section-gap)' }}>
         <StatCard
-          label="Total Funds in Vaults"
+          label="Total Saved in Goals"
           value={`₹${totalVaultSaved.toLocaleString('en-IN')}`}
           icon={PiggyBank}
           iconTheme="emerald"
           valueColor="var(--accent-emerald)"
           trend="+5.50% APY"
           trendType="up"
-          subtitle="Compounding Yield"
+          subtitle="Annual Return"
         />
 
         <StatCard
-          label="Aggregate Target Value"
+          label="Total Target Amount"
           value={`₹${totalVaultTarget.toLocaleString('en-IN')}`}
           icon={Target}
           iconTheme="indigo"
-          subtitle={`Across ${goals.length} Active Targets`}
+          subtitle={`Across ${goals.length} Goals`}
         />
 
         <StatCard
@@ -130,7 +130,7 @@ export default function Savings() {
           value={`${completedGoals} / ${goals.length}`}
           icon={Trophy}
           iconTheme="amber"
-          subtitle="Achieved Milestones"
+          subtitle="Milestones achieved"
         />
       </div>
 

@@ -16,13 +16,17 @@ import {
   Sun,
   Bell,
   CheckCircle2,
-  ShieldCheck,
   Building2,
   UserCheck,
   History,
   Settings,
   Trash2,
-  Check
+  Check,
+  QrCode,
+  Wallet,
+  ArrowDownLeft,
+  ArrowUpRight,
+  HelpCircle
 } from 'lucide-react'
 
 export function Sidebar() {
@@ -36,11 +40,9 @@ export function Sidebar() {
     ? user.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
     : 'FS'
 
-  // Dynamic Role-Based Sidebar Nav Items (2 Roles: CUSTOMER and ADMIN)
-  let navItems = []
-
+  // Dynamic Role-Based Sidebar Nav Items
   if (user.role === 'ADMIN') {
-    navItems = [
+    const adminNavItems = [
       { label: 'Admin Control Center', path: '/admin', icon: LayoutDashboard },
       { label: 'User Directory', path: '/admin/users', icon: UserCheck },
       { label: 'Accounts Opened This Month', path: '/admin/accounts', icon: CreditCard },
@@ -48,21 +50,91 @@ export function Sidebar() {
       { label: 'System Settings', path: '/admin/settings', icon: Settings },
       { label: 'Admin Profile', path: '/profile', icon: User }
     ]
-  } else {
-    // CUSTOMER ROLE
-    navItems = [
-      { label: 'Dashboard Overview', path: '/dashboard', icon: LayoutDashboard },
-      { label: 'Accounts & Cards', path: '/accounts', icon: CreditCard },
-      { label: 'Pay & Transfer', path: '/transfer', icon: Send },
-      { label: 'Expense Analytics', path: '/expenses', icon: PieChart },
-      { label: 'Savings Vaults', path: '/savings', icon: PiggyBank },
-      { label: 'Customer Profile', path: '/profile', icon: User }
-    ]
+
+    return (
+      <aside className="sidebar">
+        <div className="sidebar-brand">
+          <div className="sidebar-logo-icon">
+            <Building2 size={20} color="#ffffff" />
+          </div>
+          <div>
+            <div className="sidebar-brand-title">FINSYNC</div>
+            <div className="sidebar-brand-subtitle">ADMIN CONTROL</div>
+          </div>
+        </div>
+
+        <nav className="sidebar-nav">
+          {adminNavItems.map((item) => {
+            const Icon = item.icon
+            const isActive = location.pathname === item.path
+            return (
+              <button
+                key={item.path}
+                type="button"
+                className={`sidebar-nav-item ${isActive ? 'active' : ''}`}
+                onClick={() => navigate(item.path)}
+              >
+                <Icon size={18} />
+                <span>{item.label}</span>
+              </button>
+            )
+          })}
+        </nav>
+
+        <div className="sidebar-footer">
+          <div className="user-mini-card" onClick={() => navigate('/profile')}>
+            <div className="user-avatar">{initials}</div>
+            <div className="user-info">
+              <div className="user-name">{user.fullName}</div>
+              <div className="user-role">
+                {user.role} {user.empNo ? `• ${user.empNo}` : ''}
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    )
   }
+
+  // CUSTOMER ROLE: Clean, Organized, User-Friendly Categories
+  const customerSections = [
+    {
+      items: [
+        { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard }
+      ]
+    },
+    {
+      category: 'MONEY',
+      items: [
+        { label: 'Accounts & Cards', path: '/accounts', icon: CreditCard },
+        { label: 'Pay & Transfer', path: '/transfer', icon: Send },
+        { label: 'Receive Money', path: '/profile', icon: QrCode }
+      ]
+    },
+    {
+      category: 'SPENDING',
+      items: [
+        { label: 'Recent Transactions', path: '/accounts', icon: History },
+        { label: 'Expense Analytics', path: '/expenses', icon: PieChart }
+      ]
+    },
+    {
+      category: 'SAVINGS',
+      items: [
+        { label: 'Savings Goals', path: '/savings', icon: PiggyBank }
+      ]
+    },
+    {
+      category: 'PROFILE',
+      items: [
+        { label: 'My Profile', path: '/profile', icon: User }
+      ]
+    }
+  ]
 
   return (
     <aside className="sidebar">
-      {/* Brand Logo Header (64px height) */}
+      {/* Brand Logo Header */}
       <div className="sidebar-brand">
         <div className="sidebar-logo-icon">
           <Building2 size={20} color="#ffffff" />
@@ -73,23 +145,42 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Sidebar Nav Links */}
-      <nav className="sidebar-nav">
-        {navItems.map((item) => {
-          const Icon = item.icon
-          const isActive = location.pathname === item.path
-          return (
-            <button
-              key={item.path}
-              type="button"
-              className={`sidebar-nav-item ${isActive ? 'active' : ''}`}
-              onClick={() => navigate(item.path)}
-            >
-              <Icon size={18} />
-              <span>{item.label}</span>
-            </button>
-          )
-        })}
+      {/* Sidebar Nav Links Grouped by Friendly Categories */}
+      <nav className="sidebar-nav" style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+        {customerSections.map((sec, sIdx) => (
+          <div key={sIdx} style={{ marginBottom: 4 }}>
+            {sec.category && (
+              <div
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  letterSpacing: '0.08em',
+                  color: 'var(--text-muted)',
+                  padding: '6px 12px 4px 12px',
+                  textTransform: 'uppercase'
+                }}
+              >
+                {sec.category}
+              </div>
+            )}
+            {sec.items.map((item) => {
+              const Icon = item.icon
+              const isActive = location.pathname === item.path
+              return (
+                <button
+                  key={item.label + item.path}
+                  type="button"
+                  className={`sidebar-nav-item ${isActive ? 'active' : ''}`}
+                  onClick={() => navigate(item.path)}
+                  style={{ width: '100%', marginBottom: 2 }}
+                >
+                  <Icon size={17} />
+                  <span>{item.label}</span>
+                </button>
+              )
+            })}
+          </div>
+        ))}
       </nav>
 
       {/* Sidebar Footer User Card */}
@@ -98,9 +189,7 @@ export function Sidebar() {
           <div className="user-avatar">{initials}</div>
           <div className="user-info">
             <div className="user-name">{user.fullName}</div>
-            <div className="user-role">
-              {user.role} {user.empNo ? `• ${user.empNo}` : ''}
-            </div>
+            <div className="user-role">Customer Account</div>
           </div>
         </div>
       </div>
@@ -158,294 +247,250 @@ export function TopHeader() {
     loadNotifications()
 
     const interval = setInterval(loadNotifications, 8000)
-    const handleActivityEvent = () => loadNotifications()
-    window.addEventListener('finsync:activity', handleActivityEvent)
+    const handleActivity = () => loadNotifications()
+    window.addEventListener('finsync:activity', handleActivity)
 
     return () => {
       clearInterval(interval)
-      window.removeEventListener('finsync:activity', handleActivityEvent)
+      window.removeEventListener('finsync:activity', handleActivity)
     }
-  }, [user, location.pathname])
+  }, [user])
 
-  if (!user) return null
-
-  const handleMarkAsRead = async (id) => {
+  const handleMarkAsRead = async (id, e) => {
+    e.stopPropagation()
     try {
-      await api.patch(`/notifications/${id}/read`)
-      setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n))
-      setUnreadCount(prev => Math.max(0, prev - 1))
+      await api.put(`/notifications/${id}/read`)
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+      )
+      setUnreadCount((c) => Math.max(0, c - 1))
     } catch (err) {
-      console.error('Failed to mark read', err)
+      console.error('Failed to mark read:', err)
     }
   }
 
   const handleMarkAllAsRead = async () => {
     try {
-      await api.patch('/notifications/read-all')
-      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
+      await api.put('/notifications/read-all')
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
       setUnreadCount(0)
     } catch (err) {
-      console.error('Failed to mark all as read', err)
+      console.error('Failed to mark all read:', err)
     }
   }
 
-  const handleDeleteNotification = async (id) => {
+  const handleClearAll = async () => {
     try {
-      await api.delete(`/notifications/${id}`)
-      setNotifications(prev => prev.filter(n => n.id !== id))
-      loadNotifications()
+      await api.delete('/notifications/clear-all')
+      setNotifications([])
+      setUnreadCount(0)
     } catch (err) {
-      console.error('Failed to delete notification', err)
+      console.error('Failed to clear notifications:', err)
     }
   }
 
-  const handleConfirmLogout = () => {
-    setShowLogoutModal(false)
-    logout()
-    navigate('/login')
-  }
-
-  const filteredNotifs = filterUnreadOnly
-    ? notifications.filter(n => !n.isRead)
+  const displayedNotifications = filterUnreadOnly
+    ? notifications.filter((n) => !n.read)
     : notifications
 
   return (
-    <>
-      <header className="top-header">
-        {/* Left: Clearance & System Status */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span className={`badge ${user.role === 'ADMIN' ? 'badge-indigo' : 'badge-emerald'}`}>
-            <ShieldCheck size={14} />
-            <span>{user.role === 'ADMIN' ? 'ADMIN ACCESS' : 'RETAIL CLIENT'}</span>
-          </span>
-          <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 500 }}>
-            FinSync Secure Portal • 256-bit SSL
-          </span>
-        </div>
+    <header className="top-header">
+      {/* Dynamic Page Indicator */}
+      <div className="header-breadcrumbs">
+        <span className="breadcrumb-current">
+          {location.pathname === '/' || location.pathname === '/dashboard'
+            ? 'Dashboard'
+            : location.pathname.startsWith('/admin')
+            ? 'Admin Portal'
+            : location.pathname.slice(1).replace('-', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+        </span>
+      </div>
 
-        {/* Right Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          {/* Notification Center Trigger */}
-          <div style={{ position: 'relative' }}>
-            <button
-              type="button"
-              onClick={() => setShowNotifications(!showNotifications)}
-              style={{
-                position: 'relative',
-                background: 'var(--bg-input)',
-                border: '1px solid var(--border-color)',
-                borderRadius: '8px',
-                width: 36,
-                height: 36,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                color: 'var(--text-main)'
-              }}
-              title="Notifications"
-            >
-              <Bell size={16} />
-              {unreadCount > 0 && (
-                <span
-                  style={{
-                    position: 'absolute',
-                    top: -4,
-                    right: -4,
-                    background: 'var(--accent-rose)',
-                    color: '#ffffff',
-                    fontSize: '10px',
-                    fontWeight: 900,
-                    width: 16,
-                    height: 16,
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    border: '2px solid var(--card-bg)'
-                  }}
-                >
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              )}
-            </button>
+      {/* Header Actions Area */}
+      <div className="header-actions">
+        {/* Theme Toggle Button */}
+        <button
+          type="button"
+          className="header-icon-btn"
+          onClick={toggleTheme}
+          title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        >
+          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
 
-            {/* Notification Drawer Popover */}
-            {showNotifications && (
-              <div
-                style={{
-                  position: 'absolute',
-                  top: 44,
-                  right: 0,
-                  width: 360,
-                  background: 'var(--bg-card)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '12px',
-                  boxShadow: 'var(--shadow-lg)',
-                  zIndex: 100,
-                  overflow: 'hidden'
-                }}
-              >
-                <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ fontWeight: 700, fontSize: '14px', display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <Bell size={15} color="var(--primary)" /> Notifications ({unreadCount} new)
-                  </div>
+        {/* Real-Time Notification Bell */}
+        <div style={{ position: 'relative' }}>
+          <button
+            type="button"
+            className="header-icon-btn"
+            onClick={() => setShowNotifications(!showNotifications)}
+            title="Notifications"
+          >
+            <Bell size={18} />
+            {unreadCount > 0 && (
+              <span className="notification-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>
+            )}
+          </button>
+
+          {/* Notifications Dropdown Panel */}
+          {showNotifications && (
+            <div className="notifications-dropdown">
+              <div className="notifications-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontWeight: 800, fontSize: '14px', color: 'var(--text-main)' }}>
+                    Notifications
+                  </span>
+                  {unreadCount > 0 && (
+                    <span className="badge badge-indigo" style={{ padding: '2px 6px', fontSize: '11px' }}>
+                      {unreadCount} new
+                    </span>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', gap: 6 }}>
                   {unreadCount > 0 && (
                     <button
                       type="button"
+                      className="btn-link"
                       onClick={handleMarkAllAsRead}
-                      style={{ background: 'none', border: 'none', color: 'var(--primary)', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}
+                      style={{ fontSize: '12px', color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}
                     >
                       Mark all read
                     </button>
                   )}
-                </div>
-
-                {/* Filter Switch */}
-                <div style={{ display: 'flex', padding: '6px 12px', background: 'var(--bg-input)', borderBottom: '1px solid var(--border-color)', gap: 6 }}>
-                  <button
-                    type="button"
-                    onClick={() => setFilterUnreadOnly(false)}
-                    style={{
-                      border: 'none',
-                      background: !filterUnreadOnly ? 'var(--primary)' : 'transparent',
-                      color: !filterUnreadOnly ? '#ffffff' : 'var(--text-muted)',
-                      padding: '3px 8px',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      cursor: 'pointer'
-                    }}
-                  >
-                    All ({notifications.length})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setFilterUnreadOnly(true)}
-                    style={{
-                      border: 'none',
-                      background: filterUnreadOnly ? 'var(--primary)' : 'transparent',
-                      color: filterUnreadOnly ? '#ffffff' : 'var(--text-muted)',
-                      padding: '3px 8px',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Unread ({unreadCount})
-                  </button>
-                </div>
-
-                <div style={{ maxHeight: 320, overflowY: 'auto' }}>
-                  {filteredNotifs.length === 0 ? (
-                    <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
-                      No notifications to display.
-                    </div>
-                  ) : (
-                    filteredNotifs.map((n) => (
-                      <div
-                        key={n.id}
-                        style={{
-                          padding: '10px 14px',
-                          borderBottom: '1px solid var(--border-color)',
-                          background: n.isRead ? 'transparent' : 'rgba(99, 102, 241, 0.05)',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'flex-start',
-                          gap: 8
-                        }}
-                      >
-                        <div style={{ flex: 1 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                            <span style={{ fontWeight: 700, fontSize: '13px', color: 'var(--text-main)' }}>{n.title}</span>
-                            {!n.isRead && (
-                              <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--primary)' }} />
-                            )}
-                          </div>
-                          <div style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: 1.4 }}>{n.message}</div>
-                          <div style={{ fontSize: '11px', color: 'var(--text-dim)', marginTop: 4 }}>
-                            {formatTimeAgo(n.createdAt)}
-                          </div>
-                        </div>
-
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                          {!n.isRead && (
-                            <button
-                              type="button"
-                              onClick={() => handleMarkAsRead(n.id)}
-                              style={{ background: 'none', border: 'none', color: '#10b981', cursor: 'pointer', padding: 4 }}
-                              title="Mark as read"
-                            >
-                              <Check size={13} />
-                            </button>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteNotification(n.id)}
-                            style={{ background: 'none', border: 'none', color: 'var(--text-dim)', cursor: 'pointer', padding: 4 }}
-                            title="Delete"
-                          >
-                            <Trash2 size={13} />
-                          </button>
-                        </div>
-                      </div>
-                    ))
+                  {notifications.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleClearAll}
+                      style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 2 }}
+                      title="Clear All"
+                    >
+                      <Trash2 size={14} />
+                    </button>
                   )}
                 </div>
               </div>
-            )}
-          </div>
 
-          {/* Theme Toggle */}
-          <button
-            type="button"
-            onClick={toggleTheme}
-            style={{
-              background: 'var(--bg-input)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '8px',
-              width: 36,
-              height: 36,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              color: 'var(--text-main)'
-            }}
-            title="Toggle theme"
-          >
-            {theme === 'dark' ? <Sun size={16} color="#f59e0b" /> : <Moon size={16} />}
-          </button>
+              {/* Notification Filter Pills */}
+              <div style={{ display: 'flex', gap: 6, padding: '8px 14px', borderBottom: '1px solid var(--border-color)', background: 'var(--bg-input)' }}>
+                <button
+                  type="button"
+                  onClick={() => setFilterUnreadOnly(false)}
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    padding: '3px 8px',
+                    borderRadius: 4,
+                    border: 'none',
+                    cursor: 'pointer',
+                    background: !filterUnreadOnly ? 'var(--primary)' : 'transparent',
+                    color: !filterUnreadOnly ? '#ffffff' : 'var(--text-muted)'
+                  }}
+                >
+                  All ({notifications.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFilterUnreadOnly(true)}
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    padding: '3px 8px',
+                    borderRadius: 4,
+                    border: 'none',
+                    cursor: 'pointer',
+                    background: filterUnreadOnly ? 'var(--primary)' : 'transparent',
+                    color: filterUnreadOnly ? '#ffffff' : 'var(--text-muted)'
+                  }}
+                >
+                  Unread ({unreadCount})
+                </button>
+              </div>
 
-          {/* Logout Button */}
-          <button
-            type="button"
-            onClick={() => setShowLogoutModal(true)}
-            className="btn btn-rose btn-sm"
-          >
-            <LogOut size={14} />
-            <span>Sign Out</span>
-          </button>
+              {/* Notification Items List */}
+              <div className="notifications-list">
+                {displayedNotifications.length === 0 ? (
+                  <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
+                    You're all caught up! ✨
+                  </div>
+                ) : (
+                  displayedNotifications.map((notif) => (
+                    <div
+                      key={notif.id}
+                      className={`notification-item ${!notif.read ? 'unread' : ''}`}
+                      onClick={(e) => !notif.read && handleMarkAsRead(notif.id, e)}
+                    >
+                      <div className="notification-icon">
+                        <CheckCircle2 size={16} color="var(--primary)" />
+                      </div>
+                      <div className="notification-content">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span className="notification-title">{notif.title}</span>
+                          <span className="notification-time">{formatTimeAgo(notif.createdAt)}</span>
+                        </div>
+                        <p className="notification-desc">{notif.message}</p>
+                      </div>
+                      {!notif.read && (
+                        <button
+                          type="button"
+                          className="mark-read-btn"
+                          onClick={(e) => handleMarkAsRead(notif.id, e)}
+                          title="Mark as read"
+                        >
+                          <Check size={12} />
+                        </button>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
         </div>
-      </header>
 
-      {/* Logout Confirmation Modal */}
-      <Modal isOpen={showLogoutModal} onClose={() => setShowLogoutModal(false)} title="Confirm Sign Out">
-        <div>
-          <p style={{ color: 'var(--text-muted)', marginBottom: 20, fontSize: '14px' }}>
-            Are you sure you want to end your secure FinSync banking session?
+        {/* User Sign Out Header Trigger */}
+        <button
+          type="button"
+          className="header-icon-btn"
+          onClick={() => setShowLogoutModal(true)}
+          title="Sign Out"
+        >
+          <LogOut size={18} />
+        </button>
+      </div>
+
+      {/* Sign Out Confirmation Modal */}
+      <Modal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        title="Sign Out of FinSync"
+      >
+        <div style={{ padding: '8px 0' }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: 20 }}>
+            Are you sure you want to terminate your secure banking session?
           </p>
           <div className="modal-actions">
-            <button className="btn btn-secondary" onClick={() => setShowLogoutModal(false)}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => setShowLogoutModal(false)}
+            >
               Cancel
             </button>
-            <button className="btn btn-rose" onClick={handleConfirmLogout}>
-              Sign Out
+            <button
+              type="button"
+              className="btn btn-rose"
+              onClick={() => {
+                setShowLogoutModal(false)
+                logout()
+                navigate('/login')
+              }}
+            >
+              <LogOut size={15} /> Sign Out
             </button>
           </div>
         </div>
       </Modal>
-    </>
+    </header>
   )
 }

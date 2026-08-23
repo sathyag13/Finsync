@@ -740,38 +740,36 @@ export default function Transfer() {
       </div>
 
       {/* QR Transfer Confirmation Modal */}
-      <Modal isOpen={showQrReviewModal} onClose={() => setShowQrReviewModal(false)} title="Confirm QR Transfer">
+      <Modal isOpen={showQrReviewModal} onClose={() => setShowQrReviewModal(false)} title="Confirm Payment">
         {resolvedRecipient && (
           <div>
-            <div style={{ padding: '16px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)', marginBottom: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-                <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Recipient</span>
-                <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>{resolvedRecipient.recipientName}</span>
+            <div style={{ textAlign: 'center', marginBottom: 16 }}>
+              <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>You're paying</div>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-main)', marginTop: 2 }}>
+                {resolvedRecipient.recipientName}
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-                <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>FinSync Pay ID</span>
+              <div style={{ fontSize: '28px', fontWeight: 900, color: 'var(--primary)', margin: '8px 0' }}>
+                ₹{Number(qrAmount || 0).toLocaleString('en-IN')}
+              </div>
+            </div>
+
+            <div style={{ padding: '14px 16px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)', marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                <span style={{ color: 'var(--text-muted)' }}>FinSync Pay ID</span>
                 <span style={{ fontWeight: 700, fontFamily: 'monospace', color: 'var(--primary)' }}>{resolvedRecipient.publicPaymentId}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-                <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>From Account</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Pay From</span>
                 <span style={{ fontWeight: 600, fontFamily: 'monospace' }}>
                   {selectedQrSourceAccount?.accountType} ({selectedQrSourceAccount?.accountNumber})
                 </span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-                <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Transfer Amount</span>
-                <span style={{ fontWeight: 900, fontSize: '18px', color: 'var(--primary)' }}>₹{Number(qrAmount || 0).toLocaleString('en-IN')}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-                <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Remarks</span>
-                <span style={{ fontWeight: 500 }}>{qrRemarks || 'QR Transfer'}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8, borderTop: '1px solid var(--border-color)' }}>
-                <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Risk Assessment</span>
-                <span className={`badge ${calculateEstimatedRisk(qrAmount) === 'HIGH' ? 'badge-rose' : (calculateEstimatedRisk(qrAmount) === 'MEDIUM' ? 'badge-amber' : 'badge-emerald')}`}>
-                  {calculateEstimatedRisk(qrAmount)} RISK
-                </span>
-              </div>
+              {qrRemarks && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Note</span>
+                  <span style={{ fontWeight: 500 }}>{qrRemarks}</span>
+                </div>
+              )}
             </div>
 
             <div className="modal-actions">
@@ -788,7 +786,7 @@ export default function Transfer() {
                 disabled={loading}
                 className="btn btn-primary"
               >
-                {loading ? 'Processing Transfer…' : 'Confirm & Send Money'}
+                {loading ? 'Sending…' : 'Send Money'}
               </button>
             </div>
           </div>

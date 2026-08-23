@@ -178,8 +178,8 @@ export default function Profile() {
     <div>
       {/* Page Header */}
       <PageHeader
-        title={displayUser.role === 'ADMIN' ? 'Admin Profile & Security' : 'Customer Profile & Security'}
-        description="Manage your verified customer identity, authentication credentials, and QR receive settings"
+        title={displayUser.role === 'ADMIN' ? 'Admin Profile & Security' : 'My Profile'}
+        description={displayUser.role === 'ADMIN' ? 'Manage your admin credentials and system configuration.' : 'Manage your personal details, password, and QR receive settings.'}
         icon={User}
       />
 
