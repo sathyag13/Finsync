@@ -293,17 +293,43 @@ export function TopHeader() {
     ? notifications.filter((n) => !n.read)
     : notifications
 
+  // Dynamic Page Label Helper
+  const getPageTitle = () => {
+    const path = location.pathname
+    if (path === '/' || path === '/dashboard') return 'Dashboard Overview'
+    if (path === '/accounts') return 'My Accounts & Cards'
+    if (path === '/transfer') return 'Pay & Transfer'
+    if (path === '/expenses') return 'Expense Analytics'
+    if (path === '/savings') return 'Savings Goals'
+    if (path === '/profile') return user?.role === 'ADMIN' ? 'Admin Profile & Security' : 'My Profile'
+    if (path === '/admin') return 'Admin Control Center'
+    if (path === '/admin/users') return 'User Directory & KYC'
+    if (path === '/admin/accounts') return 'Accounts Opened This Month'
+    if (path === '/admin/transactions') return 'Transaction Audit Logs'
+    if (path === '/admin/settings') return 'System Settings'
+    if (path === '/admin/audit-logs') return 'Real-Time Audit Trail'
+    if (path === '/admin/risk') return 'Risk Engine'
+    return path.slice(1).replace('-', ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+  }
+
   return (
     <header className="top-header">
-      {/* Dynamic Page Indicator */}
+      {/* Dynamic Page Indicator & Portal Breadcrumb */}
       <div className="header-breadcrumbs">
-        <span className="breadcrumb-current">
-          {location.pathname === '/' || location.pathname === '/dashboard'
-            ? 'Dashboard'
-            : location.pathname.startsWith('/admin')
-            ? 'Admin Portal'
-            : location.pathname.slice(1).replace('-', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+        <span style={{ color: 'var(--text-muted)', fontSize: '13px', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <Building2 size={15} color="var(--primary)" />
+          <span>{user?.role === 'ADMIN' ? 'Admin Console' : 'Customer Portal'}</span>
+          <span style={{ opacity: 0.5 }}>/</span>
         </span>
+        <span className="breadcrumb-current">
+          {getPageTitle()}
+        </span>
+      </div>
+
+      {/* Security Status Indicator */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '12px', color: 'var(--accent-emerald)', fontWeight: 600 }}>
+        <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent-emerald)', boxShadow: '0 0 8px rgba(16, 185, 129, 0.6)' }} />
+        <span>Bank-Grade SSL • Active Session</span>
       </div>
 
       {/* Header Actions Area */}
