@@ -29,6 +29,7 @@ import {
   Utensils,
   Zap,
   Plane,
+  Car,
   HelpCircle
 } from 'lucide-react'
 
