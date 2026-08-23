@@ -563,7 +563,7 @@ export default function Dashboard() {
                 </button>
               </div>
             ) : (
-              <div className="custom-scroll" style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: 1, maxHeight: 340, overflowY: 'auto', paddingRight: 6 }}>
+              <div className="custom-scroll" style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: 1, minHeight: 0, maxHeight: 480, overflowY: 'auto', paddingRight: 6 }}>
                 {recentTransactions.map((txn) => {
                   const { isCredit, label, category } = getFriendlyTxnInfo(txn)
                   const amt = Number(txn.amount || 0)
