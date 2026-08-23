@@ -56,8 +56,24 @@ export default function PublicNavbar() {
 
   return (
     <>
-      {/* FinSync Top Utility Bar */}
-      <div className="public-topbar" style={{ background: '#1e1b4b', padding: '8px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)', fontSize: '0.78rem', color: '#ffffff' }}>
+      {/* FinSync Top Utility Bar (Single Horizontal Row) */}
+      <div
+        className="public-topbar"
+        style={{
+          background: '#1e1b4b',
+          padding: '8px 24px',
+          borderBottom: '1px solid rgba(255,255,255,0.1)',
+          fontSize: '0.78rem',
+          color: '#ffffff',
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          width: '100%',
+          boxSizing: 'border-box',
+          whiteSpace: 'nowrap'
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,0.9)' }}>
             <ShieldCheck size={14} color="#a7f3d0" /> RBI Authorized Scheduled Commercial Bank • Toll-Free: <strong>1800-425-1199</strong>

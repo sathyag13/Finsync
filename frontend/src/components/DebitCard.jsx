@@ -1,11 +1,9 @@
 import { useState } from 'react'
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion'
-import { Wifi, Eye, EyeOff, Lock, RotateCw, ShieldCheck } from 'lucide-react'
+import { Wifi, Eye, EyeOff, Lock } from 'lucide-react'
 
 export default function DebitCard({ account, userName = 'VALUED CLIENT', index = 0, onToggleFreeze }) {
   const [showBalance, setShowBalance] = useState(true)
-  const [isFlipped, setIsFlipped] = useState(false)
-  const [showCvv, setShowCvv] = useState(false)
 
   // Mouse tilt motion values
   const x = useMotionValue(0)
@@ -13,8 +11,8 @@ export default function DebitCard({ account, userName = 'VALUED CLIENT', index =
 
   // Smooth Spring Physics
   const springConfig = { damping: 20, stiffness: 250, mass: 0.5 }
-  const rotateX = useSpring(useTransform(y, [-150, 150], [12, -12]), springConfig)
-  const rotateY = useSpring(useTransform(x, [-150, 150], [-12, 12]), springConfig)
+  const rotateX = useSpring(useTransform(y, [-150, 150], [10, -10]), springConfig)
+  const rotateY = useSpring(useTransform(x, [-150, 150], [-10, 10]), springConfig)
   const glareX = useTransform(x, [-150, 150], ['0%', '100%'])
   const glareY = useTransform(y, [-150, 150], ['0%', '100%'])
 
@@ -85,15 +83,11 @@ export default function DebitCard({ account, userName = 'VALUED CLIENT', index =
         style={{
           rotateX,
           rotateY,
-          transformStyle: 'preserve-3d',
           position: 'relative',
           borderRadius: 18,
-          cursor: 'pointer'
+          cursor: 'default'
         }}
-        animate={{ rotateY: isFlipped ? 180 : 0 }}
-        transition={{ duration: 0.6, type: 'spring', damping: 20, stiffness: 140 }}
       >
-        {/* ================= CARD FRONT ================= */}
         <div
           className="debit-card"
           style={{
@@ -108,9 +102,7 @@ export default function DebitCard({ account, userName = 'VALUED CLIENT', index =
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            border: isFrozen ? '2px solid rgba(239, 68, 68, 0.6)' : '1.5px solid rgba(255, 255, 255, 0.2)',
-            backfaceVisibility: 'hidden',
-            WebkitBackfaceVisibility: 'hidden'
+            border: isFrozen ? '2px solid rgba(239, 68, 68, 0.6)' : '1.5px solid rgba(255, 255, 255, 0.2)'
           }}
         >
           {/* Holographic Glare Overlay */}
@@ -227,83 +219,7 @@ export default function DebitCard({ account, userName = 'VALUED CLIENT', index =
             </div>
           </div>
         </div>
-
-        {/* ================= CARD BACK ================= */}
-        <div
-          className="debit-card"
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-            borderRadius: 18,
-            padding: '24px',
-            color: '#ffffff',
-            boxShadow: '0 16px 36px rgba(0,0,0,0.3)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            border: '1.5px solid rgba(255, 255, 255, 0.15)',
-            transform: 'rotateY(180deg)',
-            backfaceVisibility: 'hidden',
-            WebkitBackfaceVisibility: 'hidden'
-          }}
-        >
-          {/* Magnetic Stripe */}
-          <div style={{ position: 'absolute', top: 20, left: 0, right: 0, height: 40, background: '#090d16', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.8)' }} />
-
-          <div style={{ marginTop: 44, display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'rgba(255,255,255,0.6)' }}>
-            <span>24/7 Helpline: 1800-425-1199</span>
-            <span>Authorized Signature</span>
-          </div>
-
-          {/* CVV Panel */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(255,255,255,0.08)', padding: '6px 12px', borderRadius: 8 }}>
-            <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>Security Code:</span>
-            <div style={{ flex: 1, background: '#ffffff', color: '#0f172a', padding: '4px 10px', borderRadius: 4, fontFamily: 'monospace', fontWeight: 900, textAlign: 'right', fontSize: '13px' }}>
-              {showCvv ? (account.cvv || '882') : '•••'}
-            </div>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                setShowCvv(!showCvv)
-              }}
-              style={{ background: 'none', border: 'none', color: '#ffffff', cursor: 'pointer' }}
-            >
-              {showCvv ? <EyeOff size={15} /> : <Eye size={15} />}
-            </button>
-          </div>
-
-          <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.3 }}>
-            Issued by FinSync Bank under RBI License. Use of this virtual debit card is subject to all terms of the client cardholder agreement.
-          </div>
-        </div>
       </motion.div>
-
-      {/* Flip Button Toggle Below Card */}
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
-        <button
-          type="button"
-          onClick={() => setIsFlipped(!isFlipped)}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            fontSize: '12px',
-            fontWeight: 700,
-            padding: '6px 14px',
-            borderRadius: 8,
-            background: 'var(--bg-input)',
-            border: '1px solid var(--border-color)',
-            color: 'var(--text-main)',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          <RotateCw size={13} style={{ transform: isFlipped ? 'rotate(180deg)' : 'none', transition: 'transform 0.4s ease' }} />
-          <span>{isFlipped ? 'Show Card Front' : 'Flip to View CVV'}</span>
-        </button>
-      </div>
     </div>
   )
 }
