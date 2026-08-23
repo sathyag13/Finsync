@@ -34,6 +34,11 @@ export default function UserManagement() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
+  // Delete Individual Bank Account State
+  const [bankAccountToDelete, setBankAccountToDelete] = useState(null)
+  const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false)
+  const [deletingAccount, setDeletingAccount] = useState(false)
+
   // Create Form States
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [createForm, setCreateForm] = useState({ fullName: '', email: '', password: 'SecretPassword123!', phoneNumber: '', empNo: '', role: 'CUSTOMER' })
@@ -115,6 +120,30 @@ export default function UserManagement() {
       addToast(err.response?.data?.message || 'Failed to delete customer', 'error')
     } finally {
       setDeleting(false)
+    }
+  }
+
+  const handlePromptDeleteBankAccount = (acc) => {
+    setBankAccountToDelete(acc)
+    setShowDeleteAccountModal(true)
+  }
+
+  const handleConfirmDeleteBankAccount = async () => {
+    if (!bankAccountToDelete) return
+    try {
+      setDeletingAccount(true)
+      const res = await api.delete(`/admin/accounts/${bankAccountToDelete.id}`)
+      addToast(res.data?.message || `Bank account ${bankAccountToDelete.accountNumber} deleted successfully`, 'success')
+      setShowDeleteAccountModal(false)
+      setBankAccountToDelete(null)
+      if (selectedUserOverview) {
+        handleOpenOverview(selectedUserOverview)
+      }
+      fetchUsers()
+    } catch (err) {
+      addToast(err.response?.data?.message || 'Failed to delete bank account', 'error')
+    } finally {
+      setDeletingAccount(false)
     }
   }
 
@@ -394,13 +423,23 @@ export default function UserManagement() {
                         Balance: <strong>₹{Number(acc.balance || 0).toLocaleString('en-IN')}</strong> • Card Status: <span style={{ color: acc.cardFrozen ? 'var(--accent-rose)' : 'var(--accent-emerald)', fontWeight: 700 }}>{acc.cardFrozen ? 'FROZEN' : 'ACTIVE'}</span>
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleToggleAccountFreeze(acc.id)}
-                      className={`btn btn-sm ${acc.cardFrozen ? 'btn-emerald' : 'btn-secondary'}`}
-                    >
-                      {acc.cardFrozen ? 'Unfreeze Card' : 'Freeze Card'}
-                    </button>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button
+                        type="button"
+                        onClick={() => handleToggleAccountFreeze(acc.id)}
+                        className={`btn btn-sm ${acc.cardFrozen ? 'btn-emerald' : 'btn-secondary'}`}
+                      >
+                        {acc.cardFrozen ? 'Unfreeze Card' : 'Freeze Card'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handlePromptDeleteBankAccount(acc)}
+                        className="btn btn-rose btn-sm"
+                        title="Delete Bank Account"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -413,6 +452,42 @@ export default function UserManagement() {
             </div>
           </div>
         ) : null}
+      </Modal>
+
+      {/* Delete Bank Account Confirmation Modal (Centered) */}
+      <Modal isOpen={showDeleteAccountModal} onClose={() => !deletingAccount && setShowDeleteAccountModal(false)} title="Confirm Bank Account Deletion">
+        <div style={{ textAlign: 'center', padding: '12px 0' }}>
+          <div style={{ width: 54, height: 54, borderRadius: '50%', background: 'rgba(244, 63, 94, 0.15)', color: 'var(--accent-rose)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
+            <AlertTriangle size={28} />
+          </div>
+
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text-main)', marginBottom: 8 }}>
+            Delete Account {bankAccountToDelete?.accountNumber}?
+          </h3>
+
+          <p style={{ color: 'var(--text-muted)', fontSize: '13px', lineHeight: 1.6, maxWidth: 380, margin: '0 auto 20px auto' }}>
+            Are you sure you want to delete bank account <strong>{bankAccountToDelete?.accountNumber}</strong> ({bankAccountToDelete?.accountType})? Current balance is <strong>₹{Number(bankAccountToDelete?.balance || 0).toLocaleString('en-IN')}</strong>. All ledger transaction logs for this account will be removed.
+          </p>
+
+          <div className="modal-actions" style={{ justifyContent: 'center', gap: 12 }}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => setShowDeleteAccountModal(false)}
+              disabled={deletingAccount}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="btn btn-rose"
+              onClick={handleConfirmDeleteBankAccount}
+              disabled={deletingAccount}
+            >
+              <Trash2 size={15} /> {deletingAccount ? 'Deleting…' : 'Yes, Delete Account'}
+            </button>
+          </div>
+        </div>
       </Modal>
 
       {/* Delete Customer Confirmation Modal (Centered on Screen) */}

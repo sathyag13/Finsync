@@ -84,6 +84,61 @@ public class AdminUserController {
         return ResponseEntity.ok(Map.of("message", "Customer " + userName + " and all associated accounts were successfully deleted."));
     }
 
+    @DeleteMapping("/accounts/{accountId}")
+    @org.springframework.transaction.annotation.Transactional
+    public ResponseEntity<?> deleteAccount(@PathVariable Long accountId) {
+        Account account = accountRepository.findById(accountId).orElse(null);
+        if (account == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        String accNo = account.getAccountNumber();
+        String holderName = "Client";
+        String email = "client@finsync.in";
+        Long userId = null;
+        try {
+            if (account.getUser() != null) {
+                userId = account.getUser().getId();
+                if (account.getUser().getFullName() != null) holderName = account.getUser().getFullName();
+                if (account.getUser().getEmail() != null) email = account.getUser().getEmail();
+            }
+        } catch (Exception ignored) {}
+
+        // 1. Delete all transactions belonging to this account
+        List<Transaction> txs = transactionRepository.findByAccountIdOrderByCreatedAtDesc(accountId);
+        transactionRepository.deleteAll(txs);
+
+        // 2. Delete the account record
+        accountRepository.delete(account);
+
+        // 3. Reassign primary account for the user if needed
+        if (userId != null) {
+            List<Account> remainingAccounts = accountRepository.findByUserId(userId);
+            if (!remainingAccounts.isEmpty()) {
+                boolean hasPrimary = remainingAccounts.stream().anyMatch(Account::isPrimary);
+                if (!hasPrimary) {
+                    Account newPrimary = remainingAccounts.get(0);
+                    newPrimary.setPrimary(true);
+                    accountRepository.save(newPrimary);
+                }
+            }
+        }
+
+        // 4. Log to Audit Trail
+        auditLogService.logAction(
+                "Admin",
+                "admin@finsync.in",
+                email,
+                "ACCOUNT_DELETED",
+                "Permanently deleted bank account: " + accNo + " belonging to " + holderName,
+                null,
+                "SUCCESS",
+                "HIGH"
+        );
+
+        return ResponseEntity.ok(Map.of("message", "Bank account " + accNo + " deleted successfully."));
+    }
+
     @GetMapping("/users")
     public ResponseEntity<List<Map<String, Object>>> getAllUsers(@RequestParam(required = false) String role) {
         List<User> users = userRepository.findAll();
