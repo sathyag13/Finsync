@@ -3,7 +3,7 @@ import { Building2, ShieldCheck, PhoneCall, Mail, MapPin } from 'lucide-react'
 
 export default function PublicFooter() {
   return (
-    <footer className="bank-footer" style={{ background: '#1e1b4b', borderTop: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', padding: '48px 0 24px 0' }}>
+    <footer className="bank-footer" style={{ background: '#090d16', borderTop: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)', padding: '56px 0 28px 0' }}>
       <div className="footer-inner" style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
         <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 32, marginBottom: 40 }}>
           {/* Column 1: FinSync Brand & Contact Info */}
