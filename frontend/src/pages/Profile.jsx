@@ -38,6 +38,7 @@ export default function Profile() {
 
   // 2FA Simulation Modal State
   const [show2FAModal, setShow2FAModal] = useState(false)
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [otpCode, setOtpCode] = useState('')
   const [simulatedOtp, setSimulatedOtp] = useState('')
 
@@ -518,10 +519,7 @@ export default function Profile() {
 
             <button
               type="button"
-              onClick={() => {
-                logout()
-                navigate('/login')
-              }}
+              onClick={() => setShowLogoutModal(true)}
               className="btn btn-rose btn-sm"
             >
               <LogOut size={13} /> Sign Out
@@ -529,6 +527,45 @@ export default function Profile() {
           </div>
         </div>
       </div>
+
+      {/* Centered Sign Out Confirmation Modal */}
+      <Modal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        title="Sign Out of FinSync"
+      >
+        <div style={{ textAlign: 'center', padding: '12px 0' }}>
+          <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'rgba(244, 63, 94, 0.15)', color: 'var(--accent-rose)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
+            <LogOut size={26} />
+          </div>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: 8, color: 'var(--text-main)' }}>
+            Confirm Sign Out
+          </h3>
+          <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: 24, lineHeight: 1.5, maxWidth: 360, margin: '0 auto 20px auto' }}>
+            Are you sure you want to terminate your active NetBanking session?
+          </p>
+          <div className="modal-actions" style={{ justifyContent: 'center', gap: 12 }}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => setShowLogoutModal(false)}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="btn btn-rose"
+              onClick={() => {
+                setShowLogoutModal(false)
+                logout()
+                navigate('/login')
+              }}
+            >
+              <LogOut size={15} /> Yes, Sign Out
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* 2FA Simulation Verification Modal */}
       <Modal isOpen={show2FAModal} onClose={() => setShow2FAModal(false)} title="Two-Factor Authentication Setup">

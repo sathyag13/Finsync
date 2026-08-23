@@ -1,12 +1,7 @@
 package com.finsync.controller;
 
-import com.finsync.model.Account;
-import com.finsync.model.Role;
-import com.finsync.model.Transaction;
-import com.finsync.model.User;
-import com.finsync.repository.AccountRepository;
-import com.finsync.repository.TransactionRepository;
-import com.finsync.repository.UserRepository;
+import com.finsync.model.*;
+import com.finsync.repository.*;
 import com.finsync.service.AuditLogService;
 import com.finsync.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -27,9 +22,67 @@ public class AdminUserController {
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
+    private final SavingsGoalRepository savingsGoalRepository;
+    private final ExpenseRepository expenseRepository;
+    private final BeneficiaryRepository beneficiaryRepository;
+    private final NotificationRepository notificationRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuditLogService auditLogService;
     private final NotificationService notificationService;
+
+    @DeleteMapping("/users/{id}")
+    @org.springframework.transaction.annotation.Transactional
+    public ResponseEntity<?> deleteCustomer(@PathVariable Long id) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (user.getRole() == Role.ADMIN) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Cannot delete an Administrator account."));
+        }
+
+        String userEmail = user.getEmail();
+        String userName = user.getFullName();
+
+        // 1. Delete transactions and accounts
+        List<Account> accounts = accountRepository.findByUserId(user.getId());
+        for (Account a : accounts) {
+            List<Transaction> txs = transactionRepository.findByAccountIdOrderByCreatedAtDesc(a.getId());
+            transactionRepository.deleteAll(txs);
+            accountRepository.delete(a);
+        }
+
+        // 2. Delete savings goals, expenses, beneficiaries, and notifications
+        List<SavingsGoal> goals = savingsGoalRepository.findByUserId(user.getId());
+        savingsGoalRepository.deleteAll(goals);
+
+        List<Expense> expenses = expenseRepository.findByUserIdOrderByExpenseDateDesc(user.getId());
+        expenseRepository.deleteAll(expenses);
+
+        List<Beneficiary> beneficiaries = beneficiaryRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
+        beneficiaryRepository.deleteAll(beneficiaries);
+
+        List<Notification> notifications = notificationRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
+        notificationRepository.deleteAll(notifications);
+
+        // 3. Delete user entity
+        userRepository.delete(user);
+
+        // 4. Record high-visibility audit trail
+        auditLogService.logAction(
+                "Admin",
+                "admin@finsync.in",
+                userEmail,
+                "CUSTOMER_DELETED",
+                "Permanently deleted customer account: " + userName + " (" + userEmail + ") and associated banking data.",
+                null,
+                "SUCCESS",
+                "HIGH"
+        );
+
+        return ResponseEntity.ok(Map.of("message", "Customer " + userName + " and all associated accounts were successfully deleted."));
+    }
 
     @GetMapping("/users")
     public ResponseEntity<List<Map<String, Object>>> getAllUsers(@RequestParam(required = false) String role) {

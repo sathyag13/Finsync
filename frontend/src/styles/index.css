@@ -1165,11 +1165,69 @@ tr:hover td {
   background: var(--primary);
 }
 
-@media (max-width: 768px) {
-  .sidebar { transform: translateX(-100%); }
-  .main-wrapper { margin-left: 0; width: 100%; }
-  .stat-grid, .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
-  .top-header { padding: 0 16px; }
-  .app-content { padding: 16px; }
+/* ==========================================================================
+   Toast Notification Pop Messages (Top-Right Fixed Positioning)
+   ========================================================================== */
+.toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 999999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+  max-width: 440px;
+  width: calc(100% - 48px);
 }
+
+.toast {
+  pointer-events: auto;
+  min-width: 300px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28), 0 0 0 1px var(--border-color);
+  animation: slideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  backdrop-filter: blur(16px);
+  box-sizing: border-box;
+}
+
+.toast span {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.toast.success {
+  border-left: 4px solid var(--accent-emerald);
+  box-shadow: 0 12px 32px rgba(16, 185, 129, 0.15), 0 0 0 1px rgba(16, 185, 129, 0.25);
+}
+
+.toast.error {
+  border-left: 4px solid var(--accent-rose);
+  box-shadow: 0 12px 32px rgba(244, 63, 94, 0.15), 0 0 0 1px rgba(244, 63, 94, 0.25);
+}
+
+.toast.info {
+  border-left: 4px solid var(--primary);
+  box-shadow: 0 12px 32px rgba(99, 102, 241, 0.15), 0 0 0 1px rgba(99, 102, 241, 0.25);
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
 

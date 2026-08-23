@@ -9,7 +9,9 @@ import {
   UserPlus,
   Eye,
   Building2,
-  RefreshCw
+  RefreshCw,
+  Trash2,
+  AlertTriangle
 } from 'lucide-react'
 
 export default function UserManagement() {
@@ -26,6 +28,11 @@ export default function UserManagement() {
   const [selectedUserOverview, setSelectedUserOverview] = useState(null)
   const [showOverviewModal, setShowOverviewModal] = useState(false)
   const [loadingOverview, setLoadingOverview] = useState(false)
+
+  // Delete Customer State
+  const [userToDelete, setUserToDelete] = useState(null)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   // Create Form States
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -89,6 +96,28 @@ export default function UserManagement() {
     }
   }
 
+  const handlePromptDelete = (user) => {
+    setUserToDelete(user)
+    setShowDeleteModal(true)
+  }
+
+  const handleConfirmDeleteCustomer = async () => {
+    if (!userToDelete) return
+    try {
+      setDeleting(true)
+      const res = await api.delete(`/admin/users/${userToDelete.id}`)
+      addToast(res.data?.message || `Customer ${userToDelete.fullName} deleted successfully`, 'success')
+      setShowDeleteModal(false)
+      setUserToDelete(null)
+      if (showOverviewModal) setShowOverviewModal(false)
+      fetchUsers()
+    } catch (err) {
+      addToast(err.response?.data?.message || 'Failed to delete customer', 'error')
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   const handleCreateUserSubmit = async (e) => {
     e.preventDefault()
     try {
@@ -98,105 +127,113 @@ export default function UserManagement() {
       setCreateForm({ fullName: '', email: '', password: 'SecretPassword123!', phoneNumber: '', empNo: '', role: 'CUSTOMER' })
       fetchUsers()
     } catch (err) {
-      addToast(err.response?.data?.message || 'Failed to create user', 'error')
+      addToast(err.response?.data?.message || 'Failed to create customer', 'error')
     }
   }
 
   const filteredUsers = users.filter((u) => {
-    const matchesRole = roleFilter === 'ALL' || u.role === roleFilter
-    const matchesStatus = statusFilter === 'ALL' || u.accountStatus === statusFilter
-    const matchesSearch =
-      (u.fullName || '').toLowerCase().includes(search.toLowerCase()) ||
-      (u.email || '').toLowerCase().includes(search.toLowerCase()) ||
-      (u.phoneNumber || '').toLowerCase().includes(search.toLowerCase()) ||
-      (u.id || '').toString().includes(search)
-    return matchesRole && matchesStatus && matchesSearch
+    const matchRole = roleFilter === 'ALL' || u.role === roleFilter
+    const matchStatus = statusFilter === 'ALL' || (u.accountStatus || 'ACTIVE') === statusFilter
+    const matchSearch =
+      search === '' ||
+      u.fullName?.toLowerCase().includes(search.toLowerCase()) ||
+      u.email?.toLowerCase().includes(search.toLowerCase()) ||
+      u.empNo?.toLowerCase().includes(search.toLowerCase())
+    return matchRole && matchStatus && matchSearch
   })
 
   return (
     <div>
-      {/* Page Header */}
       <PageHeader
-        title="Customer Directory & Overview"
-        description="Inspect client portfolios, virtual debit cards, balances, account freeze controls & activity status"
+        title="User Management & Customer Directory"
+        description="Inspect registered retail clients, manage account security, freeze cards, and delete customer accounts"
         icon={UserCheck}
         actions={
-          <>
+          <div style={{ display: 'flex', gap: 10 }}>
             <button className="btn btn-secondary btn-sm" onClick={fetchUsers}>
-              <RefreshCw size={15} /> Refresh
+              <RefreshCw size={14} /> Refresh
             </button>
             <button className="btn btn-primary btn-sm" onClick={() => setShowCreateModal(true)}>
-              <UserPlus size={15} /> Register Client
+              <UserPlus size={14} /> Add Customer
             </button>
-          </>
+          </div>
         }
       />
 
-      {/* Filter & Search Bar Card */}
-      <div className="card" style={{ padding: 16, marginBottom: 'var(--section-gap)' }}>
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-          <div style={{ flex: 1, minWidth: 260, position: 'relative' }}>
+      {/* Filter & Search Bar */}
+      <div className="card" style={{ marginBottom: 'var(--section-gap)', padding: '16px 20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto auto', gap: 14, alignItems: 'center' }}>
+          <div style={{ position: 'relative' }}>
+            <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
             <input
               type="text"
-              placeholder="Search by customer name, email, phone or ID..."
+              placeholder="Search by name, email, or employee ID…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={{ paddingLeft: 36 }}
             />
-            <Search size={16} style={{ position: 'absolute', left: 12, top: 12, color: 'var(--text-muted)' }} />
           </div>
 
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} style={{ minWidth: 140 }}>
-              <option value="ALL">All Statuses</option>
-              <option value="ACTIVE">ACTIVE</option>
-              <option value="INACTIVE">INACTIVE</option>
-              <option value="LOCKED">LOCKED</option>
-            </select>
-
-            <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} style={{ minWidth: 140 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600 }}>Role:</span>
+            <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} style={{ width: 140 }}>
               <option value="ALL">All Roles</option>
-              <option value="CUSTOMER">CUSTOMERS ONLY</option>
-              <option value="ADMIN">ADMINS ONLY</option>
+              <option value="CUSTOMER">Customer</option>
+              <option value="ANALYST">Analyst</option>
+              <option value="AUDITOR">Auditor</option>
+              <option value="ADMIN">Admin</option>
             </select>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600 }}>Status:</span>
+            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} style={{ width: 130 }}>
+              <option value="ALL">All Status</option>
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
+          </div>
+
+          <div style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 700, whiteSpace: 'nowrap' }}>
+            {filteredUsers.length} Customers
           </div>
         </div>
       </div>
 
-      {/* Customer Directory Table Card */}
-      <div className="card">
+      {/* Directory Table */}
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
         {loading ? (
-          <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>Loading customer directory…</div>
+          <div style={{ padding: 48, textAlign: 'center', color: 'var(--text-muted)' }}>Loading customers…</div>
         ) : filteredUsers.length === 0 ? (
-          <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>No customers matching your search criteria.</div>
+          <div style={{ padding: 48, textAlign: 'center', color: 'var(--text-muted)' }}>No customers found matching the filters.</div>
         ) : (
           <div className="table-container">
             <table>
               <thead>
                 <tr>
-                  <th>Client / Email</th>
+                  <th>Customer</th>
                   <th>Role & KYC</th>
                   <th>Accounts & Cards</th>
                   <th style={{ textAlign: 'right' }}>Total Balance</th>
-                  <th>Txns Count</th>
-                  <th>Last Session</th>
+                  <th>Activity</th>
+                  <th>Last Login</th>
                   <th style={{ textAlign: 'center' }}>Status</th>
                   <th style={{ textAlign: 'center' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredUsers.map((u) => {
-                  const isActive = u.accountStatus === 'ACTIVE'
+                  const isActive = (u.accountStatus || 'ACTIVE') === 'ACTIVE'
                   return (
                     <tr key={u.id}>
                       <td>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                           <div
                             style={{
-                              width: 32,
-                              height: 32,
+                              width: 34,
+                              height: 34,
                               borderRadius: '50%',
-                              background: 'var(--primary)',
+                              background: 'linear-gradient(135deg, var(--primary), #4338ca)',
                               color: '#ffffff',
                               display: 'flex',
                               alignItems: 'center',
@@ -257,6 +294,14 @@ export default function UserManagement() {
                           >
                             {isActive ? 'Deactivate' : 'Activate'}
                           </button>
+                          <button
+                            type="button"
+                            onClick={() => handlePromptDelete(u)}
+                            className="btn btn-rose btn-sm"
+                            title="Delete Customer Account"
+                          >
+                            <Trash2 size={13} /> Delete
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -274,30 +319,41 @@ export default function UserManagement() {
           <div style={{ padding: 32, textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>Loading customer overview…</div>
         ) : selectedUserOverview ? (
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16, paddingBottom: 12, borderBottom: '1px solid var(--border-color)' }}>
-              <div
-                style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, var(--primary), #4338ca)',
-                  color: '#ffffff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '18px',
-                  fontWeight: 800,
-                  flexShrink: 0
-                }}
-              >
-                {selectedUserOverview.fullName ? selectedUserOverview.fullName.charAt(0).toUpperCase() : 'C'}
-              </div>
-              <div>
-                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800 }}>{selectedUserOverview.fullName}</h3>
-                <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 2 }}>
-                  Customer ID: #FS-USR-00{selectedUserOverview.id} • {selectedUserOverview.email}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, marginBottom: 16, paddingBottom: 12, borderBottom: '1px solid var(--border-color)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, var(--primary), #4338ca)',
+                    color: '#ffffff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '18px',
+                    fontWeight: 800,
+                    flexShrink: 0
+                  }}
+                >
+                  {selectedUserOverview.fullName ? selectedUserOverview.fullName.charAt(0).toUpperCase() : 'C'}
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800 }}>{selectedUserOverview.fullName}</h3>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 2 }}>
+                    Customer ID: #FS-USR-00{selectedUserOverview.id} • {selectedUserOverview.email}
+                  </div>
                 </div>
               </div>
+
+              <button
+                type="button"
+                onClick={() => handlePromptDelete(selectedUserOverview)}
+                className="btn btn-rose btn-sm"
+                title="Delete Customer Account"
+              >
+                <Trash2 size={14} /> Delete Account
+              </button>
             </div>
 
             {/* Quick Metrics Grid */}
@@ -322,56 +378,81 @@ export default function UserManagement() {
               </div>
             </div>
 
-            {/* Owned Accounts List & Freeze Toggles */}
-            <h4 style={{ fontSize: '14px', fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Building2 size={15} color="var(--primary)" /> Owned Bank Accounts & Cards
-            </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
-              {(selectedUserOverview.accounts || []).map((acc) => (
-                <div
-                  key={acc.id}
-                  style={{
-                    padding: '10px 12px',
-                    borderRadius: 8,
-                    background: 'var(--bg-input)',
-                    border: '1px solid var(--border-color)',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                  }}
-                >
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: '13px' }}>{acc.accountType} ({acc.accountNumber})</div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                      Balance: ₹{Number(acc.balance || 0).toLocaleString('en-IN')} • Limit: ₹{Number(acc.dailyLimit || 50000).toLocaleString('en-IN')}
+            {/* Linked Bank Accounts */}
+            <div style={{ marginBottom: 16 }}>
+              <h4 style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-muted)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                Linked Deposit Accounts & Virtual Debit Cards
+              </h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {(selectedUserOverview.accounts || []).map((acc) => (
+                  <div key={acc.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: '13px' }}>
+                        {acc.accountType} • <span style={{ fontFamily: 'monospace' }}>{acc.accountNumber}</span>
+                      </div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                        Balance: <strong>₹{Number(acc.balance || 0).toLocaleString('en-IN')}</strong> • Card Status: <span style={{ color: acc.cardFrozen ? 'var(--accent-rose)' : 'var(--accent-emerald)', fontWeight: 700 }}>{acc.cardFrozen ? 'FROZEN' : 'ACTIVE'}</span>
+                      </div>
                     </div>
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span className={`badge ${acc.status === 'FROZEN' ? 'badge-rose' : 'badge-emerald'}`} style={{ fontSize: '11px' }}>
-                      {acc.status || 'ACTIVE'}
-                    </span>
                     <button
                       type="button"
                       onClick={() => handleToggleAccountFreeze(acc.id)}
-                      className="btn btn-secondary btn-sm"
+                      className={`btn btn-sm ${acc.cardFrozen ? 'btn-emerald' : 'btn-secondary'}`}
                     >
-                      {acc.status === 'FROZEN' ? 'Unfreeze' : 'Freeze'}
+                      {acc.cardFrozen ? 'Unfreeze Card' : 'Freeze Card'}
                     </button>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
-            <button onClick={() => setShowOverviewModal(false)} className="btn btn-primary" style={{ width: '100%' }}>
-              Close Overview
-            </button>
+            <div className="modal-actions">
+              <button type="button" className="btn btn-secondary" onClick={() => setShowOverviewModal(false)}>
+                Close
+              </button>
+            </div>
           </div>
         ) : null}
       </Modal>
 
-      {/* Register Customer Modal */}
-      <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Register New Customer / Client">
+      {/* Delete Customer Confirmation Modal (Centered on Screen) */}
+      <Modal isOpen={showDeleteModal} onClose={() => !deleting && setShowDeleteModal(false)} title="Confirm Customer Account Deletion">
+        <div style={{ textAlign: 'center', padding: '12px 0' }}>
+          <div style={{ width: 54, height: 54, borderRadius: '50%', background: 'rgba(244, 63, 94, 0.15)', color: 'var(--accent-rose)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
+            <AlertTriangle size={28} />
+          </div>
+
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text-main)', marginBottom: 8 }}>
+            Delete {userToDelete?.fullName}?
+          </h3>
+
+          <p style={{ color: 'var(--text-muted)', fontSize: '13px', lineHeight: 1.6, maxWidth: 380, margin: '0 auto 20px auto' }}>
+            Are you sure you want to permanently delete this customer account (<strong>{userToDelete?.email}</strong>)? All linked savings/current accounts, balances, virtual debit cards, and goal vaults will be permanently wiped.
+          </p>
+
+          <div className="modal-actions" style={{ justifyContent: 'center', gap: 12 }}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => setShowDeleteModal(false)}
+              disabled={deleting}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="btn btn-rose"
+              onClick={handleConfirmDeleteCustomer}
+              disabled={deleting}
+            >
+              <Trash2 size={15} /> {deleting ? 'Deleting…' : 'Yes, Delete Customer'}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Add Customer Modal */}
+      <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Register New Customer">
         <form onSubmit={handleCreateUserSubmit}>
           <div className="form-group">
             <label>Full Name</label>
