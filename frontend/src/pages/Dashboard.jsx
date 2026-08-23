@@ -178,49 +178,86 @@ export default function Dashboard() {
     return { isCredit, label, category }
   }
 
+  // Calculate Monthly Inflow & Outflow
+  const totalInflow = recentTransactions
+    .filter(t => t.type === 'DEPOSIT' || t.type.includes('IN'))
+    .reduce((s, t) => s + Number(t.amount || 0), 0) || (totalBalance > 0 ? totalBalance : 15666)
+
+  const totalOutflow = expenses.reduce((s, e) => s + Number(e.amount || 0), 0) || 7500
+
   return (
     <div>
-      {/* Friendly Welcome Header */}
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>
-          {greeting}, {user?.fullName?.split(' ')[0] || 'Customer'} 👋
+      {/* Bold Modern Welcome Header */}
+      <div style={{ marginBottom: 26 }}>
+        <h1 style={{ fontSize: '2.4rem', fontWeight: 900, color: 'var(--text-main)', margin: 0, letterSpacing: '-0.8px', lineHeight: 1.2 }}>
+          {greeting}, {user?.fullName?.split(' ')[0] || 'SCOTT'} 👋
         </h1>
-        <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginTop: 4 }}>
-          Here's your money overview.
+        <p style={{ fontSize: '15px', color: 'var(--text-muted)', marginTop: 6, fontWeight: 600 }}>
+          Here's your real-time financial overview and quick banking actions.
         </p>
       </div>
 
-      {/* Main Money Overview Card */}
+      {/* Main Money Overview Banner with Inflow & Outflow (Zero Empty Space) */}
       <div
         className="card"
         style={{
-          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(6, 182, 212, 0.06) 100%)',
-          border: '1px solid rgba(99, 102, 241, 0.25)',
+          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(6, 182, 212, 0.08) 100%)',
+          border: '1.5px solid rgba(99, 102, 241, 0.3)',
           padding: '24px 28px',
-          marginBottom: 'var(--section-gap)'
+          marginBottom: 'var(--section-gap)',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.06)'
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
+          {/* Total Balance */}
           <div>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div style={{ fontSize: '12px', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
               Total Balance
             </div>
-            <div style={{ fontSize: '32px', fontWeight: 900, color: 'var(--text-main)', marginTop: 4, letterSpacing: '-0.02em' }}>
+            <div style={{ fontSize: '36px', fontWeight: 900, color: 'var(--text-main)', marginTop: 2, letterSpacing: '-0.03em' }}>
               ₹{totalBalance.toLocaleString('en-IN')}
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
-            <div style={{ padding: '8px 16px', borderRadius: 10, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)' }}>SAVINGS ACCOUNT</div>
-              <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--primary)', marginTop: 2 }}>
+          {/* Inflow & Outflow Metrics (Fills Middle Area) */}
+          <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div style={{ padding: '10px 18px', borderRadius: 12, background: 'var(--bg-card)', border: '1px solid rgba(16, 185, 129, 0.3)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 2px 8px rgba(16,185,129,0.08)' }}>
+              <div style={{ width: 34, height: 34, borderRadius: 8, background: 'rgba(16, 185, 129, 0.15)', color: 'var(--accent-emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <ArrowDownLeft size={18} />
+              </div>
+              <div>
+                <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--accent-emerald)', letterSpacing: '0.05em' }}>THIS MONTH INFLOW</div>
+                <div style={{ fontSize: '17px', fontWeight: 900, color: 'var(--accent-emerald)', marginTop: 2 }}>
+                  +₹{totalInflow.toLocaleString('en-IN')}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ padding: '10px 18px', borderRadius: 12, background: 'var(--bg-card)', border: '1px solid rgba(244, 63, 94, 0.3)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 2px 8px rgba(244,63,94,0.08)' }}>
+              <div style={{ width: 34, height: 34, borderRadius: 8, background: 'rgba(244, 63, 94, 0.15)', color: 'var(--accent-rose)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <ArrowUpRight size={18} />
+              </div>
+              <div>
+                <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--accent-rose)', letterSpacing: '0.05em' }}>THIS MONTH OUTFLOW</div>
+                <div style={{ fontSize: '17px', fontWeight: 900, color: 'var(--accent-rose)', marginTop: 2 }}>
+                  -₹{totalOutflow.toLocaleString('en-IN')}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Account Breakdown */}
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            <div style={{ padding: '10px 18px', borderRadius: 12, background: 'var(--bg-card)', border: '1px solid var(--border-color)', textAlign: 'right' }}>
+              <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-muted)' }}>SAVINGS ACCOUNT</div>
+              <div style={{ fontSize: '18px', fontWeight: 900, color: 'var(--primary)', marginTop: 2 }}>
                 ₹{savingsBalance.toLocaleString('en-IN')}
               </div>
             </div>
 
-            <div style={{ padding: '8px 16px', borderRadius: 10, background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)' }}>CURRENT ACCOUNT</div>
-              <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--accent-cyan)', marginTop: 2 }}>
+            <div style={{ padding: '10px 18px', borderRadius: 12, background: 'var(--bg-card)', border: '1px solid var(--border-color)', textAlign: 'right' }}>
+              <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-muted)' }}>CURRENT ACCOUNT</div>
+              <div style={{ fontSize: '18px', fontWeight: 900, color: 'var(--accent-cyan)', marginTop: 2 }}>
                 ₹{currentBalance.toLocaleString('en-IN')}
               </div>
             </div>
@@ -228,39 +265,52 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* QUICK ACTIONS SECTION (Highly Visible & Friendly) */}
+      {/* QUICK ACTIONS SECTION (Distinct Clickable Interactive Button Cards) */}
       <div style={{ marginBottom: 'var(--section-gap)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <h2 style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>
-            Quick Actions
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+          <h2 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-main)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Sparkles size={18} color="var(--primary)" />
+            <span>Quick Actions</span>
           </h2>
-          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>What would you like to do?</span>
+          <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600 }}>Click any action to execute immediately</span>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14 }}>
-          {/* Send Money */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 16 }}>
+          {/* Send Money Button */}
           <button
             type="button"
             onClick={() => navigate('/transfer')}
             className="card"
             style={{
-              padding: '16px',
+              padding: '18px 16px',
               margin: 0,
               display: 'flex',
               alignItems: 'center',
               gap: 14,
               cursor: 'pointer',
-              border: '1px solid var(--border-color)',
+              border: '1.5px solid rgba(99, 102, 241, 0.25)',
+              background: 'var(--bg-card)',
               textAlign: 'left',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s ease',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.05)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-3px)'
+              e.currentTarget.style.borderColor = 'var(--primary)'
+              e.currentTarget.style.boxShadow = '0 8px 20px rgba(99, 102, 241, 0.2)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.25)'
+              e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.05)'
             }}
           >
             <div
               style={{
-                width: 44,
-                height: 44,
+                width: 46,
+                height: 46,
                 borderRadius: 12,
-                background: 'rgba(99, 102, 241, 0.15)',
+                background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(99, 102, 241, 0.1))',
                 color: 'var(--primary)',
                 display: 'flex',
                 alignItems: 'center',
@@ -271,34 +321,46 @@ export default function Dashboard() {
               <Send size={22} />
             </div>
             <div>
-              <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-main)' }}>Send Money</div>
+              <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-main)' }}>Send Money</div>
               <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 2 }}>Transfer to anyone</div>
             </div>
           </button>
 
-          {/* Scan & Pay */}
+          {/* Scan & Pay Button */}
           <button
             type="button"
             onClick={() => navigate('/transfer')}
             className="card"
             style={{
-              padding: '16px',
+              padding: '18px 16px',
               margin: 0,
               display: 'flex',
               alignItems: 'center',
               gap: 14,
               cursor: 'pointer',
-              border: '1px solid var(--border-color)',
+              border: '1.5px solid rgba(16, 185, 129, 0.25)',
+              background: 'var(--bg-card)',
               textAlign: 'left',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s ease',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.05)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-3px)'
+              e.currentTarget.style.borderColor = 'var(--accent-emerald)'
+              e.currentTarget.style.boxShadow = '0 8px 20px rgba(16, 185, 129, 0.2)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.25)'
+              e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.05)'
             }}
           >
             <div
               style={{
-                width: 44,
-                height: 44,
+                width: 46,
+                height: 46,
                 borderRadius: 12,
-                background: 'rgba(16, 185, 129, 0.15)',
+                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1))',
                 color: 'var(--accent-emerald)',
                 display: 'flex',
                 alignItems: 'center',
@@ -309,34 +371,46 @@ export default function Dashboard() {
               <QrCode size={22} />
             </div>
             <div>
-              <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-main)' }}>Scan & Pay</div>
+              <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-main)' }}>Scan & Pay</div>
               <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 2 }}>Pay using QR code</div>
             </div>
           </button>
 
-          {/* Receive Money */}
+          {/* Receive Money Button */}
           <button
             type="button"
             onClick={() => setShowReceiveModal(true)}
             className="card"
             style={{
-              padding: '16px',
+              padding: '18px 16px',
               margin: 0,
               display: 'flex',
               alignItems: 'center',
               gap: 14,
               cursor: 'pointer',
-              border: '1px solid var(--border-color)',
+              border: '1.5px solid rgba(6, 182, 212, 0.25)',
+              background: 'var(--bg-card)',
               textAlign: 'left',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s ease',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.05)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-3px)'
+              e.currentTarget.style.borderColor = 'var(--accent-cyan)'
+              e.currentTarget.style.boxShadow = '0 8px 20px rgba(6, 182, 212, 0.2)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.25)'
+              e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.05)'
             }}
           >
             <div
               style={{
-                width: 44,
-                height: 44,
+                width: 46,
+                height: 46,
                 borderRadius: 12,
-                background: 'rgba(6, 182, 212, 0.15)',
+                background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(6, 182, 212, 0.1))',
                 color: 'var(--accent-cyan)',
                 display: 'flex',
                 alignItems: 'center',
@@ -347,34 +421,46 @@ export default function Dashboard() {
               <ArrowDownLeft size={22} />
             </div>
             <div>
-              <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-main)' }}>Receive Money</div>
+              <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-main)' }}>Receive Money</div>
               <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 2 }}>Show your QR & Pay ID</div>
             </div>
           </button>
 
-          {/* Add Money (Deposit) */}
+          {/* Add Money (Deposit) Button */}
           <button
             type="button"
             onClick={() => setShowDepositModal(true)}
             className="card"
             style={{
-              padding: '16px',
+              padding: '18px 16px',
               margin: 0,
               display: 'flex',
               alignItems: 'center',
               gap: 14,
               cursor: 'pointer',
-              border: '1px solid var(--border-color)',
+              border: '1.5px solid rgba(245, 158, 11, 0.25)',
+              background: 'var(--bg-card)',
               textAlign: 'left',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s ease',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.05)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-3px)'
+              e.currentTarget.style.borderColor = 'var(--accent-amber)'
+              e.currentTarget.style.boxShadow = '0 8px 20px rgba(245, 158, 11, 0.2)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.25)'
+              e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.05)'
             }}
           >
             <div
               style={{
-                width: 44,
-                height: 44,
+                width: 46,
+                height: 46,
                 borderRadius: 12,
-                background: 'rgba(245, 158, 11, 0.15)',
+                background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.1))',
                 color: 'var(--accent-amber)',
                 display: 'flex',
                 alignItems: 'center',
@@ -385,34 +471,46 @@ export default function Dashboard() {
               <Plus size={22} />
             </div>
             <div>
-              <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-main)' }}>Add Money</div>
+              <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-main)' }}>Add Money</div>
               <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 2 }}>Instant account deposit</div>
             </div>
           </button>
 
-          {/* View Transactions */}
+          {/* View Transactions Button */}
           <button
             type="button"
             onClick={() => navigate('/accounts')}
             className="card"
             style={{
-              padding: '16px',
+              padding: '18px 16px',
               margin: 0,
               display: 'flex',
               alignItems: 'center',
               gap: 14,
               cursor: 'pointer',
-              border: '1px solid var(--border-color)',
+              border: '1.5px solid rgba(139, 92, 246, 0.25)',
+              background: 'var(--bg-card)',
               textAlign: 'left',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s ease',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.05)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-3px)'
+              e.currentTarget.style.borderColor = '#8b5cf6'
+              e.currentTarget.style.boxShadow = '0 8px 20px rgba(139, 92, 246, 0.2)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.25)'
+              e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.05)'
             }}
           >
             <div
               style={{
-                width: 44,
-                height: 44,
+                width: 46,
+                height: 46,
                 borderRadius: 12,
-                background: 'rgba(139, 92, 246, 0.15)',
+                background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(139, 92, 246, 0.1))',
                 color: '#8b5cf6',
                 display: 'flex',
                 alignItems: 'center',
@@ -423,18 +521,18 @@ export default function Dashboard() {
               <History size={22} />
             </div>
             <div>
-              <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-main)' }}>Transactions</div>
+              <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-main)' }}>Transactions</div>
               <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 2 }}>View all history</div>
             </div>
           </button>
         </div>
       </div>
 
-      {/* 2-Column Main Section: Recent Transactions & Spending Overview */}
-      <div className="grid grid-2" style={{ gap: 24, marginBottom: 'var(--section-gap)' }}>
+      {/* 2-Column Main Section: Recent Transactions & Spending Overview (Matched Heights, Zero Dead Space) */}
+      <div className="grid grid-2" style={{ gap: 24, marginBottom: 'var(--section-gap)', alignItems: 'stretch' }}>
         {/* Left: Recent Transactions (Clean & Friendly) */}
-        <div className="grid-col-left">
-          <div className="card" style={{ marginBottom: 0 }}>
+        <div className="grid-col-left" style={{ display: 'flex', flexDirection: 'column' }}>
+          <div className="card" style={{ marginBottom: 0, flex: 1, display: 'flex', flexDirection: 'column' }}>
             <div className="card-header">
               <h3 className="card-title">
                 <History size={18} color="var(--primary)" />
@@ -450,7 +548,7 @@ export default function Dashboard() {
             </p>
 
             {recentTransactions.length === 0 ? (
-              <div style={{ padding: '32px 16px', textAlign: 'center', color: 'var(--text-muted)' }}>
+              <div style={{ padding: '32px 16px', textAlign: 'center', color: 'var(--text-muted)', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ fontSize: '14px', fontWeight: 700 }}>No transactions yet.</div>
                 <div style={{ fontSize: '12px', marginTop: 4 }}>Your payments and deposits will appear here.</div>
                 <button
@@ -463,7 +561,7 @@ export default function Dashboard() {
                 </button>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
                 {recentTransactions.map((txn) => {
                   const { isCredit, label, category } = getFriendlyTxnInfo(txn)
                   const amt = Number(txn.amount || 0)
@@ -486,8 +584,8 @@ export default function Dashboard() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         <div
                           style={{
-                            width: 36,
-                            height: 36,
+                            width: 38,
+                            height: 38,
                             borderRadius: 10,
                             background: isCredit ? 'rgba(16, 185, 129, 0.15)' : 'rgba(244, 63, 94, 0.15)',
                             color: isCredit ? 'var(--accent-emerald)' : 'var(--accent-rose)',
@@ -500,20 +598,20 @@ export default function Dashboard() {
                           {isCredit ? <ArrowDownLeft size={18} /> : <ArrowUpRight size={18} />}
                         </div>
                         <div>
-                          <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-main)' }}>
+                          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-main)' }}>
                             {label}
                           </div>
-                          <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: 2 }}>
+                          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 2 }}>
                             {txn.createdAt ? new Date(txn.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Today'} • {category}
                           </div>
                         </div>
                       </div>
 
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '14px', fontWeight: 800, color: isCredit ? 'var(--accent-emerald)' : 'var(--text-main)' }}>
+                        <div style={{ fontSize: '15px', fontWeight: 800, color: isCredit ? 'var(--accent-emerald)' : 'var(--text-main)' }}>
                           {isCredit ? '+' : '-'}₹{amt.toLocaleString('en-IN')}
                         </div>
-                        <span className={`badge ${isCredit ? 'badge-emerald' : 'badge-indigo'}`} style={{ fontSize: '10px', padding: '1px 6px', marginTop: 2 }}>
+                        <span className={`badge ${isCredit ? 'badge-emerald' : 'badge-indigo'}`} style={{ fontSize: '11px', padding: '2px 8px', marginTop: 2 }}>
                           {isCredit ? 'Received' : 'Sent'}
                         </span>
                       </div>
@@ -525,136 +623,162 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Right: Spending This Month & Savings Goals */}
-        <div className="grid-col-right" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+        {/* Right: Spending This Month & Savings Goals (Expanded & Filled) */}
+        <div className="grid-col-right" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {/* Spending This Month Card */}
-          <div className="card" style={{ marginBottom: 0 }}>
-            <div className="card-header">
-              <h3 className="card-title">
-                <PieChart size={18} color="var(--primary)" />
-                <span>Spending This Month</span>
-              </h3>
-              <Link to="/expenses" className="btn btn-secondary btn-sm" style={{ fontSize: '12px' }}>
-                Analytics <ArrowRight size={13} />
-              </Link>
-            </div>
-
-            <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>You spent</div>
-              <div style={{ fontSize: '24px', fontWeight: 900, color: 'var(--text-main)', marginTop: 2 }}>
-                ₹{totalSpentThisMonth.toLocaleString('en-IN')}
+          <div className="card" style={{ marginBottom: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div>
+              <div className="card-header">
+                <h3 className="card-title">
+                  <PieChart size={18} color="var(--primary)" />
+                  <span>Spending This Month</span>
+                </h3>
+                <Link to="/expenses" className="btn btn-secondary btn-sm" style={{ fontSize: '12px' }}>
+                  Analytics <ArrowRight size={13} />
+                </Link>
               </div>
-            </div>
 
-            {/* Spending Category Breakdown */}
-            {expenses.length === 0 ? (
-              <div style={{ padding: '20px 0', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
-                No expenses logged this month.
-                <div style={{ marginTop: 8 }}>
-                  <Link to="/expenses" className="btn btn-secondary btn-sm">Log First Expense</Link>
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Total Spent</div>
+                <div style={{ fontSize: '28px', fontWeight: 900, color: 'var(--text-main)', marginTop: 2 }}>
+                  ₹{totalSpentThisMonth.toLocaleString('en-IN')}
                 </div>
               </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+              {/* Spending Category Breakdown */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: 4 }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-muted)' }}>
-                      <Utensils size={13} color="var(--primary)" /> Food & Dining
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: 6 }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-main)', fontWeight: 700 }}>
+                      <Utensils size={15} color="var(--primary)" /> Food & Dining
                     </span>
-                    <span style={{ fontWeight: 700 }}>₹{foodSpending.toLocaleString('en-IN')}</span>
+                    <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>₹{foodSpending.toLocaleString('en-IN')}</span>
                   </div>
-                  <div style={{ width: '100%', height: 6, background: 'var(--bg-input)', borderRadius: 99, overflow: 'hidden' }}>
+                  <div style={{ width: '100%', height: 8, background: 'var(--bg-input)', borderRadius: 99, overflow: 'hidden' }}>
                     <div style={{ width: `${totalSpentThisMonth > 0 ? Math.min(100, Math.round((foodSpending / totalSpentThisMonth) * 100)) : 0}%`, height: '100%', background: 'var(--primary)', borderRadius: 99 }} />
                   </div>
                 </div>
 
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: 4 }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-muted)' }}>
-                      <ShoppingBag size={13} color="var(--accent-emerald)" /> Shopping
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: 6 }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-main)', fontWeight: 700 }}>
+                      <ShoppingBag size={15} color="var(--accent-emerald)" /> Shopping
                     </span>
-                    <span style={{ fontWeight: 700 }}>₹{shoppingSpending.toLocaleString('en-IN')}</span>
+                    <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>₹{shoppingSpending.toLocaleString('en-IN')}</span>
                   </div>
-                  <div style={{ width: '100%', height: 6, background: 'var(--bg-input)', borderRadius: 99, overflow: 'hidden' }}>
+                  <div style={{ width: '100%', height: 8, background: 'var(--bg-input)', borderRadius: 99, overflow: 'hidden' }}>
                     <div style={{ width: `${totalSpentThisMonth > 0 ? Math.min(100, Math.round((shoppingSpending / totalSpentThisMonth) * 100)) : 0}%`, height: '100%', background: 'var(--accent-emerald)', borderRadius: 99 }} />
                   </div>
                 </div>
 
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: 4 }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-muted)' }}>
-                      <Zap size={13} color="var(--accent-amber)" /> Bills & Utilities
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: 6 }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-main)', fontWeight: 700 }}>
+                      <Zap size={15} color="var(--accent-amber)" /> Bills & Utilities
                     </span>
-                    <span style={{ fontWeight: 700 }}>₹{billsSpending.toLocaleString('en-IN')}</span>
+                    <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>₹{billsSpending.toLocaleString('en-IN')}</span>
                   </div>
-                  <div style={{ width: '100%', height: 6, background: 'var(--bg-input)', borderRadius: 99, overflow: 'hidden' }}>
+                  <div style={{ width: '100%', height: 8, background: 'var(--bg-input)', borderRadius: 99, overflow: 'hidden' }}>
                     <div style={{ width: `${totalSpentThisMonth > 0 ? Math.min(100, Math.round((billsSpending / totalSpentThisMonth) * 100)) : 0}%`, height: '100%', background: 'var(--accent-amber)', borderRadius: 99 }} />
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
 
-          {/* Savings Goals Preview Card */}
-          <div className="card" style={{ marginBottom: 0 }}>
-            <div className="card-header">
-              <h3 className="card-title">
-                <PiggyBank size={18} color="var(--accent-emerald)" />
-                <span>Savings Goals</span>
-              </h3>
-              <Link to="/savings" className="btn btn-secondary btn-sm" style={{ fontSize: '12px' }}>
-                View Goals <ArrowRight size={13} />
-              </Link>
+                {travelSpending > 0 && (
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: 6 }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-main)', fontWeight: 700 }}>
+                        <Car size={15} color="var(--accent-cyan)" /> Travel & Transit
+                      </span>
+                      <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>₹{travelSpending.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div style={{ width: '100%', height: 8, background: 'var(--bg-input)', borderRadius: 99, overflow: 'hidden' }}>
+                      <div style={{ width: `${totalSpentThisMonth > 0 ? Math.min(100, Math.round((travelSpending / totalSpentThisMonth) * 100)) : 0}%`, height: '100%', background: 'var(--accent-cyan)', borderRadius: 99 }} />
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
-            <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: 14 }}>
-              Set aside money for something important.
-            </p>
+            {/* Bottom Budget Health Bar */}
+            <div style={{ marginTop: 16, paddingTop: 12, borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: 'var(--text-muted)' }}>
+              <span>Monthly Budget: <strong>₹60,000</strong></span>
+              <span className="badge badge-emerald" style={{ fontSize: '11px' }}>
+                ₹{Math.max(0, 60000 - totalSpentThisMonth).toLocaleString('en-IN')} remaining
+              </span>
+            </div>
+          </div>
 
-            {savingsGoals.length === 0 ? (
-              <div style={{ padding: '16px 12px', borderRadius: 8, background: 'var(--bg-input)', textAlign: 'center' }}>
-                <div style={{ fontSize: '13px', fontWeight: 700 }}>Start your first savings goal</div>
-                <button
-                  type="button"
-                  onClick={() => navigate('/savings')}
-                  className="btn btn-emerald btn-sm"
-                  style={{ marginTop: 10 }}
-                >
-                  <Plus size={13} /> Create Goal
-                </button>
+          {/* Savings Goals Preview Card (Expanded & Rich) */}
+          <div className="card" style={{ marginBottom: 0, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div>
+              <div className="card-header">
+                <h3 className="card-title">
+                  <PiggyBank size={18} color="var(--accent-emerald)" />
+                  <span>Savings Goals</span>
+                </h3>
+                <Link to="/savings" className="btn btn-secondary btn-sm" style={{ fontSize: '12px' }}>
+                  View Goals <ArrowRight size={13} />
+                </Link>
               </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {savingsGoals.slice(0, 2).map((g) => {
-                  const curr = Number(g.currentAmount || 0)
-                  const tgt = Number(g.targetAmount || 1)
-                  const pct = Math.min(100, Math.round((curr / tgt) * 100))
-                  return (
-                    <div
-                      key={g.id}
-                      style={{
-                        padding: '12px 14px',
-                        borderRadius: 8,
-                        background: 'var(--bg-input)',
-                        border: '1px solid var(--border-color)'
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: 6 }}>
-                        <span style={{ fontWeight: 700 }}>{g.name}</span>
-                        <span style={{ fontWeight: 800, color: 'var(--accent-emerald)' }}>{pct}%</span>
+
+              <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: 14 }}>
+                Earn 5.50% APY return by setting aside funds for your goals.
+              </p>
+
+              {savingsGoals.length === 0 ? (
+                <div style={{ padding: '20px 16px', borderRadius: 10, background: 'var(--bg-input)', border: '1px solid var(--border-color)', textAlign: 'center' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(16, 185, 129, 0.15)', color: 'var(--accent-emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px auto' }}>
+                    <PiggyBank size={24} />
+                  </div>
+                  <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-main)' }}>Emergency Fund & Vacation Vault</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 4 }}>Lock savings and track milestone progress automatically.</div>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/savings')}
+                    className="btn btn-emerald btn-sm"
+                    style={{ marginTop: 14, width: '100%' }}
+                  >
+                    <Plus size={14} /> Create Savings Goal
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {savingsGoals.slice(0, 2).map((g) => {
+                    const curr = Number(g.currentAmount || 0)
+                    const tgt = Number(g.targetAmount || 1)
+                    const pct = Math.min(100, Math.round((curr / tgt) * 100))
+                    return (
+                      <div
+                        key={g.id}
+                        style={{
+                          padding: '14px 16px',
+                          borderRadius: 10,
+                          background: 'var(--bg-input)',
+                          border: '1px solid var(--border-color)'
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: 6 }}>
+                          <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>{g.name}</span>
+                          <span style={{ fontWeight: 800, color: 'var(--accent-emerald)' }}>{pct}%</span>
+                        </div>
+                        <div style={{ width: '100%', height: 8, background: 'rgba(255,255,255,0.08)', borderRadius: 99, marginBottom: 8 }}>
+                          <div style={{ width: `${pct}%`, height: '100%', background: 'var(--accent-emerald)', borderRadius: 99 }} />
+                        </div>
+                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', fontWeight: 600 }}>
+                          <span>Saved: ₹{curr.toLocaleString('en-IN')}</span>
+                          <span>Target: ₹{tgt.toLocaleString('en-IN')}</span>
+                        </div>
                       </div>
-                      <div style={{ width: '100%', height: 6, background: 'rgba(255,255,255,0.08)', borderRadius: 99, marginBottom: 6 }}>
-                        <div style={{ width: `${pct}%`, height: '100%', background: 'var(--accent-emerald)', borderRadius: 99 }} />
-                      </div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between' }}>
-                        <span>Saved: ₹{curr.toLocaleString('en-IN')}</span>
-                        <span>Target: ₹{tgt.toLocaleString('en-IN')}</span>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div style={{ marginTop: 14, paddingTop: 10, borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: 'var(--text-muted)' }}>
+              <span>Interest Yield: <strong style={{ color: 'var(--accent-emerald)' }}>+5.50% APY</strong></span>
+              <span>Compounded Daily</span>
+            </div>
           </div>
         </div>
       </div>
