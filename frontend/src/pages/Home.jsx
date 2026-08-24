@@ -43,10 +43,10 @@ export default function Home() {
       icon: Wallet,
       tag: 'Zero Fees',
       color: '#059669',
-      bgGlow: '#ffffff',
-      iconBg: '#ecfdf5',
-      borderColor: '#d1fae5',
-      accentGlow: 'rgba(167, 243, 208, 0.4)',
+      bgGradient: 'linear-gradient(145deg, #ecfdf5 0%, #f0fdf4 60%, #ffffff 100%)',
+      iconBg: '#ffffff',
+      borderColor: '#a7f3d0',
+      shadowColor: 'rgba(16, 185, 129, 0.14)',
       link: '/register'
     },
     {
@@ -57,10 +57,10 @@ export default function Home() {
       icon: PiggyBank,
       tag: '5.50% APY',
       color: '#ea580c',
-      bgGlow: '#ffffff',
-      iconBg: '#fff7ed',
+      bgGradient: 'linear-gradient(145deg, #fff7ed 0%, #ffedd5 60%, #ffffff 100%)',
+      iconBg: '#ffffff',
       borderColor: '#fed7aa',
-      accentGlow: 'rgba(254, 215, 170, 0.4)',
+      shadowColor: 'rgba(234, 88, 12, 0.14)',
       link: '/savings'
     },
     {
@@ -71,10 +71,10 @@ export default function Home() {
       icon: CreditCard,
       tag: 'Zero Liability',
       color: '#0284c7',
-      bgGlow: '#ffffff',
-      iconBg: '#f0f9ff',
+      bgGradient: 'linear-gradient(145deg, #f0f9ff 0%, #e0f2fe 60%, #ffffff 100%)',
+      iconBg: '#ffffff',
       borderColor: '#bae6fd',
-      accentGlow: 'rgba(186, 230, 253, 0.4)',
+      shadowColor: 'rgba(2, 132, 199, 0.14)',
       link: '/accounts'
     },
     {
@@ -85,10 +85,10 @@ export default function Home() {
       icon: Send,
       tag: 'Instant 24/7',
       color: '#7c3aed',
-      bgGlow: '#ffffff',
-      iconBg: '#f5f3ff',
+      bgGradient: 'linear-gradient(145deg, #f5f3ff 0%, #ede9fe 60%, #ffffff 100%)',
+      iconBg: '#ffffff',
       borderColor: '#ddd6fe',
-      accentGlow: 'rgba(221, 214, 254, 0.4)',
+      shadowColor: 'rgba(124, 58, 237, 0.14)',
       link: '/transfer'
     },
     {
@@ -99,10 +99,10 @@ export default function Home() {
       icon: PieChart,
       tag: 'Smart Insights',
       color: '#db2777',
-      bgGlow: '#ffffff',
-      iconBg: '#fdf2f8',
+      bgGradient: 'linear-gradient(145deg, #fdf2f8 0%, #fce7f3 60%, #ffffff 100%)',
+      iconBg: '#ffffff',
       borderColor: '#fbcfe8',
-      accentGlow: 'rgba(251, 207, 232, 0.4)',
+      shadowColor: 'rgba(219, 39, 119, 0.14)',
       link: '/expenses'
     },
     {
@@ -113,10 +113,10 @@ export default function Home() {
       icon: Calculator,
       tag: 'Free Tools',
       color: '#d97706',
-      bgGlow: '#ffffff',
-      iconBg: '#fffbeb',
-      borderColor: '#fef08a',
-      accentGlow: 'rgba(254, 240, 138, 0.4)',
+      bgGradient: 'linear-gradient(145deg, #fffbeb 0%, #fef3c7 60%, #ffffff 100%)',
+      iconBg: '#ffffff',
+      borderColor: '#fde68a',
+      shadowColor: 'rgba(217, 119, 6, 0.14)',
       onClick: () => handleOpenCalc('EMI')
     }
   ]
@@ -387,7 +387,7 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* 3. PERSONAL BANKING PRODUCT SUITE (Subtle Pastel Accents on White Canvas) */}
+      {/* 3. PERSONAL BANKING PRODUCT SUITE (Vibrant Pastel Colored Cards) */}
       <motion.section
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -396,13 +396,13 @@ export default function Home() {
         style={{ maxWidth: 1200, margin: '80px auto 88px auto', padding: '0 24px', width: '100%', boxSizing: 'border-box' }}
       >
         <div style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 60px auto' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 14px', borderRadius: 99, background: '#f5f3ff', color: '#6b21a8', fontSize: '0.78rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 14, border: '1px solid #ddd6fe' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 16px', borderRadius: 99, background: '#ede9fe', color: '#6b21a8', fontSize: '0.8rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 14, border: '1.5px solid #ddd6fe', boxShadow: '0 2px 8px rgba(124, 58, 237, 0.08)' }}>
             FINSYNC PRODUCT SUITE
           </div>
-          <h2 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#0f172a', margin: 0, letterSpacing: '-0.8px' }}>
+          <h2 style={{ fontSize: '2.6rem', fontWeight: 900, color: '#0f172a', margin: 0, letterSpacing: '-0.8px' }}>
             Everything you need for everyday banking
           </h2>
-          <p style={{ color: '#64748b', fontSize: '1.05rem', marginTop: 12, lineHeight: 1.6 }}>
+          <p style={{ color: '#64748b', fontSize: '1.08rem', marginTop: 12, lineHeight: 1.6 }}>
             Smart accounts, automated savings vaults, virtual EMV debit cards, and instant peer transfers tailored to your life.
           </p>
         </div>
@@ -416,20 +416,19 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: false, amount: 0.2 }}
                 transition={{ duration: 0.5, delay: idx * 0.08 }}
-                whileHover={{ y: -6, boxShadow: `0 18px 32px rgba(15, 23, 42, 0.06)`, borderColor: p.borderColor, transition: { duration: 0.2 } }}
+                whileHover={{ y: -6, boxShadow: `0 20px 36px ${p.shadowColor}`, borderColor: p.color, transition: { duration: 0.2 } }}
                 style={{
                   padding: '36px 32px',
-                  borderRadius: 20,
-                  background: '#ffffff',
-                  border: `1.5px solid #f1f5f9`,
-                  borderTop: `3px solid ${p.borderColor}`,
+                  borderRadius: 22,
+                  background: p.bgGradient,
+                  border: `1.8px solid ${p.borderColor}`,
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                   boxSizing: 'border-box',
                   position: 'relative',
-                  boxShadow: '0 4px 20px rgba(15, 23, 42, 0.02)'
+                  boxShadow: `0 8px 24px -4px ${p.shadowColor}`
                 }}
               >
                 <div>
@@ -439,32 +438,34 @@ export default function Home() {
                         width: 52,
                         height: 52,
                         borderRadius: 14,
-                        background: p.iconBg,
+                        background: '#ffffff',
                         color: p.color,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        border: `1px solid ${p.borderColor}`
+                        border: `1.5px solid ${p.borderColor}`,
+                        boxShadow: '0 4px 12px rgba(15, 23, 42, 0.05)'
                       }}
                     >
-                      <Icon size={25} />
+                      <Icon size={26} />
                     </div>
                     <span
                       style={{
                         fontSize: '11px',
                         fontWeight: 800,
-                        padding: '4px 10px',
+                        padding: '5px 12px',
                         borderRadius: 99,
-                        background: p.iconBg,
+                        background: '#ffffff',
                         color: p.color,
-                        border: `1px solid ${p.borderColor}`
+                        border: `1.5px solid ${p.borderColor}`,
+                        boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)'
                       }}
                     >
                       {p.tag}
                     </span>
                   </div>
 
-                  <h3 style={{ fontSize: '1.28rem', fontWeight: 800, color: '#0f172a', marginBottom: 10 }}>
+                  <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#0f172a', marginBottom: 10 }}>
                     {p.title}
                   </h3>
                   <p style={{ fontSize: '0.94rem', color: '#475569', lineHeight: 1.65, margin: 0 }}>
@@ -472,7 +473,7 @@ export default function Home() {
                   </p>
                 </div>
 
-                <div style={{ marginTop: 28, paddingTop: 18, borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 6, color: p.color, fontWeight: 800, fontSize: '0.92rem' }}>
+                <div style={{ marginTop: 28, paddingTop: 18, borderTop: `1.5px solid ${p.borderColor}50`, display: 'flex', alignItems: 'center', gap: 6, color: p.color, fontWeight: 800, fontSize: '0.92rem' }}>
                   <span>Explore Feature</span>
                   <ChevronRight size={16} />
                 </div>
