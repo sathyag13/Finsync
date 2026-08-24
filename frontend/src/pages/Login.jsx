@@ -59,16 +59,16 @@ export default function Login() {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: '440px',
-            height: '440px',
-            opacity: 0.08,
+            width: '580px',
+            height: '580px',
+            opacity: 0.045,
             pointerEvents: 'none',
             zIndex: 0,
             backgroundImage: 'url(/finsync-logo.png)',
             backgroundSize: 'contain',
             backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center',
-            filter: 'brightness(1.6) contrast(1.2)'
+            filter: 'brightness(2.2) contrast(1.05)'
           }}
         />
 
