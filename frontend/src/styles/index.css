@@ -1265,4 +1265,54 @@ tr:hover td {
   }
 }
 
+/* ==========================================================================
+   Cinematic Video-like Hero Animation & Floating Ambient Effects
+   ========================================================================== */
+@keyframes cinematicVideoMotion {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.05) translate(-10px, -6px);
+  }
+  100% {
+    transform: scale(1) translate(0, 0);
+  }
+}
+
+@keyframes ambientLightShimmer {
+  0%, 100% {
+    opacity: 0.25;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translateY(-8px) scale(1.08);
+  }
+}
+
+@keyframes floatParticleSlow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+    opacity: 0.75;
+  }
+}
+
+.hero-video-bg {
+  position: absolute;
+  inset: -15px;
+  background-image: url("/hero-mascot.jpg");
+  background-size: cover;
+  background-position: right center;
+  background-repeat: no-repeat;
+  animation: cinematicVideoMotion 18s ease-in-out infinite alternate;
+  will-change: transform;
+  z-index: 0;
+}
+
+
 

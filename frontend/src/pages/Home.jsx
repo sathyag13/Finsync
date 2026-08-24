@@ -127,55 +127,89 @@ export default function Home() {
     }
   ]
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.12,
+        delayChildren: 0.1
+      }
+    }
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 28 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] }
+    }
+  }
+
   return (
     <div style={{ background: 'var(--bg-main)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <PublicNavbar />
 
-      {/* 1. FULL-BLEED PANORAMIC HERO: Edge-to-edge photo background with FinSync mascot on the right */}
+      {/* 1. CINEMATIC VIDEO-MOTION HERO BANNER */}
       <section
         style={{
           position: 'relative',
           width: '100%',
-          minHeight: 600,
-          backgroundImage: 'url("/hero-mascot.jpg")',
-          backgroundSize: 'cover',
-          backgroundPosition: 'right center',
-          backgroundRepeat: 'no-repeat',
+          minHeight: 620,
           display: 'flex',
           alignItems: 'center',
           borderBottom: '1px solid rgba(255, 255, 255, 0.15)',
           overflow: 'hidden'
         }}
       >
+        {/* Continuous cinematic video camera motion background */}
+        <div className="hero-video-bg" />
+
+        {/* Ambient subtle light shimmer & particle layers */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '-10%',
+            right: '15%',
+            width: '400px',
+            height: '400px',
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(245, 158, 11, 0.22) 0%, rgba(245, 158, 11, 0) 70%)',
+            animation: 'ambientLightShimmer 7s ease-in-out infinite alternate',
+            pointerEvents: 'none',
+            zIndex: 1
+          }}
+        />
+
         {/* Dark-to-transparent horizontal gradient ensuring text is crisp on left while mascot is 100% visible on right */}
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(to right, rgba(11, 9, 20, 0.95) 0%, rgba(15, 23, 42, 0.88) 38%, rgba(15, 23, 42, 0.25) 60%, rgba(15, 23, 42, 0.0) 80%)',
+            background: 'linear-gradient(to right, rgba(11, 9, 20, 0.96) 0%, rgba(15, 23, 42, 0.88) 38%, rgba(15, 23, 42, 0.2) 65%, rgba(15, 23, 42, 0.0) 85%)',
             zIndex: 1
           }}
         />
 
-        {/* Hero Content Container with 2 columns: Text & Actions on Left, Interactive Animated Mascot Overlay on Right */}
-        <div
+        {/* Hero Content Container with Staggered Entrance */}
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={containerVariants}
           style={{
             position: 'relative',
             zIndex: 2,
             maxWidth: 1240,
             margin: '0 auto',
-            padding: '70px 24px',
+            padding: '76px 24px',
             width: '100%',
-            boxSizing: 'border-box',
-            display: 'grid',
-            gridTemplateColumns: 'minmax(0, 1.25fr) minmax(0, 0.75fr)',
-            gap: 40,
-            alignItems: 'center'
+            boxSizing: 'border-box'
           }}
         >
-          {/* Left Column: Headline & Action Pills */}
-          <div>
-            <div
+          <div style={{ maxWidth: 660 }}>
+            <motion.div
+              variants={itemVariants}
               style={{
                 fontSize: '0.85rem',
                 fontWeight: 900,
@@ -191,9 +225,10 @@ export default function Home() {
             >
               <Sparkles size={16} color="#f59e0b" />
               <span>BANKING WANTS THE STATUS QUO</span>
-            </div>
+            </motion.div>
 
-            <h1
+            <motion.h1
+              variants={itemVariants}
               style={{
                 fontSize: '3.8rem',
                 fontWeight: 900,
@@ -205,10 +240,10 @@ export default function Home() {
               }}
             >
               We were built to help you thrive.
-            </h1>
+            </motion.h1>
 
             {/* Quick Action Navigation Pills (Green buttons directly like the reference) */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 32 }}>
+            <motion.div variants={itemVariants} style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 32 }}>
               <Link
                 to="/savings"
                 style={{
@@ -352,9 +387,9 @@ export default function Home() {
               >
                 <span>Budget analytics</span>
               </Link>
-            </div>
+            </motion.div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 24, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.2)', fontSize: '0.9rem', color: '#ffffff', opacity: 0.95 }}>
+            <motion.div variants={itemVariants} style={{ display: 'flex', alignItems: 'center', gap: 24, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.2)', fontSize: '0.9rem', color: '#ffffff', opacity: 0.95 }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <CheckCircle2 size={16} color="#34d399" /> RBI Authorized & Scheduled Bank
               </span>
@@ -364,87 +399,21 @@ export default function Home() {
               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <CheckCircle2 size={16} color="#34d399" /> DICGC Insured ₹5 Lakhs
               </span>
-            </div>
-          </div>
-
-          {/* Right Column: Animated Mascot Speech Bubble & Interactive Reaction */}
-          <div
-            style={{
-              position: 'relative',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            {/* Interactive Speech Bubble with bounce animation */}
-            <motion.div
-              key={sparkyQuoteIdx}
-              initial={{ opacity: 0, y: 15, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.35, ease: 'easeOut' }}
-              onClick={handleSparkyClick}
-              style={{
-                marginBottom: 16,
-                background: 'rgba(15, 23, 42, 0.92)',
-                backdropFilter: 'blur(16px)',
-                border: '1.5px solid rgba(52, 211, 153, 0.6)',
-                color: '#ffffff',
-                padding: '14px 20px',
-                borderRadius: '20px 20px 4px 20px',
-                fontSize: '0.95rem',
-                fontWeight: 800,
-                boxShadow: '0 16px 32px rgba(0,0,0,0.6)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                maxWidth: 320,
-                textAlign: 'left'
-              }}
-            >
-              <Sparkles size={18} color="#34d399" style={{ flexShrink: 0 }} />
-              <div>
-                <div style={{ fontSize: '0.72rem', color: '#34d399', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Sparky • FinSync Banker</div>
-                <div style={{ marginTop: 2 }}>{sparkyQuotes[sparkyQuoteIdx]}</div>
-              </div>
             </motion.div>
-
-            {/* Click to wave / bounce hint button */}
-            <motion.button
-              type="button"
-              onClick={handleSparkyClick}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              animate={{ y: [0, -6, 0] }}
-              transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
-              style={{
-                background: 'rgba(255, 255, 255, 0.15)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                color: '#ffffff',
-                padding: '8px 16px',
-                borderRadius: 99,
-                fontSize: '0.82rem',
-                fontWeight: 800,
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                boxShadow: '0 4px 14px rgba(0,0,0,0.3)'
-              }}
-            >
-              <MessageCircle size={14} color="#34d399" />
-              <span>Tap Sparky to talk 👋</span>
-            </motion.button>
           </div>
-        </div>
+        </motion.div>
       </section>
 
-      {/* 2. TRANSPARENT RATES & VALUE TICKER */}
-      <section style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)', padding: '24px' }}>
+      {/* 2. TRANSPARENT RATES & VALUE TICKER (Scroll-Triggered) */}
+      <motion.section
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)', padding: '28px 24px' }}
+      >
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
             <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
               Transparent Competitive Rates
             </span>
@@ -453,70 +422,86 @@ export default function Home() {
             </span>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 18 }}>
             {rates.map((item, i) => (
-              <div
+              <motion.div
                 key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.45, delay: i * 0.08 }}
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
                 style={{
-                  padding: '16px 20px',
-                  borderRadius: 12,
+                  padding: '18px 22px',
+                  borderRadius: 14,
                   background: 'var(--bg-card)',
                   border: '1px solid var(--border-color)',
                   display: 'flex',
                   justifyContent: 'space-between',
-                  alignItems: 'center'
+                  alignItems: 'center',
+                  boxShadow: 'var(--shadow-sm)'
                 }}
               >
                 <div>
                   <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>{item.title}</div>
-                  <div style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--primary)', marginTop: 4 }}>{item.rate}</div>
+                  <div style={{ fontSize: '1.45rem', fontWeight: 900, color: 'var(--primary)', marginTop: 4 }}>{item.rate}</div>
                   <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>{item.note}</div>
                 </div>
                 <span className="badge badge-emerald" style={{ fontSize: '10px', padding: '3px 8px' }}>
                   {item.badge}
                 </span>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      {/* 3. PERSONAL BANKING PRODUCT SUITE */}
-      <section style={{ maxWidth: 1200, margin: '64px auto 72px auto', padding: '0 24px', width: '100%', boxSizing: 'border-box' }}>
-        <div style={{ textAlign: 'center', maxWidth: 640, margin: '0 auto 48px auto' }}>
-          <h2 style={{ fontSize: '2.2rem', fontWeight: 900, color: 'var(--text-main)', margin: 0, letterSpacing: '-0.5px' }}>
+      {/* 3. PERSONAL BANKING PRODUCT SUITE (Scroll-Triggered) */}
+      <motion.section
+        initial={{ opacity: 0, y: 35 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.15 }}
+        transition={{ duration: 0.7, ease: 'easeOut' }}
+        style={{ maxWidth: 1200, margin: '72px auto 80px auto', padding: '0 24px', width: '100%', boxSizing: 'border-box' }}
+      >
+        <div style={{ textAlign: 'center', maxWidth: 640, margin: '0 auto 52px auto' }}>
+          <h2 style={{ fontSize: '2.4rem', fontWeight: 900, color: 'var(--text-main)', margin: 0, letterSpacing: '-0.5px' }}>
             Everything you need for everyday banking
           </h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '1.02rem', marginTop: 10, lineHeight: 1.6 }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '1.05rem', marginTop: 12, lineHeight: 1.6 }}>
             Smart accounts, intuitive budgeting, fast peer transfers, and goal-driven savings in one seamless experience.
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 24 }}>
-          {bankingProducts.map((p) => {
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 26 }}>
+          {bankingProducts.map((p, idx) => {
             const Icon = p.icon
             const CardContent = (
-              <div
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: idx * 0.08 }}
+                whileHover={{ y: -6, boxShadow: '0 16px 36px rgba(0,0,0,0.35)', transition: { duration: 0.2 } }}
                 style={{
-                  padding: '32px 28px',
-                  borderRadius: 16,
+                  padding: '34px 30px',
+                  borderRadius: 18,
                   background: 'var(--bg-card)',
                   border: '1px solid var(--border-color)',
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  boxSizing: 'border-box',
-                  transition: 'all 0.25s ease'
+                  boxSizing: 'border-box'
                 }}
               >
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 22 }}>
                     <div
                       style={{
-                        width: 50,
-                        height: 50,
-                        borderRadius: 12,
+                        width: 52,
+                        height: 52,
+                        borderRadius: 14,
                         background: `rgba(99, 102, 241, 0.12)`,
                         color: p.color,
                         display: 'flex',
@@ -524,26 +509,26 @@ export default function Home() {
                         justifyContent: 'center'
                       }}
                     >
-                      <Icon size={24} />
+                      <Icon size={26} />
                     </div>
                     <span className="badge badge-indigo" style={{ fontSize: '11px', fontWeight: 700 }}>
                       {p.tag}
                     </span>
                   </div>
 
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: 8 }}>
+                  <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: 10 }}>
                     {p.title}
                   </h3>
-                  <p style={{ fontSize: '0.92rem', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
+                  <p style={{ fontSize: '0.94rem', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
                     {p.subtitle}
                   </p>
                 </div>
 
-                <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 6, color: 'var(--primary)', fontWeight: 800, fontSize: '0.9rem' }}>
+                <div style={{ marginTop: 26, paddingTop: 18, borderTop: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 6, color: 'var(--primary)', fontWeight: 800, fontSize: '0.92rem' }}>
                   <span>Explore Feature</span>
                   <ChevronRight size={16} />
                 </div>
-              </div>
+              </motion.div>
             )
 
             if (p.onClick) {
@@ -566,17 +551,23 @@ export default function Home() {
             )
           })}
         </div>
-      </section>
+      </motion.section>
 
-      {/* 4. LIFE MOMENTS & FINANCIAL GUIDES (Inspired by modern personal banking) */}
-      <section style={{ background: 'var(--bg-secondary)', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)', padding: '72px 24px' }}>
+      {/* 4. LIFE MOMENTS & FINANCIAL GUIDES (Scroll-Triggered) */}
+      <motion.section
+        initial={{ opacity: 0, y: 35 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.15 }}
+        transition={{ duration: 0.7, ease: 'easeOut' }}
+        style={{ background: 'var(--bg-secondary)', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)', padding: '80px 24px' }}
+      >
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 40, flexWrap: 'wrap', gap: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 44, flexWrap: 'wrap', gap: 16 }}>
             <div>
               <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                 Life Stages & Financial Guidance
               </span>
-              <h2 style={{ fontSize: '2.2rem', fontWeight: 900, color: 'var(--text-main)', margin: '8px 0 0 0', letterSpacing: '-0.5px' }}>
+              <h2 style={{ fontSize: '2.3rem', fontWeight: 900, color: 'var(--text-main)', margin: '8px 0 0 0', letterSpacing: '-0.5px' }}>
                 Practical tools for what matters most
               </h2>
             </div>
@@ -587,89 +578,90 @@ export default function Home() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(270px, 1fr))', gap: 24 }}>
-            <div style={{ padding: 28, borderRadius: 16, background: 'var(--bg-card)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <div>
-                <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--accent-emerald)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>Home Ownership</div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: 10 }}>
-                  Buying your first home with confidence
-                </h3>
-                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
-                  Learn how to budget for your deposit, calculate monthly EMIs at 8.35% p.a., and get pre-approved digitally.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleOpenCalc('EMI')}
-                style={{ background: 'none', border: 'none', padding: 0, marginTop: 20, color: 'var(--primary)', fontWeight: 800, fontSize: '0.88rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+            {[
+              {
+                category: 'Home Ownership',
+                color: 'var(--accent-emerald)',
+                title: 'Buying your first home with confidence',
+                desc: 'Learn how to budget for your deposit, calculate monthly EMIs at 8.35% p.a., and get pre-approved digitally.',
+                actionText: 'Calculate Home Loan EMI',
+                action: () => handleOpenCalc('EMI')
+              },
+              {
+                category: 'Wealth Building',
+                color: 'var(--primary)',
+                title: 'Growing an emergency fund & savings habit',
+                desc: 'Discover how daily compounding at 5.50% APY and automated vault deposits turn spare change into financial security.',
+                actionText: 'Try SIP Wealth Planner',
+                action: () => handleOpenCalc('SIP')
+              },
+              {
+                category: 'Daily Money',
+                color: 'var(--accent-amber)',
+                title: 'Managing monthly budgets effortlessly',
+                desc: 'Categorize spending automatically by dining, bills, and transit with visual progress health bars.',
+                actionText: 'Start Budgeting Free',
+                link: '/register'
+              },
+              {
+                category: 'Security & Fraud',
+                color: 'var(--accent-cyan)',
+                title: 'Banking safely in a digital world',
+                desc: 'Tips on spotting phishing, enabling instant card lock, and taking advantage of 256-bit AES encryption.',
+                actionText: 'Read Security Guide',
+                link: '/register'
+              }
+            ].map((guide, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: idx * 0.08 }}
+                whileHover={{ y: -6, boxShadow: '0 16px 36px rgba(0,0,0,0.3)', transition: { duration: 0.2 } }}
+                style={{ padding: 28, borderRadius: 16, background: 'var(--bg-card)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
               >
-                <span>Calculate Home Loan EMI</span>
-                <ChevronRight size={15} />
-              </button>
-            </div>
-
-            <div style={{ padding: 28, borderRadius: 16, background: 'var(--bg-card)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <div>
-                <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>Wealth Building</div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: 10 }}>
-                  Growing an emergency fund & savings habit
-                </h3>
-                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
-                  Discover how daily compounding at 5.50% APY and automated vault deposits turn spare change into financial security.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleOpenCalc('SIP')}
-                style={{ background: 'none', border: 'none', padding: 0, marginTop: 20, color: 'var(--primary)', fontWeight: 800, fontSize: '0.88rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
-              >
-                <span>Try SIP Wealth Planner</span>
-                <ChevronRight size={15} />
-              </button>
-            </div>
-
-            <div style={{ padding: 28, borderRadius: 16, background: 'var(--bg-card)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <div>
-                <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--accent-amber)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>Daily Money</div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: 10 }}>
-                  Managing monthly budgets effortlessly
-                </h3>
-                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
-                  Categorize spending automatically by dining, bills, and transit with visual progress health bars.
-                </p>
-              </div>
-              <Link
-                to="/register"
-                style={{ marginTop: 20, color: 'var(--primary)', fontWeight: 800, fontSize: '0.88rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}
-              >
-                <span>Start Budgeting Free</span>
-                <ChevronRight size={15} />
-              </Link>
-            </div>
-
-            <div style={{ padding: 28, borderRadius: 16, background: 'var(--bg-card)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <div>
-                <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--accent-cyan)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>Security & Fraud</div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: 10 }}>
-                  Banking safely in a digital world
-                </h3>
-                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
-                  Tips on spotting phishing, enabling instant card lock, and taking advantage of 256-bit AES encryption.
-                </p>
-              </div>
-              <Link
-                to="/register"
-                style={{ marginTop: 20, color: 'var(--primary)', fontWeight: 800, fontSize: '0.88rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}
-              >
-                <span>Read Security Guide</span>
-                <ChevronRight size={15} />
-              </Link>
-            </div>
+                <div>
+                  <div style={{ fontSize: '0.78rem', fontWeight: 800, color: guide.color, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>{guide.category}</div>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: 10 }}>
+                    {guide.title}
+                  </h3>
+                  <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
+                    {guide.desc}
+                  </p>
+                </div>
+                {guide.action ? (
+                  <button
+                    type="button"
+                    onClick={guide.action}
+                    style={{ background: 'none', border: 'none', padding: 0, marginTop: 22, color: 'var(--primary)', fontWeight: 800, fontSize: '0.88rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                  >
+                    <span>{guide.actionText}</span>
+                    <ChevronRight size={15} />
+                  </button>
+                ) : (
+                  <Link
+                    to={guide.link}
+                    style={{ marginTop: 22, color: 'var(--primary)', fontWeight: 800, fontSize: '0.88rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}
+                  >
+                    <span>{guide.actionText}</span>
+                    <ChevronRight size={15} />
+                  </Link>
+                )}
+              </motion.div>
+            ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      {/* 5. ENTERPRISE SECURITY & DIGITAL ONBOARDING BANNER */}
-      <section style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #3730a3 100%)', color: '#ffffff', padding: '72px 24px', borderTop: '1px solid rgba(255,255,255,0.15)' }}>
+      {/* 5. ENTERPRISE SECURITY & DIGITAL ONBOARDING BANNER (Scroll-Triggered) */}
+      <motion.section
+        initial={{ opacity: 0, y: 35 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.15 }}
+        transition={{ duration: 0.7, ease: 'easeOut' }}
+        style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #3730a3 100%)', color: '#ffffff', padding: '80px 24px', borderTop: '1px solid rgba(255,255,255,0.15)' }}
+      >
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: 48, alignItems: 'center' }}>
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '4px 14px', borderRadius: 99, background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', fontSize: '0.76rem', fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 16, border: '1px solid rgba(16, 185, 129, 0.35)' }}>
@@ -682,23 +674,24 @@ export default function Home() {
               Backed by stateless JWT authentication, BCrypt password hashing, 256-bit SSL encryption, and DICGC deposit insurance up to ₹5,00,000.
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.92rem', fontWeight: 700 }}>
-                <CheckCircle2 size={20} color="#34d399" /> BCrypt Password Hash
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.92rem', fontWeight: 700 }}>
-                <CheckCircle2 size={20} color="#34d399" /> Stateless JWT Tokens
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.92rem', fontWeight: 700 }}>
-                <CheckCircle2 size={20} color="#34d399" /> Double-Entry Ledger
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.92rem', fontWeight: 700 }}>
-                <CheckCircle2 size={20} color="#34d399" /> DICGC Insured ₹5 Lakhs
-              </div>
+              {[
+                'BCrypt Password Hash',
+                'Stateless JWT Tokens',
+                'Double-Entry Ledger',
+                'DICGC Insured ₹5 Lakhs'
+              ].map((txt, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.92rem', fontWeight: 700 }}>
+                  <CheckCircle2 size={20} color="#34d399" /> {txt}
+                </div>
+              ))}
             </div>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <div style={{ background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(16px)', borderRadius: 24, padding: '40px 32px', border: '1.5px solid rgba(255,255,255,0.18)', textAlign: 'center', maxWidth: 420, width: '100%', boxShadow: '0 20px 40px rgba(0,0,0,0.35)' }}>
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              style={{ background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(16px)', borderRadius: 24, padding: '40px 32px', border: '1.5px solid rgba(255,255,255,0.18)', textAlign: 'center', maxWidth: 420, width: '100%', boxShadow: '0 20px 40px rgba(0,0,0,0.35)' }}
+            >
               <div style={{ width: 64, height: 64, borderRadius: 16, background: 'rgba(99, 102, 241, 0.2)', border: '1px solid rgba(99, 102, 241, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
                 <ShieldCheck size={36} color="#818cf8" />
               </div>
@@ -724,10 +717,10 @@ export default function Home() {
               >
                 {user ? "Go to My Dashboard" : "Open Digital Account Now"}
               </Link>
-            </div>
+            </motion.div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* 6. PUBLIC FOOTER */}
       <PublicFooter />
