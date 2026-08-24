@@ -56,15 +56,15 @@ export default function PublicNavbar() {
 
   return (
     <>
-      {/* FinSync Top Utility Bar (Single Horizontal Row) */}
+      {/* FinSync Top Utility Bar (Light Lavender Theme) */}
       <div
         className="public-topbar"
         style={{
-          background: '#1e1b4b',
+          background: '#f5f3ff',
           padding: '8px 24px',
-          borderBottom: '1px solid rgba(255,255,255,0.1)',
+          borderBottom: '1px solid #ede9fe',
           fontSize: '0.78rem',
-          color: '#ffffff',
+          color: '#5b21b6',
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'center',
@@ -75,8 +75,8 @@ export default function PublicNavbar() {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,0.9)' }}>
-            <ShieldCheck size={14} color="#a7f3d0" /> RBI Authorized Scheduled Commercial Bank • Toll-Free: <strong>1800-425-1199</strong>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#5b21b6', fontWeight: 600 }}>
+            <ShieldCheck size={14} color="#7c3aed" /> RBI Authorized Scheduled Commercial Bank • Toll-Free: <strong>1800-425-1199</strong>
           </span>
         </div>
 
@@ -86,34 +86,34 @@ export default function PublicNavbar() {
             style={{
               background: 'transparent',
               border: 'none',
-              color: '#ffffff',
+              color: '#0f172a',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: 6,
               fontSize: '0.78rem',
-              fontWeight: 600
+              fontWeight: 700
             }}
             title="Toggle Theme"
           >
-            {theme === 'dark' ? <Sun size={14} color="#f59e0b" /> : <Moon size={14} color="#a5b4fc" />}
+            {theme === 'dark' ? <Sun size={14} color="#d97706" /> : <Moon size={14} color="#7c3aed" />}
             <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
           </button>
-          <span style={{ opacity: 0.3, color: '#fff' }}>|</span>
+          <span style={{ opacity: 0.35, color: '#7c3aed' }}>|</span>
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ fontWeight: 700, color: '#a7f3d0' }}>
+              <span style={{ fontWeight: 700, color: '#5b21b6' }}>
                 Logged in as: {user.fullName} ({user.role || 'USER'})
               </span>
-              <span style={{ cursor: 'pointer', color: '#60a5fa', fontWeight: 800 }} onClick={handleAdminClick}>Admin Portal</span>
+              <span style={{ cursor: 'pointer', color: '#7c3aed', fontWeight: 800 }} onClick={handleAdminClick}>Admin Portal</span>
             </div>
           ) : (
             <>
-              <span style={{ cursor: 'pointer', color: '#ffffff', fontWeight: 700 }} onClick={() => navigate('/register')}>Open Account Online</span>
-              <span style={{ opacity: 0.3, color: '#fff' }}>|</span>
-              <span style={{ cursor: 'pointer', color: 'rgba(255,255,255,0.85)', fontWeight: 600 }} onClick={() => navigate('/login')}>NetBanking Sign In</span>
-              <span style={{ opacity: 0.3, color: '#fff' }}>|</span>
-              <span style={{ cursor: 'pointer', color: '#a7f3d0', fontWeight: 700 }} onClick={handleAdminClick}>Admin Portal</span>
+              <span style={{ cursor: 'pointer', color: '#5b21b6', fontWeight: 700 }} onClick={() => navigate('/register')}>Open Account Online</span>
+              <span style={{ opacity: 0.35, color: '#7c3aed' }}>|</span>
+              <span style={{ cursor: 'pointer', color: '#0f172a', fontWeight: 700 }} onClick={() => navigate('/login')}>NetBanking Sign In</span>
+              <span style={{ opacity: 0.35, color: '#7c3aed' }}>|</span>
+              <span style={{ cursor: 'pointer', color: '#7c3aed', fontWeight: 800 }} onClick={handleAdminClick}>Admin Portal</span>
             </>
           )}
         </div>
@@ -129,13 +129,13 @@ export default function PublicNavbar() {
                 width: 44,
                 height: 44,
                 borderRadius: 12,
-                background: '#ecfdf5',
-                border: '1.5px solid #a7f3d0',
+                background: '#f5f3ff',
+                border: '1.5px solid #ddd6fe',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#059669',
-                boxShadow: '0 2px 8px rgba(167, 243, 208, 0.3)'
+                color: '#7c3aed',
+                boxShadow: '0 2px 8px rgba(124, 58, 237, 0.25)'
               }}
             >
               <Building2 size={24} />
@@ -144,7 +144,7 @@ export default function PublicNavbar() {
               <span style={{ fontSize: '1.45rem', fontWeight: 900, color: '#0f172a', letterSpacing: '-0.5px' }}>
                 FINSYNC BANK
               </span>
-              <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#059669', letterSpacing: 1.2, textTransform: 'uppercase', marginTop: -2 }}>
+              <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#7c3aed', letterSpacing: 1.2, textTransform: 'uppercase', marginTop: -2 }}>
                 ALWAYS WITH YOU
               </div>
             </div>
@@ -179,13 +179,13 @@ export default function PublicNavbar() {
                   className="btn btn-secondary btn-sm"
                   style={{ padding: '8px 14px', fontWeight: 800, background: '#fafaf9', border: '1px solid #e2e8f0', color: '#0f172a' }}
                 >
-                  <ShieldCheck size={16} color="#059669" />
+                  <ShieldCheck size={16} color="#7c3aed" />
                   <span>Admin Portal</span>
                 </button>
                 <button
                   onClick={handleDashboardClick}
                   className="btn btn-primary btn-sm"
-                  style={{ padding: '8px 16px', fontWeight: 700, background: '#ecfdf5', border: '1px solid #a7f3d0', color: '#065f46' }}
+                  style={{ padding: '8px 16px', fontWeight: 700, background: '#f5f3ff', border: '1px solid #ddd6fe', color: '#5b21b6' }}
                 >
                   <LayoutDashboard size={16} />
                   <span>Go to Workspace</span>
@@ -217,7 +217,7 @@ export default function PublicNavbar() {
                     cursor: 'pointer'
                   }}
                 >
-                  <ShieldCheck size={16} color="#059669" />
+                  <ShieldCheck size={16} color="#7c3aed" />
                   <span>Admin Portal</span>
                 </button>
                 <button
@@ -229,11 +229,11 @@ export default function PublicNavbar() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 8,
-                    background: '#ecfdf5',
-                    border: '1.5px solid #a7f3d0',
+                    background: '#f5f3ff',
+                    border: '1.5px solid #ddd6fe',
                     borderRadius: 8,
-                    color: '#065f46',
-                    boxShadow: '0 2px 10px rgba(167, 243, 208, 0.4)',
+                    color: '#5b21b6',
+                    boxShadow: '0 2px 10px rgba(124, 58, 237, 0.25)',
                     cursor: 'pointer'
                   }}
                 >
