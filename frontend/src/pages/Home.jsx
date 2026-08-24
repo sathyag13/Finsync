@@ -112,64 +112,94 @@ export default function Home() {
     <div style={{ background: 'var(--bg-main)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <PublicNavbar />
 
-      {/* 1. HERO SECTION: Friendly 3D Mascot & Customer-Centric Quick Actions */}
+      {/* 1. FULL-BLEED PANORAMIC HERO: Edge-to-edge photo background with overlaid text & action pills */}
       <section
         style={{
-          background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%)',
-          color: '#ffffff',
-          padding: '70px 24px 80px 24px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
           position: 'relative',
+          width: '100%',
+          minHeight: 580,
+          backgroundImage: 'url("/hero-mascot.jpg")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center 30%',
+          backgroundRepeat: 'no-repeat',
+          display: 'flex',
+          alignItems: 'center',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.15)',
           overflow: 'hidden'
         }}
       >
-        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: 'minmax(0, 1.15fr) minmax(0, 0.85fr)', gap: 48, alignItems: 'center' }}>
-          <div>
+        {/* Soft dark-to-transparent gradient overlay to ensure text is 100% crisp & readable on the left */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(to right, rgba(11, 9, 20, 0.94) 0%, rgba(15, 23, 42, 0.85) 42%, rgba(15, 23, 42, 0.35) 70%, rgba(15, 23, 42, 0.1) 100%)',
+            zIndex: 1
+          }}
+        />
+
+        {/* Hero Content Container */}
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 2,
+            maxWidth: 1240,
+            margin: '0 auto',
+            padding: '70px 24px',
+            width: '100%',
+            boxSizing: 'border-box'
+          }}
+        >
+          <div style={{ maxWidth: 660 }}>
             <div
               style={{
+                fontSize: '0.85rem',
+                fontWeight: 900,
+                color: '#34d399',
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                marginBottom: 16,
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 8,
-                padding: '6px 14px',
-                borderRadius: 99,
-                background: 'rgba(255, 255, 255, 0.12)',
-                backdropFilter: 'blur(8px)',
-                fontSize: '0.8rem',
-                fontWeight: 800,
-                letterSpacing: '0.08em',
-                marginBottom: 20,
-                border: '1px solid rgba(255, 255, 255, 0.2)'
+                textShadow: '0 2px 4px rgba(0,0,0,0.5)'
               }}
             >
-              <Sparkles size={14} color="#f59e0b" />
-              <span>PERSONAL BANKING DESIGNED FOR YOU</span>
+              <Sparkles size={16} color="#f59e0b" />
+              <span>BANKING WANTS THE STATUS QUO</span>
             </div>
 
-            <h1 style={{ fontSize: '3.4rem', fontWeight: 900, lineHeight: 1.12, marginBottom: 18, letterSpacing: '-1px' }}>
-              We were built to help your money grow.
+            <h1
+              style={{
+                fontSize: '3.8rem',
+                fontWeight: 900,
+                lineHeight: 1.08,
+                color: '#ffffff',
+                marginBottom: 28,
+                letterSpacing: '-1.5px',
+                textShadow: '0 3px 12px rgba(0,0,0,0.6)'
+              }}
+            >
+              We were built to help you thrive.
             </h1>
 
-            <p style={{ fontSize: '1.12rem', opacity: 0.9, lineHeight: 1.6, marginBottom: 28, maxWidth: 560 }}>
-              Smart everyday accounts, 5.50% APY savings vaults, transparent low-rate home loans, and instant money transfers with zero hidden fees.
-            </p>
-
-            {/* Quick Action Navigation Pills (Directly inspired by modern customer banking hero) */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 32 }}>
+            {/* Quick Action Navigation Pills (Green buttons directly like the reference) */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 32 }}>
               <Link
                 to="/savings"
                 style={{
-                  padding: '11px 20px',
-                  borderRadius: 10,
-                  background: 'var(--accent-emerald)',
+                  padding: '13px 24px',
+                  borderRadius: 8,
+                  background: '#10b981',
                   color: '#ffffff',
-                  fontWeight: 800,
-                  fontSize: '0.92rem',
+                  fontWeight: 900,
+                  fontSize: '0.98rem',
                   textDecoration: 'none',
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 6,
-                  boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
-                  transition: 'all 0.2s ease'
+                  boxShadow: '0 4px 16px rgba(16, 185, 129, 0.4)',
+                  transition: 'all 0.15s ease'
                 }}
               >
                 <span>Grow my savings</span>
@@ -179,19 +209,19 @@ export default function Home() {
                 type="button"
                 onClick={() => handleOpenCalc('EMI')}
                 style={{
-                  padding: '11px 20px',
-                  borderRadius: 10,
-                  background: 'var(--accent-emerald)',
+                  padding: '13px 24px',
+                  borderRadius: 8,
+                  background: '#10b981',
                   color: '#ffffff',
-                  fontWeight: 800,
-                  fontSize: '0.92rem',
+                  fontWeight: 900,
+                  fontSize: '0.98rem',
                   border: 'none',
                   cursor: 'pointer',
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 6,
-                  boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
-                  transition: 'all 0.2s ease'
+                  boxShadow: '0 4px 16px rgba(16, 185, 129, 0.4)',
+                  transition: 'all 0.15s ease'
                 }}
               >
                 <span>Explore home loans</span>
@@ -200,38 +230,38 @@ export default function Home() {
               <Link
                 to={user ? "/dashboard" : "/register"}
                 style={{
-                  padding: '11px 20px',
-                  borderRadius: 10,
-                  background: 'var(--accent-emerald)',
+                  padding: '13px 24px',
+                  borderRadius: 8,
+                  background: '#10b981',
                   color: '#ffffff',
-                  fontWeight: 800,
-                  fontSize: '0.92rem',
+                  fontWeight: 900,
+                  fontSize: '0.98rem',
                   textDecoration: 'none',
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 6,
-                  boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
-                  transition: 'all 0.2s ease'
+                  boxShadow: '0 4px 16px rgba(16, 185, 129, 0.4)',
+                  transition: 'all 0.15s ease'
                 }}
               >
-                <span>Open account</span>
+                <span>Everyday accounts</span>
               </Link>
 
               <Link
                 to="/accounts"
                 style={{
-                  padding: '11px 20px',
-                  borderRadius: 10,
-                  background: 'var(--accent-emerald)',
+                  padding: '13px 24px',
+                  borderRadius: 8,
+                  background: '#10b981',
                   color: '#ffffff',
-                  fontWeight: 800,
-                  fontSize: '0.92rem',
+                  fontWeight: 900,
+                  fontSize: '0.98rem',
                   textDecoration: 'none',
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 6,
-                  boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
-                  transition: 'all 0.2s ease'
+                  boxShadow: '0 4px 16px rgba(16, 185, 129, 0.4)',
+                  transition: 'all 0.15s ease'
                 }}
               >
                 <span>Virtual debit cards</span>
@@ -241,19 +271,19 @@ export default function Home() {
                 type="button"
                 onClick={() => handleOpenCalc('SIP')}
                 style={{
-                  padding: '11px 20px',
-                  borderRadius: 10,
-                  background: 'var(--accent-emerald)',
+                  padding: '13px 24px',
+                  borderRadius: 8,
+                  background: '#10b981',
                   color: '#ffffff',
-                  fontWeight: 800,
-                  fontSize: '0.92rem',
+                  fontWeight: 900,
+                  fontSize: '0.98rem',
                   border: 'none',
                   cursor: 'pointer',
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 6,
-                  boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
-                  transition: 'all 0.2s ease'
+                  boxShadow: '0 4px 16px rgba(16, 185, 129, 0.4)',
+                  transition: 'all 0.15s ease'
                 }}
               >
                 <span>Calculate returns</span>
@@ -262,88 +292,54 @@ export default function Home() {
               <Link
                 to="/register"
                 style={{
-                  padding: '11px 20px',
-                  borderRadius: 10,
-                  background: 'var(--accent-emerald)',
+                  padding: '13px 24px',
+                  borderRadius: 8,
+                  background: '#10b981',
                   color: '#ffffff',
-                  fontWeight: 800,
-                  fontSize: '0.92rem',
+                  fontWeight: 900,
+                  fontSize: '0.98rem',
                   textDecoration: 'none',
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 6,
-                  boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
-                  transition: 'all 0.2s ease'
+                  boxShadow: '0 4px 16px rgba(16, 185, 129, 0.4)',
+                  transition: 'all 0.15s ease'
                 }}
               >
                 <span>Business banking</span>
               </Link>
+
+              <Link
+                to="/expenses"
+                style={{
+                  padding: '13px 24px',
+                  borderRadius: 8,
+                  background: '#10b981',
+                  color: '#ffffff',
+                  fontWeight: 900,
+                  fontSize: '0.98rem',
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  boxShadow: '0 4px 16px rgba(16, 185, 129, 0.4)',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <span>Budget analytics</span>
+              </Link>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 24, paddingTop: 24, borderTop: '1px solid rgba(255,255,255,0.15)', fontSize: '0.88rem', opacity: 0.9 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 24, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.2)', fontSize: '0.9rem', color: '#ffffff', opacity: 0.95 }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <CheckCircle2 size={16} color="#34d399" /> RBI Authorized & Insured
+                <CheckCircle2 size={16} color="#34d399" /> RBI Authorized & Scheduled Bank
               </span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <CheckCircle2 size={16} color="#34d399" /> 2-Minute Digital KYC
               </span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <CheckCircle2 size={16} color="#34d399" /> 256-Bit Bank Encryption
+                <CheckCircle2 size={16} color="#34d399" /> DICGC Insured ₹5 Lakhs
               </span>
-            </div>
-          </div>
-
-          {/* 3D Animated Banking Mascot Showcase */}
-          <div style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
-            <div
-              style={{
-                width: '100%',
-                maxWidth: 480,
-                borderRadius: 24,
-                overflow: 'hidden',
-                boxShadow: '0 24px 48px rgba(0,0,0,0.5)',
-                border: '2px solid rgba(255,255,255,0.15)',
-                background: 'rgba(15, 23, 42, 0.6)',
-                backdropFilter: 'blur(12px)',
-                position: 'relative'
-              }}
-            >
-              <img
-                src="/hero-mascot.jpg"
-                alt="FinSync Friendly Banking Mascot"
-                style={{
-                  width: '100%',
-                  height: 'auto',
-                  display: 'block',
-                  objectFit: 'cover'
-                }}
-              />
-              <div
-                style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  padding: '16px 20px',
-                  background: 'linear-gradient(to top, rgba(15,23,42,0.92) 0%, rgba(15,23,42,0) 100%)',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}
-              >
-                <div>
-                  <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#ffffff' }}>Meet Sparky • FinSync Advisor</div>
-                  <div style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.8)' }}>Always here to help you make smarter financial moves.</div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleOpenCalc('EMI')}
-                  className="btn btn-emerald btn-sm"
-                  style={{ fontSize: '11px', padding: '6px 12px' }}
-                >
-                  Explore <ChevronRight size={13} />
-                </button>
-              </div>
             </div>
           </div>
         </div>
