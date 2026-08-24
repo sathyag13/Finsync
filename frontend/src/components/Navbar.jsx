@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 import { useTheme } from '../context/ThemeContext.jsx'
 import api from '../api/axios.js'
 import Modal from './Modal.jsx'
+import FinSyncLogo from './FinSyncLogo.jsx'
 import {
   LayoutDashboard,
   CreditCard,
@@ -54,8 +55,8 @@ export function Sidebar() {
     return (
       <aside className="sidebar">
         <div className="sidebar-brand">
-          <div className="sidebar-logo-icon">
-            <Building2 size={20} color="#12A878" />
+          <div className="sidebar-logo-icon" style={{ background: '#FFFDF9', border: '1.5px solid #F3E6CD' }}>
+            <FinSyncLogo size={24} glow />
           </div>
           <div>
             <div className="sidebar-brand-title">FINSYNC</div>
@@ -135,8 +136,8 @@ export function Sidebar() {
     <aside className="sidebar">
       {/* Brand Logo Header */}
       <div className="sidebar-brand">
-        <div className="sidebar-logo-icon">
-          <Building2 size={20} color="#ffffff" />
+        <div className="sidebar-logo-icon" style={{ background: '#FFFDF9', border: '1.5px solid #F3E6CD' }}>
+          <FinSyncLogo size={24} glow />
         </div>
         <div>
           <div className="sidebar-brand-title">FINSYNC</div>
