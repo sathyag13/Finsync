@@ -65,15 +65,15 @@ export default function PublicNavbar() {
                 width: 44,
                 height: 44,
                 borderRadius: 12,
-                background: '#EAF9F3',
-                border: '1.5px solid #C6F0DF',
+                background: '#FFFDF9',
+                border: '1.5px solid #F3E6CD',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 2px 8px rgba(18, 168, 120, 0.18)'
+                boxShadow: '0 2px 8px rgba(212, 163, 89, 0.15)'
               }}
             >
-              <FinSyncLogo size={28} glow />
+              <FinSyncLogo size={32} glow />
             </div>
             <div>
               <span style={{ fontSize: '1.45rem', fontWeight: 900, color: '#111827', letterSpacing: '-0.5px' }}>

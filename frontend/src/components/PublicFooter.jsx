@@ -10,8 +10,8 @@ export default function PublicFooter() {
           {/* Column 1: FinSync Brand & Contact Info */}
           <div style={{ gridColumn: 'span 2' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-              <div style={{ width: 42, height: 42, borderRadius: 12, background: '#EAF9F3', border: '1.5px solid #C6F0DF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(18, 168, 120, 0.18)' }}>
-                <FinSyncLogo size={26} glow />
+              <div style={{ width: 42, height: 42, borderRadius: 12, background: '#FFFDF9', border: '1.5px solid #F3E6CD', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(212, 163, 89, 0.15)' }}>
+                <FinSyncLogo size={30} glow />
               </div>
               <div>
                 <span style={{ fontSize: '1.45rem', fontWeight: 900, color: '#111827', letterSpacing: '-0.5px' }}>FINSYNC BANK</span>
