@@ -30,8 +30,8 @@ export default function Home() {
   const rates = [
     { title: 'Savings Vault APY', rate: '5.50% p.a.', note: 'Daily interest payout', badge: 'Popular', color: '#0E7F5A', pastelBg: '#EAF9F3', pastelBorder: '#C6F0DF' },
     { title: 'Fixed Deposit (FD)', rate: '7.50% p.a.', note: 'Guaranteed returns', badge: 'High Yield', color: '#92400E', pastelBg: '#FFF8E8', pastelBorder: '#FEE6B6' },
-    { title: 'Home Loans', rate: '8.35% p.a.', note: 'Lowest EMIs & zero fees', badge: 'Competitive', color: '#0369A1', pastelBg: '#EAF5FF', pastelBorder: '#BAE0FD' },
-    { title: 'Personal Loans', rate: '10.49% p.a.', note: 'Instant digital sanction', badge: 'Instant', color: '#5B21B6', pastelBg: '#F2EEFF', pastelBorder: '#DDD6FE' }
+    { title: 'Recurring Deposit (RD)', rate: '7.10% p.a.', note: 'Flexible monthly lock', badge: 'Smart Lock', color: '#0369A1', pastelBg: '#EAF5FF', pastelBorder: '#BAE0FD' },
+    { title: 'Personal Accounts', rate: '0.00% Fees', note: 'Zero maintenance charges', badge: 'Zero Fees', color: '#5B21B6', pastelBg: '#F2EEFF', pastelBorder: '#DDD6FE' }
   ]
 
   const bankingProducts = [
@@ -242,68 +242,90 @@ export default function Home() {
                 fontWeight: 900,
                 lineHeight: 1.1,
                 color: '#111827',
-                marginBottom: 28,
+                marginBottom: 20,
                 letterSpacing: '-1.5px'
               }}
             >
               We were built to help you thrive.
             </motion.h1>
 
-            {/* Quick Action Navigation Pills (Fintech Color Hierarchy) */}
-            <motion.div variants={itemVariants} style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 34 }}>
-              {[
-                { label: 'Grow my savings', link: '/savings', bg: '#EAF9F3', border: '#C6F0DF', color: '#0E7F5A' },
-                { label: 'Explore home loans', action: () => handleOpenCalc('EMI'), bg: '#EAF5FF', border: '#BAE0FD', color: '#0369A1' },
-                { label: 'Everyday accounts', link: user ? "/dashboard" : "/register", bg: '#EAF9F3', border: '#C6F0DF', color: '#0E7F5A' },
-                { label: 'Virtual debit cards', link: '/accounts', bg: '#EAF5FF', border: '#BAE0FD', color: '#0369A1' },
-                { label: 'Calculate returns', action: () => handleOpenCalc('SIP'), bg: '#FFF8E8', border: '#FEE6B6', color: '#92400E' },
-                { label: 'Business banking', link: '/register', bg: '#F2EEFF', border: '#DDD6FE', color: '#5B21B6' },
-                { label: 'Budget analytics', link: '/expenses', bg: '#FFF0F4', border: '#FBCFE8', color: '#9D174D' }
-              ].map((pill, i) => {
-                const pillStyle = {
-                  padding: '11px 20px',
-                  borderRadius: 10,
-                  background: pill.bg,
-                  border: `1.5px solid ${pill.border}`,
-                  color: pill.color,
-                  fontWeight: 800,
-                  fontSize: '0.92rem',
-                  textDecoration: 'none',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  boxShadow: '0 2px 8px rgba(17, 24, 39, 0.03)',
-                  transition: 'all 0.18s ease',
-                  cursor: 'pointer'
-                }
+            {/* Editorial Information & Banking Value Proposition */}
+            <motion.p
+              variants={itemVariants}
+              style={{
+                fontSize: '1.2rem',
+                fontWeight: 500,
+                lineHeight: 1.65,
+                color: '#374151',
+                marginBottom: 28,
+                maxWidth: 620,
+                letterSpacing: '-0.2px'
+              }}
+            >
+              Experience next-generation digital banking with high-yield savings vaults, instant atomic P2P transfers, zero-liability virtual EMV cards, and automated expense insights designed to build your financial future.
+            </motion.p>
 
-                if (pill.action) {
-                  return (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={pill.action}
-                      style={{ ...pillStyle, border: `1.5px solid ${pill.border}` }}
-                      onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)' }}
-                      onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)' }}
-                    >
-                      <span>{pill.label}</span>
-                    </button>
-                  )
-                }
+            {/* Premium Information Feature Highlights */}
+            <motion.div
+              variants={itemVariants}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: 16,
+                marginBottom: 32,
+                maxWidth: 620
+              }}
+            >
+              <div
+                style={{
+                  padding: '16px 18px',
+                  borderRadius: 14,
+                  background: 'rgba(255, 255, 255, 0.92)',
+                  border: '1.5px solid #C6F0DF',
+                  boxShadow: '0 4px 16px rgba(18, 168, 120, 0.06)',
+                  backdropFilter: 'blur(8px)'
+                }}
+              >
+                <div style={{ fontSize: '1.42rem', fontWeight: 900, color: '#0E7F5A', letterSpacing: '-0.5px' }}>
+                  5.50% <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#0E7F5A' }}>APY</span>
+                </div>
+                <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#111827', marginTop: 2 }}>High-Yield Vaults</div>
+                <div style={{ fontSize: '0.74rem', color: '#6B7280', marginTop: 2, fontWeight: 500 }}>Daily interest compounding</div>
+              </div>
 
-                return (
-                  <Link
-                    key={i}
-                    to={pill.link}
-                    style={pillStyle}
-                    onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)' }}
-                    onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)' }}
-                  >
-                    <span>{pill.label}</span>
-                  </Link>
-                )
-              })}
+              <div
+                style={{
+                  padding: '16px 18px',
+                  borderRadius: 14,
+                  background: 'rgba(255, 255, 255, 0.92)',
+                  border: '1.5px solid #BAE0FD',
+                  boxShadow: '0 4px 16px rgba(3, 105, 161, 0.06)',
+                  backdropFilter: 'blur(8px)'
+                }}
+              >
+                <div style={{ fontSize: '1.42rem', fontWeight: 900, color: '#0369A1', letterSpacing: '-0.5px' }}>
+                  ₹0 <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#0369A1' }}>Fees</span>
+                </div>
+                <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#111827', marginTop: 2 }}>Everyday Accounts</div>
+                <div style={{ fontSize: '0.74rem', color: '#6B7280', marginTop: 2, fontWeight: 500 }}>Zero maintenance balance</div>
+              </div>
+
+              <div
+                style={{
+                  padding: '16px 18px',
+                  borderRadius: 14,
+                  background: 'rgba(255, 255, 255, 0.92)',
+                  border: '1.5px solid #DDD6FE',
+                  boxShadow: '0 4px 16px rgba(91, 33, 182, 0.06)',
+                  backdropFilter: 'blur(8px)'
+                }}
+              >
+                <div style={{ fontSize: '1.42rem', fontWeight: 900, color: '#5B21B6', letterSpacing: '-0.5px' }}>
+                  Instant <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#5B21B6' }}>24/7</span>
+                </div>
+                <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#111827', marginTop: 2 }}>Atomic P2P Transfers</div>
+                <div style={{ fontSize: '0.74rem', color: '#6B7280', marginTop: 2, fontWeight: 500 }}>Real-time settlement</div>
+              </div>
             </motion.div>
 
             <motion.div variants={itemVariants} style={{ display: 'flex', alignItems: 'center', gap: 24, paddingTop: 20, borderTop: '1px solid #E5E7EB', fontSize: '0.9rem', color: '#4B5563', fontWeight: 600 }}>
@@ -529,14 +551,14 @@ export default function Home() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(270px, 1fr))', gap: 24 }}>
             {[
               {
-                category: 'Home Ownership',
+                category: 'Cards & Payments',
                 color: '#0E7F5A',
                 pastelBg: '#EAF9F3',
                 borderColor: '#C6F0DF',
-                title: 'Buying your first home with confidence',
-                desc: 'Learn how to budget for your deposit, calculate monthly EMIs at 8.35% p.a., and get pre-approved digitally.',
-                actionText: 'Calculate Home Loan EMI',
-                action: () => handleOpenCalc('EMI')
+                title: 'Virtual EMV debit cards & instant lock',
+                desc: 'Generate secure virtual debit cards with instant freeze capabilities, customizable spending limits, and zero liability.',
+                actionText: 'Explore Virtual Cards',
+                link: '/register'
               },
               {
                 category: 'Wealth Building',
