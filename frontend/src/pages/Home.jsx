@@ -58,10 +58,10 @@ export default function Home() {
   }
 
   const rates = [
-    { title: 'Savings Vault APY', rate: '5.50% p.a.', note: 'Daily interest payout', badge: 'Popular' },
-    { title: 'Fixed Deposit (FD)', rate: '7.50% p.a.', note: 'Guaranteed returns', badge: 'High Yield' },
-    { title: 'Home Loans', rate: '8.35% p.a.', note: 'Lowest EMIs & zero processing fee', badge: 'Competitive' },
-    { title: 'Personal Loans', rate: '10.49% p.a.', note: 'Instant digital sanction', badge: 'Instant' }
+    { title: 'Savings Vault APY', rate: '5.50% p.a.', note: 'Daily interest payout', badge: 'Popular', color: '#10b981', glow: 'rgba(16, 185, 129, 0.12)' },
+    { title: 'Fixed Deposit (FD)', rate: '7.50% p.a.', note: 'Guaranteed returns', badge: 'High Yield', color: '#f59e0b', glow: 'rgba(245, 158, 11, 0.12)' },
+    { title: 'Home Loans', rate: '8.35% p.a.', note: 'Lowest EMIs & zero fees', badge: 'Competitive', color: '#6366f1', glow: 'rgba(99, 102, 241, 0.12)' },
+    { title: 'Personal Loans', rate: '10.49% p.a.', note: 'Instant digital sanction', badge: 'Instant', color: '#a855f7', glow: 'rgba(168, 85, 247, 0.12)' }
   ]
 
   const bankingProducts = [
@@ -69,10 +69,13 @@ export default function Home() {
       id: 'everyday',
       category: 'accounts',
       title: 'Everyday NetBanking Account',
-      subtitle: 'Zero maintenance balance, instant peer-to-peer transfers, and instant ledger reconciliation.',
+      subtitle: 'Zero maintenance balance, instant peer-to-peer transfers, and live ledger reconciliation.',
       icon: Wallet,
       tag: 'Zero Fees',
-      color: 'var(--primary)',
+      color: '#10b981',
+      bgGlow: 'linear-gradient(145deg, rgba(16, 185, 129, 0.12) 0%, rgba(15, 23, 42, 0.85) 100%)',
+      borderColor: 'rgba(16, 185, 129, 0.3)',
+      badgeClass: 'badge badge-emerald',
       link: '/register'
     },
     {
@@ -82,47 +85,62 @@ export default function Home() {
       subtitle: 'Earn up to 5.50% APY compounded daily with milestone tracking and celebration rewards.',
       icon: PiggyBank,
       tag: '5.50% APY',
-      color: 'var(--accent-emerald)',
+      color: '#f59e0b',
+      bgGlow: 'linear-gradient(145deg, rgba(245, 158, 11, 0.12) 0%, rgba(15, 23, 42, 0.85) 100%)',
+      borderColor: 'rgba(245, 158, 11, 0.3)',
+      badgeClass: 'badge badge-amber',
       link: '/savings'
     },
     {
       id: 'cards',
       category: 'cards',
       title: 'Virtual Debit Cards',
-      subtitle: 'Next-gen virtual debit cards with gold EMV chip, eye privacy balance toggle, and instant freeze.',
+      subtitle: 'Next-gen virtual cards with gold EMV chip, eye privacy balance toggle, and instant freeze.',
       icon: CreditCard,
-      tag: 'Zero Contactless Liability',
-      color: 'var(--accent-cyan)',
+      tag: 'Zero Liability',
+      color: '#06b6d4',
+      bgGlow: 'linear-gradient(145deg, rgba(6, 182, 212, 0.12) 0%, rgba(15, 23, 42, 0.85) 100%)',
+      borderColor: 'rgba(6, 182, 212, 0.3)',
+      badgeClass: 'badge badge-cyan',
       link: '/accounts'
     },
     {
       id: 'transfers',
       category: 'transfers',
       title: 'Atomic P2P Money Transfer',
-      subtitle: 'Double-entry ACID banking transfers with printable receipts and instant QR code payments.',
+      subtitle: 'Double-entry ACID banking transfers with printable receipts and instant QR payments.',
       icon: Send,
       tag: 'Instant 24/7',
-      color: 'var(--accent-purple)',
+      color: '#6366f1',
+      bgGlow: 'linear-gradient(145deg, rgba(99, 102, 241, 0.12) 0%, rgba(15, 23, 42, 0.85) 100%)',
+      borderColor: 'rgba(99, 102, 241, 0.3)',
+      badgeClass: 'badge badge-indigo',
       link: '/transfer'
     },
     {
       id: 'budgeting',
       category: 'tools',
       title: 'Expense & Budget Analytics',
-      subtitle: 'Automatic categorization for dining, shopping, bills, and transit with monthly budget health bars.',
+      subtitle: 'Automatic categorization for dining, bills, shopping, and transit with monthly budget health bars.',
       icon: PieChart,
       tag: 'Smart Insights',
-      color: 'var(--accent-amber)',
+      color: '#f43f5e',
+      bgGlow: 'linear-gradient(145deg, rgba(244, 63, 94, 0.12) 0%, rgba(15, 23, 42, 0.85) 100%)',
+      borderColor: 'rgba(244, 63, 94, 0.3)',
+      badgeClass: 'badge badge-rose',
       link: '/expenses'
     },
     {
       id: 'calculators',
       category: 'tools',
-      title: 'Interactive Financial Calculators',
+      title: 'Financial Planning Calculators',
       subtitle: 'Accurate loan EMI estimators, SIP wealth projections, and compound interest calculators.',
       icon: Calculator,
       tag: 'Free Tools',
-      color: 'var(--primary)',
+      color: '#a855f7',
+      bgGlow: 'linear-gradient(145deg, rgba(168, 85, 247, 0.12) 0%, rgba(15, 23, 42, 0.85) 100%)',
+      borderColor: 'rgba(168, 85, 247, 0.3)',
+      badgeClass: 'badge badge-purple',
       onClick: () => handleOpenCalc('EMI')
     }
   ]
@@ -149,8 +167,6 @@ export default function Home() {
 
   return (
     <div style={{ background: 'var(--bg-main)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <PublicNavbar />
-
       {/* 1. CINEMATIC VIDEO-MOTION HERO BANNER */}
       <section
         style={{
@@ -166,7 +182,7 @@ export default function Home() {
         {/* Continuous cinematic video camera motion background */}
         <div className="hero-video-bg" />
 
-        {/* Ambient subtle light shimmer & particle layers */}
+        {/* Ambient subtle light shimmer */}
         <div
           style={{
             position: 'absolute',
@@ -404,25 +420,28 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* 2. TRANSPARENT RATES & VALUE TICKER (Always Animates on Scroll Up and Down) */}
+      {/* 2. TRANSPARENT RATES & VALUE TICKER (Color-coded glowing rate cards) */}
       <motion.section
         initial={{ opacity: 0, y: 35 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: false, amount: 0.2 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
-        style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)', padding: '28px 24px' }}
+        style={{ background: 'linear-gradient(180deg, #090e1a 0%, #0d1527 100%)', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '32px 24px' }}
       >
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
-            <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              Transparent Competitive Rates
-            </span>
-            <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-              Rates updated for August 2026 • No hidden service charges
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 22, flexWrap: 'wrap', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 10px #10b981' }} />
+              <span style={{ fontSize: '0.86rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                Live Transparent Banking Rates
+              </span>
+            </div>
+            <span style={{ fontSize: '0.82rem', color: '#64748b' }}>
+              Updated for August 2026 • 100% No Hidden Fees
             </span>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 18 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
             {rates.map((item, i) => (
               <motion.div
                 key={i}
@@ -430,24 +449,35 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: false, amount: 0.2 }}
                 transition={{ duration: 0.45, delay: i * 0.08 }}
-                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                whileHover={{ y: -5, boxShadow: `0 12px 28px ${item.glow}`, transition: { duration: 0.2 } }}
                 style={{
-                  padding: '18px 22px',
-                  borderRadius: 14,
-                  background: 'var(--bg-card)',
-                  border: '1px solid var(--border-color)',
+                  padding: '20px 24px',
+                  borderRadius: 16,
+                  background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%)',
+                  border: `1.5px solid rgba(255, 255, 255, 0.1)`,
+                  borderTop: `3.5px solid ${item.color}`,
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  boxShadow: 'var(--shadow-sm)'
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.35)'
                 }}
               >
                 <div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>{item.title}</div>
-                  <div style={{ fontSize: '1.45rem', fontWeight: 900, color: 'var(--primary)', marginTop: 4 }}>{item.rate}</div>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>{item.note}</div>
+                  <div style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: 600 }}>{item.title}</div>
+                  <div style={{ fontSize: '1.55rem', fontWeight: 900, color: item.color, marginTop: 4, letterSpacing: '-0.5px' }}>{item.rate}</div>
+                  <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: 2 }}>{item.note}</div>
                 </div>
-                <span className="badge badge-emerald" style={{ fontSize: '10px', padding: '3px 8px' }}>
+                <span
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    padding: '4px 10px',
+                    borderRadius: 99,
+                    background: item.glow,
+                    color: item.color,
+                    border: `1px solid ${item.color}40`
+                  }}
+                >
                   {item.badge}
                 </span>
               </motion.div>
@@ -456,20 +486,23 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* 3. PERSONAL BANKING PRODUCT SUITE (Always Animates on Scroll Up and Down) */}
+      {/* 3. PERSONAL BANKING PRODUCT SUITE (Rich distinct color identities) */}
       <motion.section
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: false, amount: 0.15 }}
         transition={{ duration: 0.7, ease: 'easeOut' }}
-        style={{ maxWidth: 1200, margin: '72px auto 80px auto', padding: '0 24px', width: '100%', boxSizing: 'border-box' }}
+        style={{ maxWidth: 1200, margin: '76px auto 84px auto', padding: '0 24px', width: '100%', boxSizing: 'border-box' }}
       >
-        <div style={{ textAlign: 'center', maxWidth: 640, margin: '0 auto 52px auto' }}>
-          <h2 style={{ fontSize: '2.4rem', fontWeight: 900, color: 'var(--text-main)', margin: 0, letterSpacing: '-0.5px' }}>
+        <div style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 56px auto' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 14px', borderRadius: 99, background: 'rgba(99, 102, 241, 0.15)', color: '#818cf8', fontSize: '0.78rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 14, border: '1px solid rgba(99, 102, 241, 0.3)' }}>
+            FINSYNC PRODUCT SUITE
+          </div>
+          <h2 style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--text-main)', margin: 0, letterSpacing: '-0.5px' }}>
             Everything you need for everyday banking
           </h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '1.05rem', marginTop: 12, lineHeight: 1.6 }}>
-            Smart accounts, intuitive budgeting, fast peer transfers, and goal-driven savings in one seamless experience.
+            Smart accounts, automated savings vaults, virtual EMV debit cards, and instant peer transfers tailored to your life.
           </p>
         </div>
 
@@ -482,17 +515,19 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: false, amount: 0.2 }}
                 transition={{ duration: 0.5, delay: idx * 0.08 }}
-                whileHover={{ y: -6, boxShadow: '0 16px 36px rgba(0,0,0,0.35)', transition: { duration: 0.2 } }}
+                whileHover={{ y: -6, boxShadow: `0 18px 38px rgba(0,0,0,0.5)`, borderColor: p.color, transition: { duration: 0.2 } }}
                 style={{
                   padding: '34px 30px',
-                  borderRadius: 18,
-                  background: 'var(--bg-card)',
-                  border: '1px solid var(--border-color)',
+                  borderRadius: 20,
+                  background: p.bgGlow,
+                  border: `1.5px solid ${p.borderColor}`,
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  boxSizing: 'border-box'
+                  boxSizing: 'border-box',
+                  position: 'relative',
+                  overflow: 'hidden'
                 }}
               >
                 <div>
@@ -502,29 +537,40 @@ export default function Home() {
                         width: 52,
                         height: 52,
                         borderRadius: 14,
-                        background: `rgba(99, 102, 241, 0.12)`,
+                        background: `rgba(255, 255, 255, 0.08)`,
                         color: p.color,
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        boxShadow: `0 0 16px ${p.color}30`
                       }}
                     >
                       <Icon size={26} />
                     </div>
-                    <span className="badge badge-indigo" style={{ fontSize: '11px', fontWeight: 700 }}>
+                    <span
+                      style={{
+                        fontSize: '11px',
+                        fontWeight: 800,
+                        padding: '4px 10px',
+                        borderRadius: 99,
+                        background: `${p.color}20`,
+                        color: p.color,
+                        border: `1px solid ${p.color}40`
+                      }}
+                    >
                       {p.tag}
                     </span>
                   </div>
 
-                  <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: 10 }}>
+                  <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#ffffff', marginBottom: 10 }}>
                     {p.title}
                   </h3>
-                  <p style={{ fontSize: '0.94rem', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
+                  <p style={{ fontSize: '0.94rem', color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>
                     {p.subtitle}
                   </p>
                 </div>
 
-                <div style={{ marginTop: 26, paddingTop: 18, borderTop: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: 6, color: 'var(--primary)', fontWeight: 800, fontSize: '0.92rem' }}>
+                <div style={{ marginTop: 28, paddingTop: 18, borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: 6, color: p.color, fontWeight: 800, fontSize: '0.92rem' }}>
                   <span>Explore Feature</span>
                   <ChevronRight size={16} />
                 </div>
@@ -553,25 +599,25 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* 4. LIFE MOMENTS & FINANCIAL GUIDES (Always Animates on Scroll Up and Down) */}
+      {/* 4. LIFE MOMENTS & FINANCIAL GUIDES (Vibrant Tinted Glass Cards) */}
       <motion.section
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: false, amount: 0.15 }}
         transition={{ duration: 0.7, ease: 'easeOut' }}
-        style={{ background: 'var(--bg-secondary)', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)', padding: '80px 24px' }}
+        style={{ background: 'linear-gradient(180deg, #090e1a 0%, #0b1222 100%)', borderTop: '1px solid rgba(255,255,255,0.08)', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '84px 24px' }}
       >
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 44, flexWrap: 'wrap', gap: 16 }}>
             <div>
-              <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                 Life Stages & Financial Guidance
               </span>
-              <h2 style={{ fontSize: '2.3rem', fontWeight: 900, color: 'var(--text-main)', margin: '8px 0 0 0', letterSpacing: '-0.5px' }}>
+              <h2 style={{ fontSize: '2.3rem', fontWeight: 900, color: '#ffffff', margin: '8px 0 0 0', letterSpacing: '-0.5px' }}>
                 Practical tools for what matters most
               </h2>
             </div>
-            <Link to="/register" style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--primary)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <Link to="/register" style={{ fontSize: '0.92rem', fontWeight: 800, color: '#38bdf8', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
               <span>View all guides & articles</span>
               <ChevronRight size={16} />
             </Link>
@@ -581,7 +627,9 @@ export default function Home() {
             {[
               {
                 category: 'Home Ownership',
-                color: 'var(--accent-emerald)',
+                color: '#10b981',
+                bgGradient: 'linear-gradient(145deg, rgba(6, 78, 59, 0.4) 0%, rgba(15, 23, 42, 0.9) 100%)',
+                borderColor: 'rgba(16, 185, 129, 0.3)',
                 title: 'Buying your first home with confidence',
                 desc: 'Learn how to budget for your deposit, calculate monthly EMIs at 8.35% p.a., and get pre-approved digitally.',
                 actionText: 'Calculate Home Loan EMI',
@@ -589,7 +637,9 @@ export default function Home() {
               },
               {
                 category: 'Wealth Building',
-                color: 'var(--primary)',
+                color: '#6366f1',
+                bgGradient: 'linear-gradient(145deg, rgba(49, 46, 129, 0.4) 0%, rgba(15, 23, 42, 0.9) 100%)',
+                borderColor: 'rgba(99, 102, 241, 0.3)',
                 title: 'Growing an emergency fund & savings habit',
                 desc: 'Discover how daily compounding at 5.50% APY and automated vault deposits turn spare change into financial security.',
                 actionText: 'Try SIP Wealth Planner',
@@ -597,7 +647,9 @@ export default function Home() {
               },
               {
                 category: 'Daily Money',
-                color: 'var(--accent-amber)',
+                color: '#f59e0b',
+                bgGradient: 'linear-gradient(145deg, rgba(120, 53, 15, 0.4) 0%, rgba(15, 23, 42, 0.9) 100%)',
+                borderColor: 'rgba(245, 158, 11, 0.3)',
                 title: 'Managing monthly budgets effortlessly',
                 desc: 'Categorize spending automatically by dining, bills, and transit with visual progress health bars.',
                 actionText: 'Start Budgeting Free',
@@ -605,7 +657,9 @@ export default function Home() {
               },
               {
                 category: 'Security & Fraud',
-                color: 'var(--accent-cyan)',
+                color: '#06b6d4',
+                bgGradient: 'linear-gradient(145deg, rgba(22, 78, 99, 0.4) 0%, rgba(15, 23, 42, 0.9) 100%)',
+                borderColor: 'rgba(6, 182, 212, 0.3)',
                 title: 'Banking safely in a digital world',
                 desc: 'Tips on spotting phishing, enabling instant card lock, and taking advantage of 256-bit AES encryption.',
                 actionText: 'Read Security Guide',
@@ -618,15 +672,15 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: false, amount: 0.2 }}
                 transition={{ duration: 0.5, delay: idx * 0.08 }}
-                whileHover={{ y: -6, boxShadow: '0 16px 36px rgba(0,0,0,0.3)', transition: { duration: 0.2 } }}
-                style={{ padding: 28, borderRadius: 16, background: 'var(--bg-card)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+                whileHover={{ y: -6, borderColor: guide.color, boxShadow: `0 16px 36px rgba(0,0,0,0.5)`, transition: { duration: 0.2 } }}
+                style={{ padding: 28, borderRadius: 18, background: guide.bgGradient, border: `1.5px solid ${guide.borderColor}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }}
               >
                 <div>
                   <div style={{ fontSize: '0.78rem', fontWeight: 800, color: guide.color, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>{guide.category}</div>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: 10 }}>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', marginBottom: 10 }}>
                     {guide.title}
                   </h3>
-                  <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
+                  <p style={{ fontSize: '0.88rem', color: '#94a3b8', lineHeight: 1.6 }}>
                     {guide.desc}
                   </p>
                 </div>
@@ -634,7 +688,7 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={guide.action}
-                    style={{ background: 'none', border: 'none', padding: 0, marginTop: 22, color: 'var(--primary)', fontWeight: 800, fontSize: '0.88rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                    style={{ background: 'none', border: 'none', padding: 0, marginTop: 22, color: guide.color, fontWeight: 800, fontSize: '0.88rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
                   >
                     <span>{guide.actionText}</span>
                     <ChevronRight size={15} />
@@ -642,7 +696,7 @@ export default function Home() {
                 ) : (
                   <Link
                     to={guide.link}
-                    style={{ marginTop: 22, color: 'var(--primary)', fontWeight: 800, fontSize: '0.88rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}
+                    style={{ marginTop: 22, color: guide.color, fontWeight: 800, fontSize: '0.88rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}
                   >
                     <span>{guide.actionText}</span>
                     <ChevronRight size={15} />
@@ -654,17 +708,17 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* 5. ENTERPRISE SECURITY & DIGITAL ONBOARDING BANNER (Always Animates on Scroll Up and Down) */}
+      {/* 5. ENTERPRISE SECURITY & DIGITAL ONBOARDING BANNER (Rich Emerald-Navy Gradient) */}
       <motion.section
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: false, amount: 0.15 }}
         transition={{ duration: 0.7, ease: 'easeOut' }}
-        style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #3730a3 100%)', color: '#ffffff', padding: '80px 24px', borderTop: '1px solid rgba(255,255,255,0.15)' }}
+        style={{ background: 'linear-gradient(135deg, #022c22 0%, #0f172a 45%, #1e1b4b 100%)', color: '#ffffff', padding: '84px 24px', borderTop: '1px solid rgba(16, 185, 129, 0.25)' }}
       >
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: 48, alignItems: 'center' }}>
           <div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '4px 14px', borderRadius: 99, background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', fontSize: '0.76rem', fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 16, border: '1px solid rgba(16, 185, 129, 0.35)' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '5px 16px', borderRadius: 99, background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', fontSize: '0.78rem', fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 16, border: '1px solid rgba(16, 185, 129, 0.4)' }}>
               FINSYNC BANK PROTECTION
             </div>
             <h2 style={{ fontSize: '2.5rem', fontWeight: 900, marginBottom: 16, letterSpacing: '-0.5px' }}>
@@ -690,10 +744,10 @@ export default function Home() {
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <motion.div
               whileHover={{ scale: 1.02 }}
-              style={{ background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(16px)', borderRadius: 24, padding: '40px 32px', border: '1.5px solid rgba(255,255,255,0.18)', textAlign: 'center', maxWidth: 420, width: '100%', boxShadow: '0 20px 40px rgba(0,0,0,0.35)' }}
+              style={{ background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(16px)', borderRadius: 24, padding: '40px 32px', border: '1.5px solid rgba(52, 211, 153, 0.35)', textAlign: 'center', maxWidth: 420, width: '100%', boxShadow: '0 20px 48px rgba(0,0,0,0.5)' }}
             >
-              <div style={{ width: 64, height: 64, borderRadius: 16, background: 'rgba(99, 102, 241, 0.2)', border: '1px solid rgba(99, 102, 241, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
-                <ShieldCheck size={36} color="#818cf8" />
+              <div style={{ width: 64, height: 64, borderRadius: 16, background: 'rgba(16, 185, 129, 0.2)', border: '1px solid rgba(16, 185, 129, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto' }}>
+                <ShieldCheck size={36} color="#34d399" />
               </div>
               <h3 style={{ fontSize: '1.4rem', fontWeight: 900, marginBottom: 8, color: '#ffffff' }}>Ready to experience FinSync Bank?</h3>
               <p style={{ fontSize: '0.92rem', color: 'rgba(255,255,255,0.75)', marginBottom: 24, lineHeight: 1.5 }}>
@@ -721,9 +775,6 @@ export default function Home() {
           </div>
         </div>
       </motion.section>
-
-      {/* 6. PUBLIC FOOTER */}
-      <PublicFooter />
 
       {/* Financial Calculators Modal */}
       <CalculatorsModal isOpen={calcOpen} onClose={() => setCalcOpen(false)} initialTab={calcTab} />
