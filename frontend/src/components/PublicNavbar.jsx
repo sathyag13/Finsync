@@ -120,7 +120,7 @@ export default function PublicNavbar() {
       </div>
 
       {/* Main Brand Header */}
-      <header className="public-navbar" style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
+      <header className="public-navbar" style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
         <div className="nav-inner" style={{ maxWidth: 1200, margin: '0 auto', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           {/* Brand Logo */}
           <Link to={user ? (user.role === 'ADMIN' ? "/admin" : user.role === 'ANALYST' ? "/analyst" : "/dashboard") : "/"} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -129,21 +129,21 @@ export default function PublicNavbar() {
                 width: 44,
                 height: 44,
                 borderRadius: 12,
-                background: 'linear-gradient(135deg, #6366f1, #4338ca)',
+                background: 'linear-gradient(135deg, #10b981, #059669)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#ffffff',
-                boxShadow: '0 4px 14px rgba(99,102,241,0.4)'
+                boxShadow: '0 4px 14px rgba(16,185,129,0.35)'
               }}
             >
               <Building2 size={24} />
             </div>
             <div>
-              <span style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-main)', letterSpacing: '-0.5px' }}>
+              <span style={{ fontSize: '1.45rem', fontWeight: 900, color: '#0f172a', letterSpacing: '-0.5px' }}>
                 FINSYNC BANK
               </span>
-              <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--primary)', letterSpacing: 1.2, textTransform: 'uppercase', marginTop: -2 }}>
+              <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#059669', letterSpacing: 1.2, textTransform: 'uppercase', marginTop: -2 }}>
                 ALWAYS WITH YOU
               </div>
             </div>
@@ -157,13 +157,14 @@ export default function PublicNavbar() {
                 width: 38,
                 height: 38,
                 borderRadius: '50%',
-                border: '1px solid var(--border-color)',
-                background: 'var(--bg-card)',
-                color: 'var(--text-main)',
+                border: '1px solid #e2e8f0',
+                background: '#f8fafc',
+                color: '#475569',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                transition: 'all 0.15s ease'
               }}
               title="Search"
             >
@@ -175,15 +176,15 @@ export default function PublicNavbar() {
                 <button
                   onClick={handleAdminClick}
                   className="btn btn-secondary btn-sm"
-                  style={{ padding: '8px 14px', fontWeight: 800 }}
+                  style={{ padding: '8px 14px', fontWeight: 800, background: '#f1f5f9', border: '1px solid #cbd5e1', color: '#0f172a' }}
                 >
-                  <ShieldCheck size={16} color="var(--primary)" />
+                  <ShieldCheck size={16} color="#059669" />
                   <span>Admin Portal</span>
                 </button>
                 <button
                   onClick={handleDashboardClick}
                   className="btn btn-primary btn-sm"
-                  style={{ padding: '8px 16px', fontWeight: 700 }}
+                  style={{ padding: '8px 16px', fontWeight: 700, background: 'linear-gradient(135deg, #10b981, #059669)', border: 'none', color: '#ffffff' }}
                 >
                   <LayoutDashboard size={16} />
                   <span>Go to Workspace</span>
@@ -201,16 +202,39 @@ export default function PublicNavbar() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <button
                   onClick={handleAdminClick}
-                  className="btn btn-secondary"
-                  style={{ padding: '10px 18px', fontSize: '0.9rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: 6 }}
+                  style={{
+                    padding: '10px 18px',
+                    fontSize: '0.9rem',
+                    fontWeight: 800,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    background: '#f8fafc',
+                    border: '1.5px solid #e2e8f0',
+                    borderRadius: 8,
+                    color: '#0f172a',
+                    cursor: 'pointer'
+                  }}
                 >
-                  <ShieldCheck size={16} color="var(--primary)" />
+                  <ShieldCheck size={16} color="#059669" />
                   <span>Admin Portal</span>
                 </button>
                 <button
                   onClick={() => navigate('/login')}
-                  className="btn btn-primary"
-                  style={{ padding: '10px 22px', fontSize: '0.92rem', fontWeight: 800 }}
+                  style={{
+                    padding: '10px 22px',
+                    fontSize: '0.92rem',
+                    fontWeight: 800,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                    border: 'none',
+                    borderRadius: 8,
+                    color: '#ffffff',
+                    boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
+                    cursor: 'pointer'
+                  }}
                 >
                   <Lock size={16} />
                   <span>NetBanking Sign In</span>
