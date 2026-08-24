@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import PublicNavbar from '../components/PublicNavbar.jsx'
 import PublicFooter from '../components/PublicFooter.jsx'
 import CalculatorsModal from '../components/CalculatorsModal.jsx'
@@ -23,7 +24,8 @@ import {
   Wallet,
   TrendingUp,
   HelpCircle,
-  Clock
+  Clock,
+  MessageCircle
 } from 'lucide-react'
 
 export default function Home() {
@@ -32,6 +34,23 @@ export default function Home() {
   const [calcOpen, setCalcOpen] = useState(false)
   const [calcTab, setCalcTab] = useState('EMI')
   const [activeCategory, setActiveCategory] = useState('all')
+
+  const [sparkyQuoteIdx, setSparkyQuoteIdx] = useState(0)
+  const [isSparkyBouncing, setIsSparkyBouncing] = useState(false)
+
+  const sparkyQuotes = [
+    "👋 Hi! I'm Sparky, your FinSync banker!",
+    "✨ Vault savings compound daily at 5.50% APY!",
+    "🏡 Check our lowest 8.35% Home Loan EMIs!",
+    "🔒 100% RBI Authorized & insured up to ₹5,00,000!",
+    "🚀 Open your digital account in under 2 minutes!"
+  ]
+
+  const handleSparkyClick = () => {
+    setIsSparkyBouncing(true)
+    setSparkyQuoteIdx((prev) => (prev + 1) % sparkyQuotes.length)
+    setTimeout(() => setIsSparkyBouncing(false), 500)
+  }
 
   const handleOpenCalc = (tab) => {
     setCalcTab(tab)
@@ -138,7 +157,7 @@ export default function Home() {
           }}
         />
 
-        {/* Hero Content Container */}
+        {/* Hero Content Container with 2 columns: Text & Actions on Left, Interactive Animated Mascot Overlay on Right */}
         <div
           style={{
             position: 'relative',
@@ -147,10 +166,15 @@ export default function Home() {
             margin: '0 auto',
             padding: '70px 24px',
             width: '100%',
-            boxSizing: 'border-box'
+            boxSizing: 'border-box',
+            display: 'grid',
+            gridTemplateColumns: 'minmax(0, 1.25fr) minmax(0, 0.75fr)',
+            gap: 40,
+            alignItems: 'center'
           }}
         >
-          <div style={{ maxWidth: 660 }}>
+          {/* Left Column: Headline & Action Pills */}
+          <div>
             <div
               style={{
                 fontSize: '0.85rem',
@@ -341,6 +365,78 @@ export default function Home() {
                 <CheckCircle2 size={16} color="#34d399" /> DICGC Insured ₹5 Lakhs
               </span>
             </div>
+          </div>
+
+          {/* Right Column: Animated Mascot Speech Bubble & Interactive Reaction */}
+          <div
+            style={{
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            {/* Interactive Speech Bubble with bounce animation */}
+            <motion.div
+              key={sparkyQuoteIdx}
+              initial={{ opacity: 0, y: 15, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.35, ease: 'easeOut' }}
+              onClick={handleSparkyClick}
+              style={{
+                marginBottom: 16,
+                background: 'rgba(15, 23, 42, 0.92)',
+                backdropFilter: 'blur(16px)',
+                border: '1.5px solid rgba(52, 211, 153, 0.6)',
+                color: '#ffffff',
+                padding: '14px 20px',
+                borderRadius: '20px 20px 4px 20px',
+                fontSize: '0.95rem',
+                fontWeight: 800,
+                boxShadow: '0 16px 32px rgba(0,0,0,0.6)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                maxWidth: 320,
+                textAlign: 'left'
+              }}
+            >
+              <Sparkles size={18} color="#34d399" style={{ flexShrink: 0 }} />
+              <div>
+                <div style={{ fontSize: '0.72rem', color: '#34d399', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Sparky • FinSync Banker</div>
+                <div style={{ marginTop: 2 }}>{sparkyQuotes[sparkyQuoteIdx]}</div>
+              </div>
+            </motion.div>
+
+            {/* Click to wave / bounce hint button */}
+            <motion.button
+              type="button"
+              onClick={handleSparkyClick}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              animate={{ y: [0, -6, 0] }}
+              transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
+              style={{
+                background: 'rgba(255, 255, 255, 0.15)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                color: '#ffffff',
+                padding: '8px 16px',
+                borderRadius: 99,
+                fontSize: '0.82rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                boxShadow: '0 4px 14px rgba(0,0,0,0.3)'
+              }}
+            >
+              <MessageCircle size={14} color="#34d399" />
+              <span>Tap Sparky to talk 👋</span>
+            </motion.button>
           </div>
         </div>
       </section>
