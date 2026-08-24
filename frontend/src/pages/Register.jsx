@@ -164,27 +164,30 @@ export default function Register() {
           <form onSubmit={handleSubmit} autoComplete="off" style={{ width: '100%' }}>
             {/* Account Role Selection */}
             <div className="form-group" style={{ marginBottom: 18, textAlign: 'left' }}>
-              <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, marginBottom: 8, color: 'var(--text-main)' }}>Select Account Role</label>
-              <div style={{ position: 'relative' }}>
+              <label style={{ display: 'block', fontSize: '0.92rem', fontWeight: 700, marginBottom: 8, color: 'var(--text-main)' }}>Select Account Role</label>
+              <div style={{ position: 'relative', width: '100%' }}>
                 <select
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
                   style={{
                     width: '100%',
-                    padding: '14px 16px 14px 48px',
+                    height: '48px',
+                    padding: '0 40px 0 46px',
                     borderRadius: 10,
                     border: '1.5px solid var(--border-color)',
                     background: 'var(--bg-input)',
                     color: 'var(--text-main)',
-                    fontSize: '1rem',
+                    fontSize: '0.96rem',
                     fontWeight: 700,
-                    outline: 'none'
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    cursor: 'pointer'
                   }}
                 >
                   <option value="CUSTOMER">Retail Client (Customer)</option>
                   <option value="ADMIN">System Security Admin</option>
                 </select>
-                <ShieldCheck size={20} style={{ position: 'absolute', left: 15, top: 14, color: 'var(--primary)' }} />
+                <ShieldCheck size={20} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: 'var(--primary)', pointerEvents: 'none' }} />
               </div>
             </div>
 
@@ -206,8 +209,8 @@ export default function Register() {
             )}
 
             <div className="form-group" style={{ marginBottom: 18, textAlign: 'left' }}>
-              <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, marginBottom: 8, color: 'var(--text-main)' }}>Full Legal Name</label>
-              <div style={{ position: 'relative' }}>
+              <label style={{ display: 'block', fontSize: '0.92rem', fontWeight: 700, marginBottom: 8, color: 'var(--text-main)' }}>Full Legal Name</label>
+              <div style={{ position: 'relative', width: '100%' }}>
                 <input
                   type="text"
                   value={fullName}
@@ -217,22 +220,24 @@ export default function Register() {
                   autoComplete="off"
                   style={{
                     width: '100%',
-                    padding: '14px 16px 14px 48px',
+                    height: '48px',
+                    padding: '0 16px 0 46px',
                     borderRadius: 10,
                     border: '1.5px solid var(--border-color)',
                     background: 'var(--bg-input)',
                     color: 'var(--text-main)',
-                    fontSize: '1rem',
-                    outline: 'none'
+                    fontSize: '0.96rem',
+                    outline: 'none',
+                    boxSizing: 'border-box'
                   }}
                 />
-                <User size={20} style={{ position: 'absolute', left: 15, top: 14, color: 'var(--primary)' }} />
+                <User size={20} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: 'var(--primary)', pointerEvents: 'none' }} />
               </div>
             </div>
 
             <div className="form-group" style={{ marginBottom: 18, textAlign: 'left' }}>
-              <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, marginBottom: 8, color: 'var(--text-main)' }}>Email Address</label>
-              <div style={{ position: 'relative' }}>
+              <label style={{ display: 'block', fontSize: '0.92rem', fontWeight: 700, marginBottom: 8, color: 'var(--text-main)' }}>Email Address</label>
+              <div style={{ position: 'relative', width: '100%' }}>
                 <input
                   type="email"
                   value={email}
@@ -242,22 +247,24 @@ export default function Register() {
                   autoComplete="off"
                   style={{
                     width: '100%',
-                    padding: '14px 16px 14px 48px',
+                    height: '48px',
+                    padding: '0 16px 0 46px',
                     borderRadius: 10,
                     border: '1.5px solid var(--border-color)',
                     background: 'var(--bg-input)',
                     color: 'var(--text-main)',
-                    fontSize: '1rem',
-                    outline: 'none'
+                    fontSize: '0.96rem',
+                    outline: 'none',
+                    boxSizing: 'border-box'
                   }}
                 />
-                <Mail size={20} style={{ position: 'absolute', left: 15, top: 14, color: 'var(--primary)' }} />
+                <Mail size={20} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: 'var(--primary)', pointerEvents: 'none' }} />
               </div>
             </div>
 
             <div className="form-group" style={{ marginBottom: 18, textAlign: 'left' }}>
-              <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, marginBottom: 8, color: 'var(--text-main)' }}>10-Digit Mobile Number</label>
-              <div style={{ position: 'relative' }}>
+              <label style={{ display: 'block', fontSize: '0.92rem', fontWeight: 700, marginBottom: 8, color: 'var(--text-main)' }}>10-Digit Mobile Number</label>
+              <div style={{ position: 'relative', width: '100%' }}>
                 <input
                   type="tel"
                   value={phoneNumber}
@@ -267,22 +274,24 @@ export default function Register() {
                   autoComplete="off"
                   style={{
                     width: '100%',
-                    padding: '14px 16px 14px 48px',
+                    height: '48px',
+                    padding: '0 16px 0 46px',
                     borderRadius: 10,
                     border: '1.5px solid var(--border-color)',
                     background: 'var(--bg-input)',
                     color: 'var(--text-main)',
-                    fontSize: '1rem',
-                    outline: 'none'
+                    fontSize: '0.96rem',
+                    outline: 'none',
+                    boxSizing: 'border-box'
                   }}
                 />
-                <Phone size={20} style={{ position: 'absolute', left: 15, top: 14, color: 'var(--primary)' }} />
+                <Phone size={20} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: 'var(--primary)', pointerEvents: 'none' }} />
               </div>
             </div>
 
             <div className="form-group" style={{ marginBottom: 26, textAlign: 'left' }}>
-              <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, marginBottom: 8, color: 'var(--text-main)' }}>Create Secure Password</label>
-              <div style={{ position: 'relative' }}>
+              <label style={{ display: 'block', fontSize: '0.92rem', fontWeight: 700, marginBottom: 8, color: 'var(--text-main)' }}>Create Secure Password</label>
+              <div style={{ position: 'relative', width: '100%' }}>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
@@ -293,20 +302,22 @@ export default function Register() {
                   autoComplete="new-password"
                   style={{
                     width: '100%',
-                    padding: '14px 48px 14px 48px',
+                    height: '48px',
+                    padding: '0 48px 0 46px',
                     borderRadius: 10,
                     border: '1.5px solid var(--border-color)',
                     background: 'var(--bg-input)',
                     color: 'var(--text-main)',
-                    fontSize: '1rem',
-                    outline: 'none'
+                    fontSize: '0.96rem',
+                    outline: 'none',
+                    boxSizing: 'border-box'
                   }}
                 />
-                <Lock size={20} style={{ position: 'absolute', left: 15, top: 14, color: 'var(--primary)' }} />
+                <Lock size={20} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: 'var(--primary)', pointerEvents: 'none' }} />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  style={{ position: 'absolute', right: 15, top: 14, background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
+                  style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>

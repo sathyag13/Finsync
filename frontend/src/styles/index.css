@@ -51,16 +51,16 @@
   --stat-card-padding: 20px;
   --stat-card-min-height: 120px;
   
-  --input-height: 40px;
-  --input-radius: 8px;
-  --input-padding-x: 12px;
+  --input-height: 48px;
+  --input-radius: 10px;
+  --input-padding-x: 14px;
   
-  --btn-height: 40px;
-  --btn-radius: 8px;
-  --btn-padding-x: 16px;
-  --btn-sm-height: 32px;
-  --btn-sm-radius: 6px;
-  --btn-sm-padding-x: 12px;
+  --btn-height: 48px;
+  --btn-radius: 10px;
+  --btn-padding-x: 18px;
+  --btn-sm-height: 36px;
+  --btn-sm-radius: 8px;
+  --btn-sm-padding-x: 14px;
   
   --table-header-height: 44px;
   --table-row-min-height: 48px;
