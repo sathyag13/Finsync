@@ -194,22 +194,6 @@ export default function Dashboard() {
     return { label: catName, icon: PieChart, color: 'var(--primary)' }
   }
 
-  // Card Freeze Toggle Handler
-  const handleToggleFreeze = async (accountId) => {
-    try {
-      const targetAcc = accounts.find(a => a.id === accountId) || accounts[0]
-      if (!targetAcc) return
-      const newStatus = !targetAcc.cardFrozen
-      await api.patch(`/accounts/${targetAcc.id}/card-controls`, {
-        cardFrozen: newStatus
-      })
-      addToast(`Card ${newStatus ? 'frozen' : 'unlocked'} successfully!`, 'success')
-      loadDashboardData()
-    } catch (err) {
-      addToast('Failed to update card status', 'error')
-    }
-  }
-
   // Quick Deposit Handler
   const handleQuickDeposit = async (e) => {
     e.preventDefault()
