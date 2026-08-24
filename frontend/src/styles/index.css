@@ -6,38 +6,38 @@
    ========================================================================== */
 
 :root {
-  /* Brand Theme Colors */
-  --primary: #6366f1;
-  --primary-hover: #4f46e5;
-  --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4338ca 50%, #312e81 100%);
-  --primary-glow: rgba(99, 102, 241, 0.35);
+  /* FinSync Modern Fintech Color Tokens */
+  --primary: #0FA878;
+  --primary-hover: #0D8F66;
+  --primary-gradient: linear-gradient(135deg, #12A878 0%, #0FA878 50%, #065F46 100%);
+  --primary-glow: rgba(15, 168, 120, 0.25);
   
-  --accent-cyan: #06b6d4;
-  --accent-emerald: #10b981;
-  --accent-rose: #f43f5e;
-  --accent-amber: #f59e0b;
-  --accent-purple: #8b5cf6;
+  --accent-cyan: #0284C7;
+  --accent-emerald: #12A878;
+  --accent-rose: #DB2777;
+  --accent-amber: #D97706;
+  --accent-purple: #7C3AED;
   
-  /* Dark Theme Default */
-  --bg-main: #0b0914;
-  --bg-secondary: #131024;
-  --bg-card: rgba(23, 19, 42, 0.88);
-  --bg-card-hover: rgba(35, 29, 62, 0.95);
-  --bg-input: rgba(23, 19, 42, 0.7);
-  --bg-sidebar: #1e1b4b;
-  --bg-top-bar: #131024;
+  /* Foundation Colors (White & Subtle Light Blue) */
+  --bg-main: #F4F9FF;
+  --bg-secondary: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F8FAFC;
+  --bg-input: #FFFFFF;
+  --bg-sidebar: #0F172A;
+  --bg-top-bar: #FFFFFF;
   
-  --text-main: #f9fafb;
-  --text-muted: #9ca3af;
-  --text-dim: #6b7280;
+  --text-main: #111827;
+  --text-muted: #4B5563;
+  --text-dim: #6B7280;
   
-  --border-color: rgba(255, 255, 255, 0.1);
-  --border-glow: rgba(139, 92, 246, 0.35);
+  --border-color: #E5E7EB;
+  --border-glow: rgba(18, 168, 120, 0.25);
   
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 25px rgba(99, 102, 241, 0.25);
+  --shadow-sm: 0 2px 8px rgba(17, 24, 39, 0.04);
+  --shadow-md: 0 8px 24px rgba(17, 24, 39, 0.06);
+  --shadow-lg: 0 16px 36px rgba(17, 24, 39, 0.08);
+  --shadow-glow: 0 0 20px rgba(15, 168, 120, 0.18);
   
   /* Standardized Design Tokens */
   --header-height: 64px;
@@ -75,29 +75,29 @@
 }
 
 [data-theme="light"] {
-  --bg-main: #fcf8fa;
-  --bg-secondary: #ffffff;
-  --bg-card: rgba(255, 255, 255, 0.95);
-  --bg-card-hover: rgba(253, 242, 248, 0.9);
-  --bg-input: #ffffff;
-  --bg-sidebar: #1e1b4b;
-  --bg-top-bar: #ffffff;
+  --bg-main: #F4F9FF;
+  --bg-secondary: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F8FAFC;
+  --bg-input: #FFFFFF;
+  --bg-sidebar: #0F172A;
+  --bg-top-bar: #FFFFFF;
   
-  --text-main: #1c1822;
-  --text-muted: #4b5563;
-  --text-dim: #9ca3af;
+  --text-main: #111827;
+  --text-muted: #4B5563;
+  --text-dim: #6B7280;
   
-  --primary: #6366f1;
-  --primary-hover: #4f46e5;
-  --primary-glow: rgba(99, 102, 241, 0.18);
+  --primary: #0FA878;
+  --primary-hover: #0D8F66;
+  --primary-glow: rgba(15, 168, 120, 0.2);
   
-  --border-color: rgba(99, 102, 241, 0.12);
-  --border-glow: rgba(99, 102, 241, 0.25);
+  --border-color: #E5E7EB;
+  --border-glow: rgba(18, 168, 120, 0.25);
   
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.12);
-  --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.12);
+  --shadow-sm: 0 2px 8px rgba(17, 24, 39, 0.04);
+  --shadow-md: 0 8px 24px rgba(17, 24, 39, 0.06);
+  --shadow-lg: 0 16px 36px rgba(17, 24, 39, 0.08);
+  --shadow-glow: 0 0 20px rgba(15, 168, 120, 0.15);
 }
 
 /* ==========================================================================
@@ -235,12 +235,13 @@ html, body {
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: linear-gradient(135deg, var(--primary), #4338ca);
+  background: #EAF9F3;
+  border: 1.5px solid #C6F0DF;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  box-shadow: 0 4px 14px var(--primary-glow);
+  color: #12A878;
+  box-shadow: 0 2px 8px rgba(18, 168, 120, 0.2);
   flex-shrink: 0;
 }
 
@@ -254,7 +255,7 @@ html, body {
 .sidebar-brand-subtitle {
   font-size: 0.62rem;
   font-weight: 800;
-  color: #a7f3d0;
+  color: #12A878;
   letter-spacing: 1px;
   text-transform: uppercase;
 }
@@ -294,8 +295,8 @@ html, body {
 
 .sidebar-nav-item.active {
   color: #ffffff !important;
-  background: linear-gradient(135deg, var(--primary), #4338ca) !important;
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4) !important;
+  background: linear-gradient(135deg, #12A878, #0FA878) !important;
+  box-shadow: 0 4px 14px rgba(15, 168, 120, 0.35) !important;
   font-weight: 700 !important;
 }
 

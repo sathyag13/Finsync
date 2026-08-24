@@ -49,11 +49,11 @@ export default function Login() {
 
   return (
     <div style={{ width: '100%', maxWidth: 1240, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.1fr 1fr', borderRadius: 24, overflow: 'hidden', border: '1px solid var(--border-color)', boxShadow: '0 16px 40px rgba(0,0,0,0.15)' }}>
-      {/* Left Side: Deep Midnight Violet Banking Showcase */}
-      <div style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4338ca 100%)', padding: '48px 40px', color: '#ffffff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRight: '4px solid #f59e0b', position: 'relative' }}>
+      {/* Left Side: Deep Navy & Emerald Banking Showcase */}
+      <div style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 60%, #064E3B 100%)', padding: '48px 40px', color: '#ffffff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRight: '4px solid #12A878', position: 'relative' }}>
         <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, padding: '8px 18px', background: 'rgba(255, 255, 255, 0.15)', borderRadius: 30, color: '#ffffff', backdropFilter: 'blur(10px)', width: 'fit-content', marginBottom: 28 }}>
-            <Building2 size={22} color="#a7f3d0" />
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, padding: '8px 18px', background: 'rgba(255, 255, 255, 0.12)', borderRadius: 30, color: '#ffffff', backdropFilter: 'blur(10px)', width: 'fit-content', marginBottom: 28 }}>
+            <Building2 size={22} color="#12A878" />
             <span style={{ fontSize: '0.85rem', fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase' }}>FinSync Unified NetBanking</span>
           </div>
 
@@ -67,21 +67,21 @@ export default function Login() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 36, width: '100%' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: '1.05rem', fontWeight: 700, color: '#ffffff', textAlign: 'left' }}>
-              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(16, 185, 129, 0.25)', color: '#a7f3d0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(18, 168, 120, 0.25)', color: '#12A878', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <CheckCircle2 size={20} />
               </div>
               <span>Automated Role Detection (Customer & Admin RBAC)</span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: '1.05rem', fontWeight: 700, color: '#ffffff', textAlign: 'left' }}>
-              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(16, 185, 129, 0.25)', color: '#a7f3d0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(18, 168, 120, 0.25)', color: '#12A878', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <CheckCircle2 size={20} />
               </div>
               <span>Stateless JWT Session Tokens & 256-bit SSL Encryption</span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: '1.05rem', fontWeight: 700, color: '#ffffff', textAlign: 'left' }}>
-              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(16, 185, 129, 0.25)', color: '#a7f3d0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(18, 168, 120, 0.25)', color: '#12A878', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <CheckCircle2 size={20} />
               </div>
               <span>ACID Double-Entry Ledger & Real-Time Security Logs</span>
@@ -89,7 +89,7 @@ export default function Login() {
           </div>
         </div>
 
-        <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.85)', paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.2)', fontWeight: 600, textAlign: 'justify', width: '100%' }}>
+        <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.85)', paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.15)', fontWeight: 600, textAlign: 'justify', width: '100%' }}>
           <strong>Security Notice:</strong> FinSync Bank will never ask for your confidential password or OTP over phone or email.
         </div>
       </div>
@@ -99,8 +99,8 @@ export default function Login() {
         <div style={{ width: '100%', maxWidth: 460, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
           
           <div style={{ marginBottom: 28, textAlign: 'left', width: '100%' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 14px', background: 'rgba(99, 102, 241, 0.12)', borderRadius: 20, color: 'var(--primary)', fontWeight: 800, fontSize: '0.82rem', marginBottom: 12 }}>
-              <ShieldCheck size={16} />
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 14px', background: '#EAF9F3', border: '1px solid #C6F0DF', borderRadius: 20, color: '#0E7F5A', fontWeight: 800, fontSize: '0.82rem', marginBottom: 12 }}>
+              <ShieldCheck size={16} color="#12A878" />
               <span>Unified Portal Access</span>
             </div>
             <h2 style={{ fontSize: '2.2rem', fontWeight: 900, color: 'var(--text-main)', marginBottom: 8, textAlign: 'left', letterSpacing: '-0.5px' }}>
@@ -123,9 +123,9 @@ export default function Login() {
                 style={{
                   padding: '6px 12px',
                   borderRadius: 8,
-                  border: '1px solid rgba(16, 185, 129, 0.3)',
-                  background: 'rgba(16, 185, 129, 0.1)',
-                  color: 'var(--accent-emerald)',
+                  border: '1px solid #C6F0DF',
+                  background: '#EAF9F3',
+                  color: '#0E7F5A',
                   fontSize: '12px',
                   fontWeight: 700,
                   cursor: 'pointer',
@@ -134,18 +134,18 @@ export default function Login() {
                   gap: 6
                 }}
               >
-                <UserCheck size={13} /> Customer: scott@gmail.com
+                <UserCheck size={13} color="#12A878" /> Customer: scott@gmail.com
               </button>
 
               <button
                 type="button"
-                onClick={() => fillCredentials('admin@gmail.com', 'SecretPassword123!')}
+                onClick={() => fillCredentials('admin@finsync.com', 'AdminPass123!')}
                 style={{
                   padding: '6px 12px',
                   borderRadius: 8,
-                  border: '1px solid rgba(99, 102, 241, 0.3)',
-                  background: 'rgba(99, 102, 241, 0.1)',
-                  color: 'var(--primary)',
+                  border: '1px solid #BAE0FD',
+                  background: '#EAF5FF',
+                  color: '#0369A1',
                   fontSize: '12px',
                   fontWeight: 700,
                   cursor: 'pointer',
@@ -154,24 +154,27 @@ export default function Login() {
                   gap: 6
                 }}
               >
-                <ShieldCheck size={13} /> Admin: admin@gmail.com
+                <ShieldCheck size={13} color="#0369A1" /> Admin: admin@finsync.com
               </button>
             </div>
           </div>
 
+          {/* Login Form */}
           <form onSubmit={handleSubmit} style={{ width: '100%' }}>
-            <div className="form-group" style={{ marginBottom: 22, textAlign: 'left' }}>
-              <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, marginBottom: 8, color: 'var(--text-main)', textAlign: 'left' }}>Registered Email Address</label>
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ display: 'block', fontSize: '0.92rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: 8, textAlign: 'left' }}>
+                Email Address
+              </label>
               <div style={{ position: 'relative' }}>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="user@domain.com"
+                  placeholder="name@domain.com"
                   required
                   style={{
                     width: '100%',
-                    padding: '14px 20px 14px 48px',
+                    padding: '14px 16px 14px 48px',
                     borderRadius: 12,
                     border: '1.5px solid var(--border-color)',
                     background: 'var(--bg-input)',
@@ -184,8 +187,10 @@ export default function Login() {
               </div>
             </div>
 
-            <div className="form-group" style={{ marginBottom: 26, textAlign: 'left' }}>
-              <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, marginBottom: 8, color: 'var(--text-main)', textAlign: 'left' }}>Password</label>
+            <div style={{ marginBottom: 26 }}>
+              <label style={{ display: 'block', fontSize: '0.92rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: 8, textAlign: 'left' }}>
+                NetBanking Password
+              </label>
               <div style={{ position: 'relative' }}>
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -218,13 +223,12 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="btn btn-primary"
               style={{
                 width: '100%',
                 padding: '16px',
                 fontWeight: 800,
                 fontSize: '1.05rem',
-                background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
+                background: '#0FA878',
                 color: '#ffffff',
                 border: 'none',
                 borderRadius: 12,
@@ -232,7 +236,7 @@ export default function Login() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 10,
-                boxShadow: '0 6px 20px rgba(99,102,241,0.35)',
+                boxShadow: '0 4px 14px rgba(15,168,120,0.3)',
                 cursor: 'pointer'
               }}
             >

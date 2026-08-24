@@ -54,11 +54,11 @@ export default function Register() {
 
   return (
     <div style={{ width: '100%', maxWidth: 1240, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.1fr 1fr', borderRadius: 24, overflow: 'hidden', border: '1px solid var(--border-color)', boxShadow: '0 16px 40px rgba(0,0,0,0.15)' }}>
-      {/* Left Side: Theme 1 - Deep Midnight Violet Banking Showcase */}
-      <div style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4338ca 100%)', padding: '48px 40px', color: '#ffffff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRight: '4px solid #f59e0b', position: 'relative' }}>
+      {/* Left Side: Deep Navy & Emerald Banking Showcase */}
+      <div style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 60%, #064E3B 100%)', padding: '48px 40px', color: '#ffffff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRight: '4px solid #12A878', position: 'relative' }}>
         <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, padding: '8px 18px', background: 'rgba(255, 255, 255, 0.15)', borderRadius: 30, color: '#ffffff', backdropFilter: 'blur(10px)', width: 'fit-content', marginBottom: 28 }}>
-            <Building2 size={22} color="#a7f3d0" />
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, padding: '8px 18px', background: 'rgba(255, 255, 255, 0.12)', borderRadius: 30, color: '#ffffff', backdropFilter: 'blur(10px)', width: 'fit-content', marginBottom: 28 }}>
+            <Building2 size={22} color="#12A878" />
             <span style={{ fontSize: '0.85rem', fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase' }}>FinSync Digital Onboarding</span>
           </div>
 
@@ -72,14 +72,14 @@ export default function Register() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 36, width: '100%' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: '1.05rem', fontWeight: 700, color: '#ffffff', textAlign: 'left' }}>
-              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(16, 185, 129, 0.25)', color: '#a7f3d0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(18, 168, 120, 0.25)', color: '#12A878', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <CheckCircle2 size={20} />
               </div>
               <span>Retail Customer: Multi-Currency Accounts & Cards</span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: '1.05rem', fontWeight: 700, color: '#ffffff', textAlign: 'left' }}>
-              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(16, 185, 129, 0.25)', color: '#a7f3d0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(18, 168, 120, 0.25)', color: '#12A878', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <CheckCircle2 size={20} />
               </div>
               <span>Security Admin: User Access Directory & Security Elevation</span>
@@ -87,7 +87,7 @@ export default function Register() {
           </div>
         </div>
 
-        <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.85)', paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.2)', fontWeight: 600, textAlign: 'justify', width: '100%' }}>
+        <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.85)', paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.15)', fontWeight: 600, textAlign: 'justify', width: '100%' }}>
           <strong>Employee Verification:</strong> 5-Digit Employee ID is verified for System Admin role registrations.
         </div>
       </div>
@@ -137,45 +137,25 @@ export default function Register() {
                 marginBottom: 18,
                 padding: '14px 16px',
                 borderRadius: 10,
-                background: 'rgba(99, 102, 241, 0.12)',
-                border: '1.5px solid var(--primary)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
+                background: '#EAF9F3',
+                border: '1px solid #C6F0DF',
+                color: '#0E7F5A',
+                fontSize: '0.92rem',
+                fontWeight: 600,
                 textAlign: 'left'
               }}>
-                <div style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 8,
-                  background: 'var(--primary)',
-                  color: '#ffffff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
-                }}>
-                  <BadgeCheck size={20} />
-                </div>
-                <div>
-                  <div style={{ fontSize: '0.88rem', fontWeight: 800, color: 'var(--text-main)' }}>
-                    Auto-Generated Employee ID
-                  </div>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>
-                    A unique 5-digit administrative clearance ID will be automatically generated and assigned upon account creation.
-                  </div>
-                </div>
+                <strong>Admin Clearance:</strong> A 5-digit system employee number (EMP-XXXXX) will be assigned to your administrative credentials.
               </div>
             )}
 
             <div className="form-group" style={{ marginBottom: 18, textAlign: 'left' }}>
-              <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, marginBottom: 8, color: 'var(--text-main)' }}>Full Name</label>
+              <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, marginBottom: 8, color: 'var(--text-main)' }}>Full Legal Name</label>
               <div style={{ position: 'relative' }}>
                 <input
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Enter full name"
+                  placeholder="e.g. Alexander Hamilton"
                   required
                   autoComplete="off"
                   style={{
@@ -200,7 +180,7 @@ export default function Register() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
+                  placeholder="name@domain.com"
                   required
                   autoComplete="off"
                   style={{
@@ -243,8 +223,8 @@ export default function Register() {
               </div>
             </div>
 
-            <div className="form-group" style={{ marginBottom: 24, textAlign: 'left' }}>
-              <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, marginBottom: 8, color: 'var(--text-main)' }}>NetBanking Password</label>
+            <div className="form-group" style={{ marginBottom: 26, textAlign: 'left' }}>
+              <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, marginBottom: 8, color: 'var(--text-main)' }}>Create Secure Password</label>
               <div style={{ position: 'relative' }}>
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -285,7 +265,7 @@ export default function Register() {
                 padding: '16px',
                 fontWeight: 800,
                 fontSize: '1.1rem',
-                background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
+                background: '#0FA878',
                 color: '#ffffff',
                 border: 'none',
                 borderRadius: 12,
@@ -293,7 +273,7 @@ export default function Register() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 10,
-                boxShadow: '0 6px 20px rgba(99,102,241,0.35)',
+                boxShadow: '0 4px 14px rgba(15,168,120,0.3)',
                 cursor: 'pointer'
               }}
             >
