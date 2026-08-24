@@ -9,10 +9,8 @@ export default function PublicFooter() {
         <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 36, marginBottom: 44 }}>
           {/* Column 1: FinSync Brand & Contact Info */}
           <div style={{ gridColumn: 'span 2' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-              <div style={{ width: 42, height: 42, borderRadius: 12, background: '#FFFDF9', border: '1.5px solid #F3E6CD', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(212, 163, 89, 0.15)' }}>
-                <FinSyncLogo size={30} glow />
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
+              <FinSyncLogo size={44} glow />
               <div>
                 <span style={{ fontSize: '1.45rem', fontWeight: 900, color: '#111827', letterSpacing: '-0.5px' }}>FINSYNC BANK</span>
                 <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#12A878', letterSpacing: 1.2, textTransform: 'uppercase' }}>ALWAYS WITH YOU</div>

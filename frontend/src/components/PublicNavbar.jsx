@@ -59,22 +59,8 @@ export default function PublicNavbar() {
       <header className="public-navbar" style={{ background: '#ffffff', borderBottom: '1px solid #E5E7EB', boxShadow: '0 2px 12px rgba(17, 24, 39, 0.03)' }}>
         <div className="nav-inner" style={{ maxWidth: 1200, margin: '0 auto', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           {/* Brand Logo with Bank Emblem */}
-          <Link to={user ? (user.role === 'ADMIN' ? "/admin" : user.role === 'ANALYST' ? "/analyst" : "/dashboard") : "/"} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div
-              style={{
-                width: 44,
-                height: 44,
-                borderRadius: 12,
-                background: '#FFFDF9',
-                border: '1.5px solid #F3E6CD',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 2px 8px rgba(212, 163, 89, 0.15)'
-              }}
-            >
-              <FinSyncLogo size={32} glow />
-            </div>
+          <Link to={user ? (user.role === 'ADMIN' ? "/admin" : user.role === 'ANALYST' ? "/analyst" : "/dashboard") : "/"} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 14 }}>
+            <FinSyncLogo size={46} glow />
             <div>
               <span style={{ fontSize: '1.45rem', fontWeight: 900, color: '#111827', letterSpacing: '-0.5px' }}>
                 FINSYNC BANK

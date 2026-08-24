@@ -55,8 +55,8 @@ export function Sidebar() {
     return (
       <aside className="sidebar">
         <div className="sidebar-brand">
-          <div className="sidebar-logo-icon" style={{ background: '#FFFDF9', border: '1.5px solid #F3E6CD' }}>
-            <FinSyncLogo size={24} glow />
+          <div className="sidebar-logo-icon" style={{ background: 'transparent', border: 'none', boxShadow: 'none', width: 'auto', height: 'auto', padding: 0 }}>
+            <FinSyncLogo size={34} glow />
           </div>
           <div>
             <div className="sidebar-brand-title">FINSYNC</div>
@@ -136,8 +136,8 @@ export function Sidebar() {
     <aside className="sidebar">
       {/* Brand Logo Header */}
       <div className="sidebar-brand">
-        <div className="sidebar-logo-icon" style={{ background: '#FFFDF9', border: '1.5px solid #F3E6CD' }}>
-          <FinSyncLogo size={24} glow />
+        <div className="sidebar-logo-icon" style={{ background: 'transparent', border: 'none', boxShadow: 'none', width: 'auto', height: 'auto', padding: 0 }}>
+          <FinSyncLogo size={34} glow />
         </div>
         <div>
           <div className="sidebar-brand-title">FINSYNC</div>
