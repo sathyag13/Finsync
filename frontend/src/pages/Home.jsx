@@ -192,113 +192,6 @@ export default function Home() {
           }}
         />
 
-        {/* Animated 3D Coin Toss Directly Over Mascot's Open Palm */}
-        <div
-          style={{
-            position: 'absolute',
-            right: '32%',
-            bottom: '32%',
-            zIndex: 4,
-            pointerEvents: 'none',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center'
-          }}
-        >
-          {/* Shimmering Sparks & Glint on Peak of Toss */}
-          <motion.div
-            animate={{
-              opacity: [0, 0, 1, 0, 0],
-              scale: [0.4, 0.8, 1.4, 0.8, 0.4],
-              y: [-20, -80, -145, -80, -20]
-            }}
-            transition={{
-              repeat: Infinity,
-              duration: 2.3,
-              ease: 'easeInOut'
-            }}
-            style={{
-              position: 'absolute',
-              color: '#fef08a',
-              filter: 'drop-shadow(0 0 14px rgba(250, 204, 21, 1))',
-              zIndex: 6
-            }}
-          >
-            <Sparkles size={28} />
-          </motion.div>
-
-          {/* 3D Flipping FinSync Gold Coin */}
-          <motion.div
-            animate={{
-              y: [0, -80, -140, -80, 0],
-              rotateY: [0, 360, 720, 1080, 1440],
-              rotateZ: [0, 8, -4, 4, 0],
-              scale: [0.95, 1.08, 1.22, 1.08, 0.95]
-            }}
-            transition={{
-              repeat: Infinity,
-              duration: 2.3,
-              ease: [0.35, 0, 0.25, 1]
-            }}
-            style={{
-              width: 76,
-              height: 76,
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #fef08a 0%, #facc15 30%, #eab308 65%, #ca8a04 100%)',
-              border: '3px solid #fef9c3',
-              boxShadow: '0 0 28px rgba(250, 204, 21, 0.85), inset 0 2px 6px rgba(255,255,255,0.85), inset 0 -3px 6px rgba(113,63,18,0.65)',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#713f12',
-              fontWeight: 900,
-              fontSize: '11px',
-              letterSpacing: '0.05em',
-              textShadow: '0 1px 1px rgba(255,255,255,0.6)',
-              transformStyle: 'preserve-3d',
-              position: 'relative'
-            }}
-          >
-            <div
-              style={{
-                width: 60,
-                height: 60,
-                borderRadius: '50%',
-                border: '1.5px dashed rgba(113, 63, 18, 0.5)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                textAlign: 'center'
-              }}
-            >
-              <div style={{ fontSize: '18px', lineHeight: 1, fontWeight: 900 }}>₹</div>
-              <div style={{ fontSize: '7px', fontWeight: 900, letterSpacing: 0.8, marginTop: 1 }}>FINSYNC</div>
-            </div>
-          </motion.div>
-
-          {/* Catch/Toss Shadow on Mascot's Palm */}
-          <motion.div
-            animate={{
-              scale: [1, 0.5, 0.25, 0.5, 1],
-              opacity: [0.8, 0.35, 0.1, 0.35, 0.8]
-            }}
-            transition={{
-              repeat: Infinity,
-              duration: 2.3,
-              ease: 'easeInOut'
-            }}
-            style={{
-              width: 50,
-              height: 10,
-              borderRadius: '50%',
-              background: 'radial-gradient(ellipse, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 75%)',
-              marginTop: 4
-            }}
-          />
-        </div>
-
         {/* Hero Content Container with Staggered Entrance */}
         <motion.div
           initial="hidden"
@@ -511,11 +404,11 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* 2. TRANSPARENT RATES & VALUE TICKER (Scroll-Triggered) */}
+      {/* 2. TRANSPARENT RATES & VALUE TICKER (Always Animates on Scroll Up and Down) */}
       <motion.section
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 35 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.2 }}
+        viewport={{ once: false, amount: 0.2 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
         style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)', padding: '28px 24px' }}
       >
@@ -533,9 +426,9 @@ export default function Home() {
             {rates.map((item, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                initial={{ opacity: 0, y: 24, scale: 0.97 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: false, amount: 0.2 }}
                 transition={{ duration: 0.45, delay: i * 0.08 }}
                 whileHover={{ y: -4, transition: { duration: 0.2 } }}
                 style={{
@@ -563,11 +456,11 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* 3. PERSONAL BANKING PRODUCT SUITE (Scroll-Triggered) */}
+      {/* 3. PERSONAL BANKING PRODUCT SUITE (Always Animates on Scroll Up and Down) */}
       <motion.section
-        initial={{ opacity: 0, y: 35 }}
+        initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.15 }}
+        viewport={{ once: false, amount: 0.15 }}
         transition={{ duration: 0.7, ease: 'easeOut' }}
         style={{ maxWidth: 1200, margin: '72px auto 80px auto', padding: '0 24px', width: '100%', boxSizing: 'border-box' }}
       >
@@ -585,9 +478,9 @@ export default function Home() {
             const Icon = p.icon
             const CardContent = (
               <motion.div
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                initial={{ opacity: 0, y: 28, scale: 0.97 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: false, amount: 0.2 }}
                 transition={{ duration: 0.5, delay: idx * 0.08 }}
                 whileHover={{ y: -6, boxShadow: '0 16px 36px rgba(0,0,0,0.35)', transition: { duration: 0.2 } }}
                 style={{
@@ -660,11 +553,11 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* 4. LIFE MOMENTS & FINANCIAL GUIDES (Scroll-Triggered) */}
+      {/* 4. LIFE MOMENTS & FINANCIAL GUIDES (Always Animates on Scroll Up and Down) */}
       <motion.section
-        initial={{ opacity: 0, y: 35 }}
+        initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.15 }}
+        viewport={{ once: false, amount: 0.15 }}
         transition={{ duration: 0.7, ease: 'easeOut' }}
         style={{ background: 'var(--bg-secondary)', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)', padding: '80px 24px' }}
       >
@@ -721,9 +614,9 @@ export default function Home() {
             ].map((guide, idx) => (
               <motion.div
                 key={idx}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                initial={{ opacity: 0, y: 28, scale: 0.97 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: false, amount: 0.2 }}
                 transition={{ duration: 0.5, delay: idx * 0.08 }}
                 whileHover={{ y: -6, boxShadow: '0 16px 36px rgba(0,0,0,0.3)', transition: { duration: 0.2 } }}
                 style={{ padding: 28, borderRadius: 16, background: 'var(--bg-card)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
@@ -761,11 +654,11 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* 5. ENTERPRISE SECURITY & DIGITAL ONBOARDING BANNER (Scroll-Triggered) */}
+      {/* 5. ENTERPRISE SECURITY & DIGITAL ONBOARDING BANNER (Always Animates on Scroll Up and Down) */}
       <motion.section
-        initial={{ opacity: 0, y: 35 }}
+        initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.15 }}
+        viewport={{ once: false, amount: 0.15 }}
         transition={{ duration: 0.7, ease: 'easeOut' }}
         style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #3730a3 100%)', color: '#ffffff', padding: '80px 24px', borderTop: '1px solid rgba(255,255,255,0.15)' }}
       >
