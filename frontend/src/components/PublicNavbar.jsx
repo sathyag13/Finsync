@@ -56,69 +56,6 @@ export default function PublicNavbar() {
 
   return (
     <>
-      {/* FinSync Top Utility Bar (Light Lavender Theme) */}
-      <div
-        className="public-topbar"
-        style={{
-          background: '#f5f3ff',
-          padding: '8px 24px',
-          borderBottom: '1px solid #ede9fe',
-          fontSize: '0.78rem',
-          color: '#5b21b6',
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          width: '100%',
-          boxSizing: 'border-box',
-          whiteSpace: 'nowrap'
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: '#5b21b6', fontWeight: 600 }}>
-            <ShieldCheck size={14} color="#7c3aed" /> RBI Authorized Scheduled Commercial Bank • Toll-Free: <strong>1800-425-1199</strong>
-          </span>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <button
-            onClick={toggleTheme}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: '#0f172a',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              fontSize: '0.78rem',
-              fontWeight: 700
-            }}
-            title="Toggle Theme"
-          >
-            {theme === 'dark' ? <Sun size={14} color="#d97706" /> : <Moon size={14} color="#7c3aed" />}
-            <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
-          </button>
-          <span style={{ opacity: 0.35, color: '#7c3aed' }}>|</span>
-          {user ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ fontWeight: 700, color: '#5b21b6' }}>
-                Logged in as: {user.fullName} ({user.role || 'USER'})
-              </span>
-              <span style={{ cursor: 'pointer', color: '#7c3aed', fontWeight: 800 }} onClick={handleAdminClick}>Admin Portal</span>
-            </div>
-          ) : (
-            <>
-              <span style={{ cursor: 'pointer', color: '#5b21b6', fontWeight: 700 }} onClick={() => navigate('/register')}>Open Account Online</span>
-              <span style={{ opacity: 0.35, color: '#7c3aed' }}>|</span>
-              <span style={{ cursor: 'pointer', color: '#0f172a', fontWeight: 700 }} onClick={() => navigate('/login')}>NetBanking Sign In</span>
-              <span style={{ opacity: 0.35, color: '#7c3aed' }}>|</span>
-              <span style={{ cursor: 'pointer', color: '#7c3aed', fontWeight: 800 }} onClick={handleAdminClick}>Admin Portal</span>
-            </>
-          )}
-        </div>
-      </div>
-
       {/* Main Brand Header */}
       <header className="public-navbar" style={{ background: '#ffffff', borderBottom: '1px solid #f1f5f9', boxShadow: '0 2px 12px rgba(15,23,42,0.02)' }}>
         <div className="nav-inner" style={{ maxWidth: 1200, margin: '0 auto', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -152,6 +89,26 @@ export default function PublicNavbar() {
 
           {/* Nav Actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button
+              onClick={toggleTheme}
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: '50%',
+                border: '1px solid #f1f5f9',
+                background: '#fafaf9',
+                color: '#475569',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.15s ease'
+              }}
+              title="Toggle Theme"
+            >
+              {theme === 'dark' ? <Sun size={16} color="#d97706" /> : <Moon size={16} color="#7c3aed" />}
+            </button>
+
             <button
               onClick={() => setSearchOpen(!searchOpen)}
               style={{
