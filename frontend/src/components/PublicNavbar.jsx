@@ -57,15 +57,31 @@ export default function PublicNavbar() {
     <>
       {/* Main Brand Header */}
       <header className="public-navbar" style={{ background: '#ffffff', borderBottom: '1px solid #E5E7EB', boxShadow: '0 2px 12px rgba(17, 24, 39, 0.03)', position: 'sticky', top: 0, zIndex: 100 }}>
-        <div className="nav-inner" style={{ maxWidth: 1200, margin: '0 auto', padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
+        <div className="nav-inner" style={{ maxWidth: 1200, margin: '0 auto', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           
-          {/* Left Actions: Home & Theme Toggle */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: '1 1 0%' }}>
+          {/* Brand Logo with Bank Title on the Left */}
+          <Link 
+            to={user ? (user.role === 'ADMIN' ? "/admin" : user.role === 'ANALYST' ? "/analyst" : "/dashboard") : "/"} 
+            style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 14 }}
+          >
+            <FinSyncLogo size={50} glow />
+            <div>
+              <span style={{ fontSize: '1.55rem', fontWeight: 900, color: '#111827', letterSpacing: '-0.5px', display: 'block', lineHeight: 1.1 }}>
+                FINSYNC BANK
+              </span>
+              <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#12A878', letterSpacing: 1.4, textTransform: 'uppercase', marginTop: 2 }}>
+                ALWAYS WITH YOU
+              </div>
+            </div>
+          </Link>
+
+          {/* Right Actions: Home, Theme Toggle, Admin Portal & NetBanking */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <button
               onClick={() => navigate('/')}
               style={{
-                width: 40,
-                height: 40,
+                width: 38,
+                height: 38,
                 borderRadius: '50%',
                 border: '1px solid #E5E7EB',
                 background: '#F4F9FF',
@@ -78,14 +94,14 @@ export default function PublicNavbar() {
               }}
               title="Home"
             >
-              <Home size={19} color="#12A878" />
+              <Home size={18} color="#12A878" />
             </button>
 
             <button
               onClick={toggleTheme}
               style={{
-                width: 40,
-                height: 40,
+                width: 38,
+                height: 38,
                 borderRadius: '50%',
                 border: '1px solid #E5E7EB',
                 background: '#F4F9FF',
@@ -98,30 +114,8 @@ export default function PublicNavbar() {
               }}
               title="Toggle Theme"
             >
-              {theme === 'dark' ? <Sun size={17} color="#D97706" /> : <Moon size={17} color="#12A878" />}
+              {theme === 'dark' ? <Sun size={16} color="#D97706" /> : <Moon size={16} color="#12A878" />}
             </button>
-          </div>
-
-          {/* Center: Brand Logo with Bank Title */}
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: '2 1 0%' }}>
-            <Link 
-              to={user ? (user.role === 'ADMIN' ? "/admin" : user.role === 'ANALYST' ? "/analyst" : "/dashboard") : "/"} 
-              style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 14 }}
-            >
-              <FinSyncLogo size={52} glow />
-              <div style={{ textAlign: 'left' }}>
-                <span style={{ fontSize: '1.55rem', fontWeight: 900, color: '#111827', letterSpacing: '-0.5px', display: 'block', lineHeight: 1.1 }}>
-                  FINSYNC BANK
-                </span>
-                <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#12A878', letterSpacing: 1.4, textTransform: 'uppercase', marginTop: 2 }}>
-                  ALWAYS WITH YOU
-                </div>
-              </div>
-            </Link>
-          </div>
-
-          {/* Right Actions: NetBanking & Admin Portal */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10, flex: '1 1 0%' }}>
             {user ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <button
