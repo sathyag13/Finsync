@@ -253,11 +253,11 @@ export default function Home() {
             <motion.p
               variants={itemVariants}
               style={{
-                fontSize: '1.2rem',
+                fontSize: '1.24rem',
                 fontWeight: 500,
-                lineHeight: 1.65,
+                lineHeight: 1.7,
                 color: '#374151',
-                marginBottom: 28,
+                marginBottom: 32,
                 maxWidth: 620,
                 letterSpacing: '-0.2px'
               }}
@@ -265,66 +265,55 @@ export default function Home() {
               Experience next-generation digital banking with high-yield savings vaults, instant atomic P2P transfers, zero-liability virtual EMV cards, and automated expense insights designed to build your financial future.
             </motion.p>
 
-            {/* Premium Information Feature Highlights */}
+            {/* Seamless Transparent Information Highlights (Pure Text Format) */}
             <motion.div
               variants={itemVariants}
               style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: 16,
-                marginBottom: 32,
-                maxWidth: 620
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 32,
+                marginBottom: 36,
+                flexWrap: 'wrap'
               }}
             >
-              <div
-                style={{
-                  padding: '16px 18px',
-                  borderRadius: 14,
-                  background: 'rgba(255, 255, 255, 0.92)',
-                  border: '1.5px solid #C6F0DF',
-                  boxShadow: '0 4px 16px rgba(18, 168, 120, 0.06)',
-                  backdropFilter: 'blur(8px)'
-                }}
-              >
-                <div style={{ fontSize: '1.42rem', fontWeight: 900, color: '#0E7F5A', letterSpacing: '-0.5px' }}>
-                  5.50% <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#0E7F5A' }}>APY</span>
+              <div>
+                <div style={{ fontSize: '2.1rem', fontWeight: 900, color: '#0E7F5A', letterSpacing: '-0.8px', lineHeight: 1 }}>
+                  5.50% <span style={{ fontSize: '1rem', fontWeight: 700, color: '#0E7F5A' }}>APY</span>
                 </div>
-                <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#111827', marginTop: 2 }}>High-Yield Vaults</div>
-                <div style={{ fontSize: '0.74rem', color: '#6B7280', marginTop: 2, fontWeight: 500 }}>Daily interest compounding</div>
+                <div style={{ fontSize: '0.94rem', fontWeight: 800, color: '#111827', marginTop: 6 }}>
+                  High-Yield Vaults
+                </div>
+                <div style={{ fontSize: '0.82rem', color: '#6B7280', marginTop: 2, fontWeight: 500 }}>
+                  Daily interest compounding
+                </div>
               </div>
 
-              <div
-                style={{
-                  padding: '16px 18px',
-                  borderRadius: 14,
-                  background: 'rgba(255, 255, 255, 0.92)',
-                  border: '1.5px solid #BAE0FD',
-                  boxShadow: '0 4px 16px rgba(3, 105, 161, 0.06)',
-                  backdropFilter: 'blur(8px)'
-                }}
-              >
-                <div style={{ fontSize: '1.42rem', fontWeight: 900, color: '#0369A1', letterSpacing: '-0.5px' }}>
-                  ₹0 <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#0369A1' }}>Fees</span>
+              <div style={{ width: '1px', height: '56px', background: '#E5E7EB' }} />
+
+              <div>
+                <div style={{ fontSize: '2.1rem', fontWeight: 900, color: '#0369A1', letterSpacing: '-0.8px', lineHeight: 1 }}>
+                  ₹0 <span style={{ fontSize: '1rem', fontWeight: 700, color: '#0369A1' }}>Fees</span>
                 </div>
-                <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#111827', marginTop: 2 }}>Everyday Accounts</div>
-                <div style={{ fontSize: '0.74rem', color: '#6B7280', marginTop: 2, fontWeight: 500 }}>Zero maintenance balance</div>
+                <div style={{ fontSize: '0.94rem', fontWeight: 800, color: '#111827', marginTop: 6 }}>
+                  Everyday Accounts
+                </div>
+                <div style={{ fontSize: '0.82rem', color: '#6B7280', marginTop: 2, fontWeight: 500 }}>
+                  Zero balance maintenance
+                </div>
               </div>
 
-              <div
-                style={{
-                  padding: '16px 18px',
-                  borderRadius: 14,
-                  background: 'rgba(255, 255, 255, 0.92)',
-                  border: '1.5px solid #DDD6FE',
-                  boxShadow: '0 4px 16px rgba(91, 33, 182, 0.06)',
-                  backdropFilter: 'blur(8px)'
-                }}
-              >
-                <div style={{ fontSize: '1.42rem', fontWeight: 900, color: '#5B21B6', letterSpacing: '-0.5px' }}>
-                  Instant <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#5B21B6' }}>24/7</span>
+              <div style={{ width: '1px', height: '56px', background: '#E5E7EB' }} />
+
+              <div>
+                <div style={{ fontSize: '2.1rem', fontWeight: 900, color: '#5B21B6', letterSpacing: '-0.8px', lineHeight: 1 }}>
+                  24/7 <span style={{ fontSize: '1rem', fontWeight: 700, color: '#5B21B6' }}>Instant</span>
                 </div>
-                <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#111827', marginTop: 2 }}>Atomic P2P Transfers</div>
-                <div style={{ fontSize: '0.74rem', color: '#6B7280', marginTop: 2, fontWeight: 500 }}>Real-time settlement</div>
+                <div style={{ fontSize: '0.94rem', fontWeight: 800, color: '#111827', marginTop: 6 }}>
+                  Atomic P2P Pay
+                </div>
+                <div style={{ fontSize: '0.82rem', color: '#6B7280', marginTop: 2, fontWeight: 500 }}>
+                  Zero latency transfers
+                </div>
               </div>
             </motion.div>
 
