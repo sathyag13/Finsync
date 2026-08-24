@@ -26,8 +26,14 @@ export function AuthProvider({ children }) {
     return data
   }
 
-  const register = async (fullName, email, password, phoneNumber, role = 'CUSTOMER', empNo = '') => {
-    const { data } = await api.post('/auth/register', { fullName, email, password, phoneNumber, role, empNo })
+  const register = async (fullNameOrObj, email, password, phoneNumber, role = 'CUSTOMER', empNo = '') => {
+    let payload = {}
+    if (typeof fullNameOrObj === 'object' && fullNameOrObj !== null) {
+      payload = fullNameOrObj
+    } else {
+      payload = { fullName: fullNameOrObj, email, password, phoneNumber, role, empNo }
+    }
+    const { data } = await api.post('/auth/register', payload)
     return data
   }
 

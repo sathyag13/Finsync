@@ -48,14 +48,14 @@ export function Sidebar() {
       { label: 'Accounts Opened This Month', path: '/admin/accounts', icon: CreditCard },
       { label: 'User Transactions Audit Logs', path: '/admin/audit-logs', icon: History },
       { label: 'System Settings', path: '/admin/settings', icon: Settings },
-      { label: 'Admin Profile', path: '/profile', icon: User }
+      { label: 'Admin Profile', path: '/admin/profile', icon: User }
     ]
 
     return (
       <aside className="sidebar">
         <div className="sidebar-brand">
           <div className="sidebar-logo-icon">
-            <Building2 size={20} color="#ffffff" />
+            <Building2 size={20} color="#12A878" />
           </div>
           <div>
             <div className="sidebar-brand-title">FINSYNC</div>
@@ -66,7 +66,7 @@ export function Sidebar() {
         <nav className="sidebar-nav">
           {adminNavItems.map((item) => {
             const Icon = item.icon
-            const isActive = location.pathname === item.path
+            const isActive = location.pathname === item.path || (item.path === '/admin/profile' && location.pathname === '/profile')
             return (
               <button
                 key={item.path}
@@ -82,7 +82,7 @@ export function Sidebar() {
         </nav>
 
         <div className="sidebar-footer">
-          <div className="user-mini-card" onClick={() => navigate('/profile')}>
+          <div className="user-mini-card" onClick={() => navigate('/admin/profile')}>
             <div className="user-avatar">{initials}</div>
             <div className="user-info">
               <div className="user-name">{user.fullName}</div>
@@ -301,7 +301,7 @@ export function TopHeader() {
     if (path === '/transfer') return 'Pay & Transfer'
     if (path === '/expenses') return 'Expense Analytics'
     if (path === '/savings') return 'Savings Goals'
-    if (path === '/profile') return user?.role === 'ADMIN' ? 'Admin Profile & Security' : 'My Profile'
+    if (path === '/profile' || path === '/admin/profile') return user?.role === 'ADMIN' ? 'Admin Profile & Security' : 'My Profile'
     if (path === '/admin') return 'Admin Control Center'
     if (path === '/admin/users') return 'User Directory & KYC'
     if (path === '/admin/accounts') return 'Accounts Opened This Month'

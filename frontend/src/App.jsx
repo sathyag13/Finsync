@@ -67,6 +67,7 @@ export default function App() {
               <Route path="/admin/risk" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminRisk /></ProtectedRoute>} />
               <Route path="/admin/audit-logs" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminAuditLogs /></ProtectedRoute>} />
               <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminSettings /></ProtectedRoute>} />
+              <Route path="/admin/profile" element={<ProtectedRoute allowedRoles={['ADMIN']}><Profile /></ProtectedRoute>} />
 
               {/* Global Role Access Matrix */}
               <Route path="/rbac" element={<ProtectedRoute allowedRoles={['ADMIN']}><RoleBasedAccess /></ProtectedRoute>} />
