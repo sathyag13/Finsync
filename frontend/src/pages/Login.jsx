@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useToast } from '../context/ToastContext.jsx'
-import { Building2, ArrowRight, Lock, Mail, Eye, EyeOff, CheckCircle2, ShieldCheck, UserCheck, Sparkles } from 'lucide-react'
+import { Building2, ArrowRight, Lock, Mail, Eye, EyeOff, CheckCircle2, ShieldCheck, Sparkles } from 'lucide-react'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -39,12 +39,6 @@ export default function Login() {
     } finally {
       setLoading(false)
     }
-  }
-
-  // Quick Autofill Demo Credentials
-  const fillCredentials = (demoEmail, demoPassword) => {
-    setEmail(demoEmail)
-    setPassword(demoPassword)
   }
 
   return (
@@ -127,57 +121,9 @@ export default function Login() {
             <h2 style={{ fontSize: '2.2rem', fontWeight: 900, color: 'var(--text-main)', marginBottom: 8, textAlign: 'left', letterSpacing: '-0.5px' }}>
               Sign In to FinSync
             </h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '1.02rem', fontWeight: 600, textAlign: 'left' }}>
+            <p style={{ color: 'var(--text-muted)', fontSize: '1.02rem', fontWeight: 600, textAlign: 'left', marginBottom: 28 }}>
               Enter your registered credentials to access your account.
             </p>
-          </div>
-
-          {/* Quick Autofill Demo Credentials */}
-          <div style={{ width: '100%', padding: '12px 16px', borderRadius: 12, background: 'var(--bg-card)', border: '1px solid var(--border-color)', marginBottom: 24 }}>
-            <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Sparkles size={13} color="var(--primary)" /> Demo Account Quick Fill:
-            </div>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                onClick={() => fillCredentials('scott@gmail.com', 'SecretPassword123!')}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: 8,
-                  border: '1px solid #C6F0DF',
-                  background: '#EAF9F3',
-                  color: '#0E7F5A',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6
-                }}
-              >
-                <UserCheck size={13} color="#12A878" /> Customer: scott@gmail.com
-              </button>
-
-              <button
-                type="button"
-                onClick={() => fillCredentials('admin@finsync.com', 'AdminPass123!')}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: 8,
-                  border: '1px solid #BAE0FD',
-                  background: '#EAF5FF',
-                  color: '#0369A1',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6
-                }}
-              >
-                <ShieldCheck size={13} color="#0369A1" /> Admin: admin@finsync.com
-              </button>
-            </div>
           </div>
 
           {/* Login Form */}
