@@ -192,12 +192,12 @@ export default function Home() {
           }}
         />
 
-        {/* Animated 3D Coin Toss Over Mascot's Hand */}
+        {/* Animated 3D Coin Toss Directly Over Mascot's Open Palm */}
         <div
           style={{
             position: 'absolute',
-            right: '17.5%',
-            bottom: '24%',
+            right: '32%',
+            bottom: '32%',
             zIndex: 4,
             pointerEvents: 'none',
             display: 'flex',
@@ -209,44 +209,44 @@ export default function Home() {
           <motion.div
             animate={{
               opacity: [0, 0, 1, 0, 0],
-              scale: [0.5, 0.8, 1.4, 0.8, 0.5],
-              y: [-30, -90, -145, -90, -30]
+              scale: [0.4, 0.8, 1.4, 0.8, 0.4],
+              y: [-20, -80, -145, -80, -20]
             }}
             transition={{
               repeat: Infinity,
-              duration: 2.2,
+              duration: 2.3,
               ease: 'easeInOut'
             }}
             style={{
               position: 'absolute',
               color: '#fef08a',
-              filter: 'drop-shadow(0 0 12px rgba(250, 204, 21, 0.95))',
+              filter: 'drop-shadow(0 0 14px rgba(250, 204, 21, 1))',
               zIndex: 6
             }}
           >
-            <Sparkles size={26} />
+            <Sparkles size={28} />
           </motion.div>
 
           {/* 3D Flipping FinSync Gold Coin */}
           <motion.div
             animate={{
-              y: [0, -70, -135, -70, 0],
+              y: [0, -80, -140, -80, 0],
               rotateY: [0, 360, 720, 1080, 1440],
-              rotateZ: [0, 6, -3, 3, 0],
-              scale: [1, 1.1, 1.25, 1.1, 1]
+              rotateZ: [0, 8, -4, 4, 0],
+              scale: [0.95, 1.08, 1.22, 1.08, 0.95]
             }}
             transition={{
               repeat: Infinity,
-              duration: 2.2,
+              duration: 2.3,
               ease: [0.35, 0, 0.25, 1]
             }}
             style={{
-              width: 80,
-              height: 80,
+              width: 76,
+              height: 76,
               borderRadius: '50%',
               background: 'linear-gradient(135deg, #fef08a 0%, #facc15 30%, #eab308 65%, #ca8a04 100%)',
-              border: '3.5px solid #fef9c3',
-              boxShadow: '0 0 28px rgba(250, 204, 21, 0.8), inset 0 2px 6px rgba(255,255,255,0.85), inset 0 -3px 6px rgba(113,63,18,0.65)',
+              border: '3px solid #fef9c3',
+              boxShadow: '0 0 28px rgba(250, 204, 21, 0.85), inset 0 2px 6px rgba(255,255,255,0.85), inset 0 -3px 6px rgba(113,63,18,0.65)',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -262,8 +262,8 @@ export default function Home() {
           >
             <div
               style={{
-                width: 64,
-                height: 64,
+                width: 60,
+                height: 60,
                 borderRadius: '50%',
                 border: '1.5px dashed rgba(113, 63, 18, 0.5)',
                 display: 'flex',
@@ -274,27 +274,27 @@ export default function Home() {
               }}
             >
               <div style={{ fontSize: '18px', lineHeight: 1, fontWeight: 900 }}>₹</div>
-              <div style={{ fontSize: '7.5px', fontWeight: 900, letterSpacing: 0.8, marginTop: 1 }}>FINSYNC</div>
+              <div style={{ fontSize: '7px', fontWeight: 900, letterSpacing: 0.8, marginTop: 1 }}>FINSYNC</div>
             </div>
           </motion.div>
 
-          {/* Catch/Toss Shadow on Hand */}
+          {/* Catch/Toss Shadow on Mascot's Palm */}
           <motion.div
             animate={{
-              scale: [1, 0.6, 0.3, 0.6, 1],
-              opacity: [0.75, 0.4, 0.15, 0.4, 0.75]
+              scale: [1, 0.5, 0.25, 0.5, 1],
+              opacity: [0.8, 0.35, 0.1, 0.35, 0.8]
             }}
             transition={{
               repeat: Infinity,
-              duration: 2.2,
+              duration: 2.3,
               ease: 'easeInOut'
             }}
             style={{
-              width: 52,
-              height: 12,
+              width: 50,
+              height: 10,
               borderRadius: '50%',
-              background: 'radial-gradient(ellipse, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0) 75%)',
-              marginTop: 6
+              background: 'radial-gradient(ellipse, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 75%)',
+              marginTop: 4
             }}
           />
         </div>
