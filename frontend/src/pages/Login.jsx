@@ -49,9 +49,30 @@ export default function Login() {
 
   return (
     <div style={{ width: '100%', maxWidth: 1240, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.1fr 1fr', borderRadius: 24, overflow: 'hidden', border: '1px solid var(--border-color)', boxShadow: '0 16px 40px rgba(0,0,0,0.15)' }}>
-      {/* Left Side: Deep Navy & Emerald Banking Showcase */}
-      <div style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 60%, #064E3B 100%)', padding: '48px 40px', color: '#ffffff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRight: '4px solid #12A878', position: 'relative' }}>
-        <div>
+      {/* Left Side: Deep Navy & Emerald Banking Showcase with Logo Watermark */}
+      <div style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 60%, #064E3B 100%)', padding: '48px 40px', color: '#ffffff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRight: '4px solid #12A878', position: 'relative', overflow: 'hidden' }}>
+        
+        {/* Subtle Watermark Logo behind text */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '440px',
+            height: '440px',
+            opacity: 0.08,
+            pointerEvents: 'none',
+            zIndex: 0,
+            backgroundImage: 'url(/finsync-logo.png)',
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            filter: 'brightness(1.6) contrast(1.2)'
+          }}
+        />
+
+        <div style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, padding: '8px 18px', background: 'rgba(255, 255, 255, 0.12)', borderRadius: 30, color: '#ffffff', backdropFilter: 'blur(10px)', width: 'fit-content', marginBottom: 28 }}>
             <Building2 size={22} color="#12A878" />
             <span style={{ fontSize: '0.85rem', fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase' }}>FinSync Unified NetBanking</span>
@@ -89,7 +110,7 @@ export default function Login() {
           </div>
         </div>
 
-        <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.85)', paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.15)', fontWeight: 600, textAlign: 'justify', width: '100%' }}>
+        <div style={{ position: 'relative', zIndex: 1, fontSize: '0.9rem', color: 'rgba(255,255,255,0.85)', paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.15)', fontWeight: 600, textAlign: 'justify', width: '100%' }}>
           <strong>Security Notice:</strong> FinSync Bank will never ask for your confidential password or OTP over phone or email.
         </div>
       </div>

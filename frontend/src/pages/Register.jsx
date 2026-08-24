@@ -68,9 +68,30 @@ export default function Register() {
 
   return (
     <div style={{ width: '100%', maxWidth: 1240, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.1fr 1fr', borderRadius: 24, overflow: 'hidden', border: '1px solid var(--border-color)', boxShadow: '0 16px 40px rgba(0,0,0,0.15)' }}>
-      {/* Left Side: Deep Navy & Emerald Banking Showcase with Rich Value Pillars */}
-      <div style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 60%, #064E3B 100%)', padding: '44px 38px', color: '#ffffff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRight: '4px solid #12A878', position: 'relative' }}>
-        <div>
+      {/* Left Side: Deep Navy & Emerald Banking Showcase with Rich Value Pillars & Logo Watermark */}
+      <div style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 60%, #064E3B 100%)', padding: '44px 38px', color: '#ffffff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRight: '4px solid #12A878', position: 'relative', overflow: 'hidden' }}>
+        
+        {/* Subtle Watermark Logo behind text */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '460px',
+            height: '460px',
+            opacity: 0.07,
+            pointerEvents: 'none',
+            zIndex: 0,
+            backgroundImage: 'url(/finsync-logo.png)',
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            filter: 'brightness(1.6) contrast(1.2)'
+          }}
+        />
+
+        <div style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '7px 16px', background: 'rgba(255, 255, 255, 0.12)', borderRadius: 30, color: '#ffffff', backdropFilter: 'blur(10px)', width: 'fit-content', marginBottom: 20 }}>
             <Building2 size={20} color="#12A878" />
             <span style={{ fontSize: '0.82rem', fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase' }}>FinSync Digital Onboarding</span>
@@ -144,7 +165,7 @@ export default function Register() {
           </div>
         </div>
 
-        <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.85)', paddingTop: 18, marginTop: 18, borderTop: '1px solid rgba(255,255,255,0.12)', fontWeight: 600, textAlign: 'justify', width: '100%' }}>
+        <div style={{ position: 'relative', zIndex: 1, fontSize: '0.85rem', color: 'rgba(255,255,255,0.85)', paddingTop: 18, marginTop: 18, borderTop: '1px solid rgba(255,255,255,0.12)', fontWeight: 600, textAlign: 'justify', width: '100%' }}>
           <strong>Employee Verification:</strong> 5-Digit Employee ID is verified for System Admin role registrations.
         </div>
       </div>
