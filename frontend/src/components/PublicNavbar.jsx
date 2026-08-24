@@ -3,9 +3,10 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useTheme } from '../context/ThemeContext.jsx'
 import Modal from './Modal.jsx'
+import FinSyncLogo from './FinSyncLogo.jsx'
 import {
   Building2,
-  Search,
+  Home,
   ShieldCheck,
   CreditCard,
   Send,
@@ -25,8 +26,6 @@ export default function PublicNavbar() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const [searchOpen, setSearchOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
   const [showLogoutModal, setShowLogoutModal] = useState(false)
 
   const handleConfirmLogout = () => {
@@ -59,7 +58,7 @@ export default function PublicNavbar() {
       {/* Main Brand Header */}
       <header className="public-navbar" style={{ background: '#ffffff', borderBottom: '1px solid #E5E7EB', boxShadow: '0 2px 12px rgba(17, 24, 39, 0.03)' }}>
         <div className="nav-inner" style={{ maxWidth: 1200, margin: '0 auto', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          {/* Brand Logo */}
+          {/* Brand Logo with Bank Emblem */}
           <Link to={user ? (user.role === 'ADMIN' ? "/admin" : user.role === 'ANALYST' ? "/analyst" : "/dashboard") : "/"} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12 }}>
             <div
               style={{
@@ -71,11 +70,10 @@ export default function PublicNavbar() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#12A878',
                 boxShadow: '0 2px 8px rgba(18, 168, 120, 0.18)'
               }}
             >
-              <Building2 size={24} />
+              <FinSyncLogo size={28} glow />
             </div>
             <div>
               <span style={{ fontSize: '1.45rem', fontWeight: 900, color: '#111827', letterSpacing: '-0.5px' }}>
@@ -89,6 +87,26 @@ export default function PublicNavbar() {
 
           {/* Nav Actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button
+              onClick={() => navigate('/')}
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: '50%',
+                border: '1px solid #E5E7EB',
+                background: '#F4F9FF',
+                color: '#12A878',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.15s ease'
+              }}
+              title="Home"
+            >
+              <Home size={18} color="#12A878" />
+            </button>
+
             <button
               onClick={toggleTheme}
               style={{
@@ -107,26 +125,6 @@ export default function PublicNavbar() {
               title="Toggle Theme"
             >
               {theme === 'dark' ? <Sun size={16} color="#D97706" /> : <Moon size={16} color="#12A878" />}
-            </button>
-
-            <button
-              onClick={() => setSearchOpen(!searchOpen)}
-              style={{
-                width: 38,
-                height: 38,
-                borderRadius: '50%',
-                border: '1px solid #E5E7EB',
-                background: '#F4F9FF',
-                color: '#4B5563',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'all 0.15s ease'
-              }}
-              title="Search"
-            >
-              <Search size={16} />
             </button>
 
             {user ? (
@@ -204,36 +202,6 @@ export default function PublicNavbar() {
           </div>
         </div>
       </header>
-
-      {/* Global Search Bar Overlay */}
-      {searchOpen && (
-        <div style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)', padding: '16px 24px', boxShadow: 'var(--shadow-md)' }}>
-          <div style={{ maxWidth: 800, margin: '0 auto', display: 'flex', gap: 12 }}>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search FinSync accounts, transfer money, debit cards, interest rates…"
-              style={{
-                flex: 1,
-                padding: '12px 16px',
-                borderRadius: 8,
-                border: '1px solid var(--border-color)',
-                background: 'var(--bg-input)',
-                color: 'var(--text-main)',
-                fontSize: '0.95rem'
-              }}
-              autoFocus
-            />
-            <button
-              onClick={() => setSearchOpen(false)}
-              className="btn btn-primary"
-            >
-              Search
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Sign Out Confirmation Modal */}
       <Modal isOpen={showLogoutModal} onClose={() => setShowLogoutModal(false)} title="Confirm Sign Out">
