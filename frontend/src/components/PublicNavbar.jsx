@@ -120,7 +120,7 @@ export default function PublicNavbar() {
       </div>
 
       {/* Main Brand Header */}
-      <header className="public-navbar" style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+      <header className="public-navbar" style={{ background: '#ffffff', borderBottom: '1px solid #f1f5f9', boxShadow: '0 2px 12px rgba(15,23,42,0.02)' }}>
         <div className="nav-inner" style={{ maxWidth: 1200, margin: '0 auto', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           {/* Brand Logo */}
           <Link to={user ? (user.role === 'ADMIN' ? "/admin" : user.role === 'ANALYST' ? "/analyst" : "/dashboard") : "/"} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -129,12 +129,13 @@ export default function PublicNavbar() {
                 width: 44,
                 height: 44,
                 borderRadius: 12,
-                background: 'linear-gradient(135deg, #10b981, #059669)',
+                background: '#ecfdf5',
+                border: '1.5px solid #a7f3d0',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#ffffff',
-                boxShadow: '0 4px 14px rgba(16,185,129,0.35)'
+                color: '#059669',
+                boxShadow: '0 2px 8px rgba(167, 243, 208, 0.3)'
               }}
             >
               <Building2 size={24} />
@@ -157,8 +158,8 @@ export default function PublicNavbar() {
                 width: 38,
                 height: 38,
                 borderRadius: '50%',
-                border: '1px solid #e2e8f0',
-                background: '#f8fafc',
+                border: '1px solid #f1f5f9',
+                background: '#fafaf9',
                 color: '#475569',
                 cursor: 'pointer',
                 display: 'flex',
@@ -176,7 +177,7 @@ export default function PublicNavbar() {
                 <button
                   onClick={handleAdminClick}
                   className="btn btn-secondary btn-sm"
-                  style={{ padding: '8px 14px', fontWeight: 800, background: '#f1f5f9', border: '1px solid #cbd5e1', color: '#0f172a' }}
+                  style={{ padding: '8px 14px', fontWeight: 800, background: '#fafaf9', border: '1px solid #e2e8f0', color: '#0f172a' }}
                 >
                   <ShieldCheck size={16} color="#059669" />
                   <span>Admin Portal</span>
@@ -184,7 +185,7 @@ export default function PublicNavbar() {
                 <button
                   onClick={handleDashboardClick}
                   className="btn btn-primary btn-sm"
-                  style={{ padding: '8px 16px', fontWeight: 700, background: 'linear-gradient(135deg, #10b981, #059669)', border: 'none', color: '#ffffff' }}
+                  style={{ padding: '8px 16px', fontWeight: 700, background: '#ecfdf5', border: '1px solid #a7f3d0', color: '#065f46' }}
                 >
                   <LayoutDashboard size={16} />
                   <span>Go to Workspace</span>
@@ -209,8 +210,8 @@ export default function PublicNavbar() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 6,
-                    background: '#f8fafc',
-                    border: '1.5px solid #e2e8f0',
+                    background: '#fafaf9',
+                    border: '1.5px solid #f1f5f9',
                     borderRadius: 8,
                     color: '#0f172a',
                     cursor: 'pointer'
@@ -228,11 +229,11 @@ export default function PublicNavbar() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 8,
-                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                    border: 'none',
+                    background: '#ecfdf5',
+                    border: '1.5px solid #a7f3d0',
                     borderRadius: 8,
-                    color: '#ffffff',
-                    boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
+                    color: '#065f46',
+                    boxShadow: '0 2px 10px rgba(167, 243, 208, 0.4)',
                     cursor: 'pointer'
                   }}
                 >

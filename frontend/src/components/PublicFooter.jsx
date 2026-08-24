@@ -3,13 +3,13 @@ import { Building2, ShieldCheck, PhoneCall, Mail, MapPin } from 'lucide-react'
 
 export default function PublicFooter() {
   return (
-    <footer className="bank-footer" style={{ background: '#f8fafc', borderTop: '1px solid #e2e8f0', color: '#475569', padding: '64px 0 32px 0' }}>
+    <footer className="bank-footer" style={{ background: '#fafaf9', borderTop: '1px solid #f1f5f9', color: '#475569', padding: '64px 0 32px 0' }}>
       <div className="footer-inner" style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px' }}>
         <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 36, marginBottom: 44 }}>
           {/* Column 1: FinSync Brand & Contact Info */}
           <div style={{ gridColumn: 'span 2' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-              <div style={{ width: 42, height: 42, borderRadius: 12, background: 'linear-gradient(135deg, #10b981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }}>
+              <div style={{ width: 42, height: 42, borderRadius: 12, background: '#ecfdf5', border: '1.5px solid #a7f3d0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#059669', boxShadow: '0 2px 8px rgba(167, 243, 208, 0.3)' }}>
                 <Building2 size={24} />
               </div>
               <div>
@@ -38,7 +38,7 @@ export default function PublicFooter() {
 
           {/* Column 2: Digital Banking Services */}
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-            <div style={{ color: '#0f172a', fontWeight: 800, fontSize: '0.98rem', marginBottom: 18, borderBottom: '2px solid #10b981', paddingBottom: 8, display: 'inline-block' }}>
+            <div style={{ color: '#0f172a', fontWeight: 800, fontSize: '0.98rem', marginBottom: 18, borderBottom: '2px solid #a7f3d0', paddingBottom: 8, display: 'inline-block' }}>
               Banking Services
             </div>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12, fontSize: '0.88rem' }}>
@@ -54,7 +54,7 @@ export default function PublicFooter() {
 
           {/* Column 3: Client Security & Access */}
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-            <div style={{ color: '#0f172a', fontWeight: 800, fontSize: '0.98rem', marginBottom: 18, borderBottom: '2px solid #10b981', paddingBottom: 8, display: 'inline-block' }}>
+            <div style={{ color: '#0f172a', fontWeight: 800, fontSize: '0.98rem', marginBottom: 18, borderBottom: '2px solid #bae6fd', paddingBottom: 8, display: 'inline-block' }}>
               Security & Compliance
             </div>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12, fontSize: '0.88rem' }}>
@@ -70,7 +70,7 @@ export default function PublicFooter() {
         </div>
 
         {/* Bottom Copyright & DICGC Insurance Compliance */}
-        <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: 24, display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
+        <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 24, display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.85rem', color: '#1e293b', fontWeight: 600 }}>
             <ShieldCheck size={18} color="#059669" />
             <span>256-Bit SSL Encrypted • DICGC Deposit Insurance Covered up to ₹5 Lakhs per depositor.</span>
