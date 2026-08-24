@@ -57,7 +57,7 @@ export default function PublicNavbar() {
   return (
     <>
       {/* Main Brand Header */}
-      <header className="public-navbar" style={{ background: '#ffffff', borderBottom: '1px solid #f1f5f9', boxShadow: '0 2px 12px rgba(15,23,42,0.02)' }}>
+      <header className="public-navbar" style={{ background: '#ffffff', borderBottom: '1px solid #E5E7EB', boxShadow: '0 2px 12px rgba(17, 24, 39, 0.03)' }}>
         <div className="nav-inner" style={{ maxWidth: 1200, margin: '0 auto', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           {/* Brand Logo */}
           <Link to={user ? (user.role === 'ADMIN' ? "/admin" : user.role === 'ANALYST' ? "/analyst" : "/dashboard") : "/"} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -66,22 +66,22 @@ export default function PublicNavbar() {
                 width: 44,
                 height: 44,
                 borderRadius: 12,
-                background: '#f5f3ff',
-                border: '1.5px solid #ddd6fe',
+                background: '#EAF9F3',
+                border: '1.5px solid #C6F0DF',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#7c3aed',
-                boxShadow: '0 2px 8px rgba(124, 58, 237, 0.25)'
+                color: '#12A878',
+                boxShadow: '0 2px 8px rgba(18, 168, 120, 0.18)'
               }}
             >
               <Building2 size={24} />
             </div>
             <div>
-              <span style={{ fontSize: '1.45rem', fontWeight: 900, color: '#0f172a', letterSpacing: '-0.5px' }}>
+              <span style={{ fontSize: '1.45rem', fontWeight: 900, color: '#111827', letterSpacing: '-0.5px' }}>
                 FINSYNC BANK
               </span>
-              <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#7c3aed', letterSpacing: 1.2, textTransform: 'uppercase', marginTop: -2 }}>
+              <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#12A878', letterSpacing: 1.2, textTransform: 'uppercase', marginTop: -2 }}>
                 ALWAYS WITH YOU
               </div>
             </div>
@@ -95,9 +95,9 @@ export default function PublicNavbar() {
                 width: 38,
                 height: 38,
                 borderRadius: '50%',
-                border: '1px solid #f1f5f9',
-                background: '#fafaf9',
-                color: '#475569',
+                border: '1px solid #E5E7EB',
+                background: '#F4F9FF',
+                color: '#4B5563',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -106,7 +106,7 @@ export default function PublicNavbar() {
               }}
               title="Toggle Theme"
             >
-              {theme === 'dark' ? <Sun size={16} color="#d97706" /> : <Moon size={16} color="#7c3aed" />}
+              {theme === 'dark' ? <Sun size={16} color="#D97706" /> : <Moon size={16} color="#12A878" />}
             </button>
 
             <button
@@ -115,9 +115,9 @@ export default function PublicNavbar() {
                 width: 38,
                 height: 38,
                 borderRadius: '50%',
-                border: '1px solid #f1f5f9',
-                background: '#fafaf9',
-                color: '#475569',
+                border: '1px solid #E5E7EB',
+                background: '#F4F9FF',
+                color: '#4B5563',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -134,15 +134,15 @@ export default function PublicNavbar() {
                 <button
                   onClick={handleAdminClick}
                   className="btn btn-secondary btn-sm"
-                  style={{ padding: '8px 14px', fontWeight: 800, background: '#fafaf9', border: '1px solid #e2e8f0', color: '#0f172a' }}
+                  style={{ padding: '8px 14px', fontWeight: 800, background: '#ffffff', border: '1.5px solid #E2E8F0', color: '#111827' }}
                 >
-                  <ShieldCheck size={16} color="#7c3aed" />
+                  <ShieldCheck size={16} color="#12A878" />
                   <span>Admin Portal</span>
                 </button>
                 <button
                   onClick={handleDashboardClick}
                   className="btn btn-primary btn-sm"
-                  style={{ padding: '8px 16px', fontWeight: 700, background: '#f5f3ff', border: '1px solid #ddd6fe', color: '#5b21b6' }}
+                  style={{ padding: '8px 16px', fontWeight: 700, background: '#0FA878', border: 'none', color: '#ffffff', boxShadow: '0 4px 12px rgba(15, 168, 120, 0.25)' }}
                 >
                   <LayoutDashboard size={16} />
                   <span>Go to Workspace</span>
@@ -167,14 +167,15 @@ export default function PublicNavbar() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 6,
-                    background: '#fafaf9',
-                    border: '1.5px solid #f1f5f9',
+                    background: '#ffffff',
+                    border: '1.5px solid #E2E8F0',
                     borderRadius: 8,
-                    color: '#0f172a',
-                    cursor: 'pointer'
+                    color: '#111827',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
                   }}
                 >
-                  <ShieldCheck size={16} color="#7c3aed" />
+                  <ShieldCheck size={16} color="#12A878" />
                   <span>Admin Portal</span>
                 </button>
                 <button
@@ -186,15 +187,16 @@ export default function PublicNavbar() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 8,
-                    background: '#f5f3ff',
-                    border: '1.5px solid #ddd6fe',
+                    background: '#0FA878',
+                    border: 'none',
                     borderRadius: 8,
-                    color: '#5b21b6',
-                    boxShadow: '0 2px 10px rgba(124, 58, 237, 0.25)',
-                    cursor: 'pointer'
+                    color: '#ffffff',
+                    boxShadow: '0 4px 14px rgba(15, 168, 120, 0.3)',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
                   }}
                 >
-                  <Lock size={16} />
+                  <Lock size={16} color="#ffffff" />
                   <span>NetBanking Sign In</span>
                 </button>
               </div>
