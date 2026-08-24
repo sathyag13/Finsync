@@ -192,6 +192,113 @@ export default function Home() {
           }}
         />
 
+        {/* Animated 3D Coin Toss Over Mascot's Hand */}
+        <div
+          style={{
+            position: 'absolute',
+            right: '17.5%',
+            bottom: '24%',
+            zIndex: 4,
+            pointerEvents: 'none',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+          }}
+        >
+          {/* Shimmering Sparks & Glint on Peak of Toss */}
+          <motion.div
+            animate={{
+              opacity: [0, 0, 1, 0, 0],
+              scale: [0.5, 0.8, 1.4, 0.8, 0.5],
+              y: [-30, -90, -145, -90, -30]
+            }}
+            transition={{
+              repeat: Infinity,
+              duration: 2.2,
+              ease: 'easeInOut'
+            }}
+            style={{
+              position: 'absolute',
+              color: '#fef08a',
+              filter: 'drop-shadow(0 0 12px rgba(250, 204, 21, 0.95))',
+              zIndex: 6
+            }}
+          >
+            <Sparkles size={26} />
+          </motion.div>
+
+          {/* 3D Flipping FinSync Gold Coin */}
+          <motion.div
+            animate={{
+              y: [0, -70, -135, -70, 0],
+              rotateY: [0, 360, 720, 1080, 1440],
+              rotateZ: [0, 6, -3, 3, 0],
+              scale: [1, 1.1, 1.25, 1.1, 1]
+            }}
+            transition={{
+              repeat: Infinity,
+              duration: 2.2,
+              ease: [0.35, 0, 0.25, 1]
+            }}
+            style={{
+              width: 80,
+              height: 80,
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #fef08a 0%, #facc15 30%, #eab308 65%, #ca8a04 100%)',
+              border: '3.5px solid #fef9c3',
+              boxShadow: '0 0 28px rgba(250, 204, 21, 0.8), inset 0 2px 6px rgba(255,255,255,0.85), inset 0 -3px 6px rgba(113,63,18,0.65)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#713f12',
+              fontWeight: 900,
+              fontSize: '11px',
+              letterSpacing: '0.05em',
+              textShadow: '0 1px 1px rgba(255,255,255,0.6)',
+              transformStyle: 'preserve-3d',
+              position: 'relative'
+            }}
+          >
+            <div
+              style={{
+                width: 64,
+                height: 64,
+                borderRadius: '50%',
+                border: '1.5px dashed rgba(113, 63, 18, 0.5)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                textAlign: 'center'
+              }}
+            >
+              <div style={{ fontSize: '18px', lineHeight: 1, fontWeight: 900 }}>₹</div>
+              <div style={{ fontSize: '7.5px', fontWeight: 900, letterSpacing: 0.8, marginTop: 1 }}>FINSYNC</div>
+            </div>
+          </motion.div>
+
+          {/* Catch/Toss Shadow on Hand */}
+          <motion.div
+            animate={{
+              scale: [1, 0.6, 0.3, 0.6, 1],
+              opacity: [0.75, 0.4, 0.15, 0.4, 0.75]
+            }}
+            transition={{
+              repeat: Infinity,
+              duration: 2.2,
+              ease: 'easeInOut'
+            }}
+            style={{
+              width: 52,
+              height: 12,
+              borderRadius: '50%',
+              background: 'radial-gradient(ellipse, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0) 75%)',
+              marginTop: 6
+            }}
+          />
+        </div>
+
         {/* Hero Content Container with Staggered Entrance */}
         <motion.div
           initial="hidden"
