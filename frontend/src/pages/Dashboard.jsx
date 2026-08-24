@@ -76,7 +76,7 @@ export default function Dashboard() {
         const allHistories = await Promise.all(historyPromises)
         const combined = allHistories.flat().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
         setAllTransactions(combined)
-        setRecentTransactions(combined.slice(0, 5))
+        setRecentTransactions(combined.slice(0, 6))
       } else {
         setAllTransactions([])
         setRecentTransactions([])
@@ -561,7 +561,7 @@ export default function Dashboard() {
 
             {/* Scenario 1: 0 Transactions Clean Empty State */}
             {recentTransactions.length === 0 ? (
-              <div style={{ padding: '36px 16px', textAlign: 'center', color: 'var(--text-muted)' }}>
+              <div style={{ padding: '32px 16px', textAlign: 'center', color: 'var(--text-muted)' }}>
                 <div
                   style={{
                     width: 48,
@@ -597,75 +597,117 @@ export default function Dashboard() {
                 </div>
               </div>
             ) : (
-              /* Scenario 2 & 3: 1-4 Transactions fit naturally; 5+ scroll smoothly */
-              <div
-                className={recentTransactions.length > 4 ? 'custom-scroll' : ''}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 10,
-                  maxHeight: recentTransactions.length > 4 ? 420 : 'none',
-                  overflowY: recentTransactions.length > 4 ? 'auto' : 'visible',
-                  paddingRight: recentTransactions.length > 4 ? 6 : 0
-                }}
-              >
-                {recentTransactions.map((txn) => {
-                  const { isCredit, label, category } = getFriendlyTxnInfo(txn)
-                  const amt = Number(txn.amount || 0)
-                  return (
-                    <div
-                      key={txn.id}
-                      onClick={() => setSelectedTxn(txn)}
-                      style={{
-                        padding: '12px 14px',
-                        borderRadius: 10,
-                        background: 'var(--bg-input)',
-                        border: '1px solid var(--border-color)',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease'
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <div
-                          style={{
-                            width: 38,
-                            height: 38,
-                            borderRadius: 10,
-                            background: isCredit ? 'rgba(16, 185, 129, 0.15)' : 'rgba(244, 63, 94, 0.15)',
-                            color: isCredit ? 'var(--accent-emerald)' : 'var(--accent-rose)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            flexShrink: 0
-                          }}
-                        >
-                          {isCredit ? <ArrowDownLeft size={18} /> : <ArrowUpRight size={18} />}
+              /* Scenario 2: Populated Transactions (Latest 5-6 with natural fit or scroll) */
+              <>
+                <div
+                  className={recentTransactions.length > 5 ? 'custom-scroll' : ''}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 10,
+                    maxHeight: recentTransactions.length > 5 ? 380 : 'none',
+                    overflowY: recentTransactions.length > 5 ? 'auto' : 'visible',
+                    paddingRight: recentTransactions.length > 5 ? 6 : 0
+                  }}
+                >
+                  {recentTransactions.map((txn) => {
+                    const { isCredit, label, category } = getFriendlyTxnInfo(txn)
+                    const amt = Number(txn.amount || 0)
+                    return (
+                      <div
+                        key={txn.id}
+                        onClick={() => setSelectedTxn(txn)}
+                        style={{
+                          padding: '12px 14px',
+                          borderRadius: 10,
+                          background: 'var(--bg-input)',
+                          border: '1px solid var(--border-color)',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <div
+                            style={{
+                              width: 38,
+                              height: 38,
+                              borderRadius: 10,
+                              background: isCredit ? 'rgba(16, 185, 129, 0.15)' : 'rgba(244, 63, 94, 0.15)',
+                              color: isCredit ? 'var(--accent-emerald)' : 'var(--accent-rose)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0
+                            }}
+                          >
+                            {isCredit ? <ArrowDownLeft size={18} /> : <ArrowUpRight size={18} />}
+                          </div>
+                          <div>
+                            <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-main)' }}>
+                              {label}
+                            </div>
+                            <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 2 }}>
+                              {txn.createdAt ? new Date(txn.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Today'} • {category}
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-main)' }}>
-                            {label}
+
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ fontSize: '15px', fontWeight: 800, color: isCredit ? 'var(--accent-emerald)' : 'var(--text-main)' }}>
+                            {isCredit ? '+' : '-'}₹{amt.toLocaleString('en-IN')}
                           </div>
-                          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 2 }}>
-                            {txn.createdAt ? new Date(txn.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Today'} • {category}
-                          </div>
+                          <span className={`badge ${isCredit ? 'badge-emerald' : 'badge-indigo'}`} style={{ fontSize: '11px', padding: '2px 8px', marginTop: 2 }}>
+                            {isCredit ? 'Received' : 'Sent'}
+                          </span>
                         </div>
                       </div>
+                    )
+                  })}
+                </div>
 
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '15px', fontWeight: 800, color: isCredit ? 'var(--accent-emerald)' : 'var(--text-main)' }}>
-                          {isCredit ? '+' : '-'}₹{amt.toLocaleString('en-IN')}
-                        </div>
-                        <span className={`badge ${isCredit ? 'badge-emerald' : 'badge-indigo'}`} style={{ fontSize: '11px', padding: '2px 8px', marginTop: 2 }}>
-                          {isCredit ? 'Received' : 'Sent'}
-                        </span>
+                {/* Compact Monthly Activity Summary Grid */}
+                <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid var(--border-color)' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(115px, 1fr))', gap: 8, marginBottom: 12 }}>
+                    <div style={{ padding: '8px 10px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
+                      <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--accent-emerald)', display: 'flex', alignItems: 'center', gap: 3, letterSpacing: '0.04em' }}>
+                        <ArrowDownLeft size={12} /> RECEIVED
+                      </div>
+                      <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--accent-emerald)', marginTop: 2 }}>
+                        +₹{totalInflow.toLocaleString('en-IN')}
                       </div>
                     </div>
-                  )
-                })}
-              </div>
+
+                    <div style={{ padding: '8px 10px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
+                      <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--accent-rose)', display: 'flex', alignItems: 'center', gap: 3, letterSpacing: '0.04em' }}>
+                        <ArrowUpRight size={12} /> SENT
+                      </div>
+                      <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--accent-rose)', marginTop: 2 }}>
+                        -₹{totalOutflow.toLocaleString('en-IN')}
+                      </div>
+                    </div>
+
+                    <div style={{ padding: '8px 10px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
+                      <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--text-muted)', letterSpacing: '0.04em' }}>
+                        NET MOVEMENT
+                      </div>
+                      <div style={{ fontSize: '14px', fontWeight: 800, color: (totalInflow - totalOutflow) >= 0 ? 'var(--accent-emerald)' : 'var(--accent-rose)', marginTop: 2 }}>
+                        {(totalInflow - totalOutflow) >= 0 ? '+' : ''}₹{(totalInflow - totalOutflow).toLocaleString('en-IN')}
+                      </div>
+                    </div>
+                  </div>
+
+                  <Link
+                    to="/accounts"
+                    className="btn btn-secondary"
+                    style={{ width: '100%', justifyContent: 'center', fontSize: '12px', fontWeight: 700, padding: '8px 14px' }}
+                  >
+                    View All Transactions <ArrowRight size={13} />
+                  </Link>
+                </div>
+              </>
             )}
           </div>
         </div>
