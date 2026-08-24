@@ -2,7 +2,24 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useToast } from '../context/ToastContext.jsx'
-import { Building2, ArrowRight, User, Mail, Phone, Lock, Eye, EyeOff, CheckCircle2, ShieldCheck, BadgeCheck } from 'lucide-react'
+import {
+  Building2,
+  ArrowRight,
+  User,
+  Mail,
+  Phone,
+  Lock,
+  Eye,
+  EyeOff,
+  CheckCircle2,
+  ShieldCheck,
+  BadgeCheck,
+  CreditCard,
+  PiggyBank,
+  Sparkles,
+  Zap,
+  LockKeyhole
+} from 'lucide-react'
 
 export default function Register() {
   const [fullName, setFullName] = useState('')
@@ -30,23 +47,20 @@ export default function Register() {
       return
     }
 
-    // Validate phone number (must contain at least 10 digits)
-    const phoneDigits = phoneNumber.replace(/\D/g, '')
-    const phoneRegex = /^[0-9+\-\s()]{10,15}$/
-    if (!phoneNumber.trim() || !phoneRegex.test(phoneNumber.trim()) || phoneDigits.length < 10) {
-      addToast('Please enter a valid 10-digit mobile number.', 'error')
-      return
-    }
-
-    const finalEmpNo = role === 'ADMIN' ? (empNo || Math.floor(10000 + Math.random() * 90000).toString()) : ''
-
     setLoading(true)
     try {
-      await register(fullName.trim(), email.trim(), password, phoneNumber.trim(), role, finalEmpNo)
-      addToast(`Account created successfully! Please sign in with your credentials.`, 'success')
-      navigate('/login')
+      await register({
+        fullName: fullName.trim(),
+        email: email.trim(),
+        password,
+        phoneNumber: phoneNumber.trim(),
+        role,
+        empNo: isEmpRequired ? empNo.trim() : null
+      })
+      addToast('Account created successfully! Welcome to FinSync Bank.', 'success')
+      navigate(role === 'ADMIN' ? '/admin' : '/dashboard')
     } catch (err) {
-      addToast(err.response?.data?.message || 'Digital onboarding failed. Please try again.', 'error')
+      addToast(err.response?.data?.message || 'Registration failed. Please check your inputs.', 'error')
     } finally {
       setLoading(false)
     }
@@ -54,40 +68,83 @@ export default function Register() {
 
   return (
     <div style={{ width: '100%', maxWidth: 1240, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.1fr 1fr', borderRadius: 24, overflow: 'hidden', border: '1px solid var(--border-color)', boxShadow: '0 16px 40px rgba(0,0,0,0.15)' }}>
-      {/* Left Side: Deep Navy & Emerald Banking Showcase */}
-      <div style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 60%, #064E3B 100%)', padding: '48px 40px', color: '#ffffff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRight: '4px solid #12A878', position: 'relative' }}>
+      {/* Left Side: Deep Navy & Emerald Banking Showcase with Rich Value Pillars */}
+      <div style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 60%, #064E3B 100%)', padding: '44px 38px', color: '#ffffff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRight: '4px solid #12A878', position: 'relative' }}>
         <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, padding: '8px 18px', background: 'rgba(255, 255, 255, 0.12)', borderRadius: 30, color: '#ffffff', backdropFilter: 'blur(10px)', width: 'fit-content', marginBottom: 28 }}>
-            <Building2 size={22} color="#12A878" />
-            <span style={{ fontSize: '0.85rem', fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase' }}>FinSync Digital Onboarding</span>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '7px 16px', background: 'rgba(255, 255, 255, 0.12)', borderRadius: 30, color: '#ffffff', backdropFilter: 'blur(10px)', width: 'fit-content', marginBottom: 20 }}>
+            <Building2 size={20} color="#12A878" />
+            <span style={{ fontSize: '0.82rem', fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase' }}>FinSync Digital Onboarding</span>
           </div>
 
-          <h1 style={{ fontSize: '2.6rem', fontWeight: 900, lineHeight: 1.25, color: '#ffffff', marginBottom: 20, letterSpacing: '-0.6px', textAlign: 'left' }}>
+          <h1 style={{ fontSize: '2.35rem', fontWeight: 900, lineHeight: 1.2, color: '#ffffff', marginBottom: 14, letterSpacing: '-0.5px', textAlign: 'left' }}>
             Open Your FinSync Account & Role Clearance
           </h1>
 
-          <p style={{ fontSize: '1.1rem', lineHeight: 1.7, color: 'rgba(255,255,255,0.92)', marginBottom: 36, fontWeight: 500, textAlign: 'justify' }}>
-            Join FinSync Bank NetBanking in under 60 seconds. Set up multi-currency accounts, vault savings, and role-based permissions seamlessly.
+          <p style={{ fontSize: '1.02rem', lineHeight: 1.6, color: 'rgba(255,255,255,0.9)', marginBottom: 26, fontWeight: 500, textAlign: 'justify' }}>
+            Join FinSync Bank NetBanking in under 60 seconds. Experience zero account opening fees, multi-currency vaults, and industry-leading security controls.
           </p>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 36, width: '100%' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: '1.05rem', fontWeight: 700, color: '#ffffff', textAlign: 'left' }}>
-              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(18, 168, 120, 0.25)', color: '#12A878', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <CheckCircle2 size={20} />
+          {/* 4 Feature Value Pillars */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 26, width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '10px 14px', borderRadius: 12, background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <div style={{ width: 34, height: 34, borderRadius: 8, background: 'rgba(18, 168, 120, 0.22)', color: '#12A878', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2 }}>
+                <CreditCard size={18} />
               </div>
-              <span>Retail Customer: Multi-Currency Accounts & Cards</span>
+              <div>
+                <div style={{ fontSize: '0.96rem', fontWeight: 800, color: '#ffffff' }}>Everyday Accounts & Virtual Debit Cards</div>
+                <div style={{ fontSize: '0.84rem', color: 'rgba(255, 255, 255, 0.75)', lineHeight: 1.4 }}>Instant digital card issuance with real-time transaction spending insights.</div>
+              </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: '1.05rem', fontWeight: 700, color: '#ffffff', textAlign: 'left' }}>
-              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(18, 168, 120, 0.25)', color: '#12A878', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <CheckCircle2 size={20} />
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '10px 14px', borderRadius: 12, background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <div style={{ width: 34, height: 34, borderRadius: 8, background: 'rgba(2, 132, 199, 0.22)', color: '#38BDF8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2 }}>
+                <PiggyBank size={18} />
               </div>
-              <span>Security Admin: User Access Directory & Security Elevation</span>
+              <div>
+                <div style={{ fontSize: '0.96rem', fontWeight: 800, color: '#ffffff' }}>High-Yield Automated Savings</div>
+                <div style={{ fontSize: '0.84rem', color: 'rgba(255, 255, 255, 0.75)', lineHeight: 1.4 }}>Earn competitive daily compounding interest with customized goal vaults.</div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '10px 14px', borderRadius: 12, background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <div style={{ width: 34, height: 34, borderRadius: 8, background: 'rgba(219, 39, 119, 0.22)', color: '#F472B6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2 }}>
+                <Zap size={18} />
+              </div>
+              <div>
+                <div style={{ fontSize: '0.96rem', fontWeight: 800, color: '#ffffff' }}>Instant P2P & Cross-Border Transfers</div>
+                <div style={{ fontSize: '0.84rem', color: 'rgba(255, 255, 255, 0.75)', lineHeight: 1.4 }}>Send funds seamlessly with zero hidden charges and automated double-entry ledger.</div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '10px 14px', borderRadius: 12, background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <div style={{ width: 34, height: 34, borderRadius: 8, background: 'rgba(18, 168, 120, 0.22)', color: '#12A878', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2 }}>
+                <LockKeyhole size={18} />
+              </div>
+              <div>
+                <div style={{ fontSize: '0.96rem', fontWeight: 800, color: '#ffffff' }}>256-Bit SSL & Enterprise RBAC Clearance</div>
+                <div style={{ fontSize: '0.84rem', color: 'rgba(255, 255, 255, 0.75)', lineHeight: 1.4 }}>Stateless JWT tokens, role separation, and real-time security audit trails.</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Micro Trust Stats Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, padding: '14px', borderRadius: 12, background: 'rgba(0, 0, 0, 0.2)', border: '1px solid rgba(255, 255, 255, 0.1)', textAlign: 'center' }}>
+            <div>
+              <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#12A878' }}>0.00%</div>
+              <div style={{ fontSize: '0.74rem', color: 'rgba(255, 255, 255, 0.7)', fontWeight: 600, textTransform: 'uppercase' }}>Annual Fee</div>
+            </div>
+            <div style={{ borderLeft: '1px solid rgba(255, 255, 255, 0.1)', borderRight: '1px solid rgba(255, 255, 255, 0.1)' }}>
+              <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#38BDF8' }}>&lt;60s</div>
+              <div style={{ fontSize: '0.74rem', color: 'rgba(255, 255, 255, 0.7)', fontWeight: 600, textTransform: 'uppercase' }}>Instant Setup</div>
+            </div>
+            <div>
+              <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#FCD34D' }}>256-Bit</div>
+              <div style={{ fontSize: '0.74rem', color: 'rgba(255, 255, 255, 0.7)', fontWeight: 600, textTransform: 'uppercase' }}>Encryption</div>
             </div>
           </div>
         </div>
 
-        <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.85)', paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.15)', fontWeight: 600, textAlign: 'justify', width: '100%' }}>
+        <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.85)', paddingTop: 18, marginTop: 18, borderTop: '1px solid rgba(255,255,255,0.12)', fontWeight: 600, textAlign: 'justify', width: '100%' }}>
           <strong>Employee Verification:</strong> 5-Digit Employee ID is verified for System Admin role registrations.
         </div>
       </div>
