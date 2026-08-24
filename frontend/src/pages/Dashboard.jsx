@@ -539,10 +539,10 @@ export default function Dashboard() {
       </div>
 
       {/* 4. 2-Column Main Section: Recent Transactions & Spending Overview */}
-      <div className="grid grid-2" style={{ gap: 24, marginBottom: 'var(--section-gap)', alignItems: 'start' }}>
-        {/* Left: Recent Transactions (Content-Based Responsive Height) */}
-        <div className="grid-col-left" style={{ display: 'flex', flexDirection: 'column' }}>
-          <div className="card" style={{ marginBottom: 0 }}>
+      <div className="dashboard-grid" style={{ marginBottom: 'var(--section-gap)' }}>
+        {/* Left: Recent Transactions (Content-Based Natural Height) */}
+        <div className="dashboard-left-col">
+          <div className="card recent-transactions-card">
             <div className="card-header">
               <h3 className="card-title">
                 <History size={18} color="var(--primary)" />
@@ -671,9 +671,9 @@ export default function Dashboard() {
         </div>
 
         {/* Right: Spending This Month & Savings Goals */}
-        <div className="grid-col-right" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div className="dashboard-right-col">
           {/* Spending This Month Card (Dynamic & Responsive to Real Data) */}
-          <div className="card" style={{ marginBottom: 0 }}>
+          <div className="card" style={{ marginBottom: 0, height: 'fit-content' }}>
             <div className="card-header">
               <h3 className="card-title">
                 <PieChart size={18} color="var(--primary)" />
@@ -754,7 +754,7 @@ export default function Dashboard() {
           </div>
 
           {/* Savings Goals Preview Card (Dynamic Empty vs Populated) */}
-          <div className="card" style={{ marginBottom: 0 }}>
+          <div className="card" style={{ marginBottom: 0, height: 'fit-content' }}>
             <div className="card-header">
               <h3 className="card-title">
                 <PiggyBank size={18} color="var(--accent-emerald)" />
