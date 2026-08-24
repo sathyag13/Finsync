@@ -4,6 +4,7 @@ import api from '../api/axios.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useToast } from '../context/ToastContext.jsx'
 import Modal from '../components/Modal.jsx'
+import DebitCard from '../components/DebitCard.jsx'
 import AnimatedCounter from '../components/AnimatedCounter.jsx'
 import { QRCodeCanvas } from 'qrcode.react'
 import {
@@ -28,7 +29,10 @@ import {
   ShoppingBag,
   Utensils,
   Zap,
-  Car
+  Car,
+  ShieldCheck,
+  Lock,
+  Unlock
 } from 'lucide-react'
 
 export default function Dashboard() {
@@ -192,6 +196,22 @@ export default function Dashboard() {
       return { label: catName, icon: Car, color: 'var(--accent-cyan)' }
     }
     return { label: catName, icon: PieChart, color: 'var(--primary)' }
+  }
+
+  // Card Freeze Toggle Handler
+  const handleToggleFreeze = async (accountId) => {
+    try {
+      const targetAcc = accounts.find(a => a.id === accountId) || accounts[0]
+      if (!targetAcc) return
+      const newStatus = !targetAcc.cardFrozen
+      await api.patch(`/accounts/${targetAcc.id}/card-controls`, {
+        cardFrozen: newStatus
+      })
+      addToast(`Card ${newStatus ? 'frozen' : 'unlocked'} successfully!`, 'success')
+      loadDashboardData()
+    } catch (err) {
+      addToast('Failed to update card status', 'error')
+    }
   }
 
   // Quick Deposit Handler
@@ -710,6 +730,49 @@ export default function Dashboard() {
               </>
             )}
           </div>
+
+          {/* 2. Virtual Debit Card & Quick Security Controls Card (Fills lower-left area elegantly) */}
+          {accounts.length > 0 && (
+            <div className="card" style={{ marginBottom: 0 }}>
+              <div className="card-header">
+                <h3 className="card-title">
+                  <CreditCard size={18} color="var(--primary)" />
+                  <span>Virtual Debit Card & Security</span>
+                </h3>
+                <Link to="/accounts" className="btn btn-secondary btn-sm" style={{ fontSize: '12px' }}>
+                  Manage Card <ArrowRight size={13} />
+                </Link>
+              </div>
+
+              <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: 14 }}>
+                Instant virtual debit card for contactless & secure online payments.
+              </p>
+
+              <div style={{ padding: '4px 0 16px 0' }}>
+                <DebitCard
+                  account={accounts[0]}
+                  userName={user?.fullName || 'VALUED CLIENT'}
+                  onToggleFreeze={handleToggleFreeze}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10, paddingTop: 14, borderTop: '1px solid var(--border-color)' }}>
+                <div style={{ padding: '8px 12px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>ONLINE SHOPPING</div>
+                  <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--accent-emerald)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <ShieldCheck size={14} /> ACTIVE (₹50K/day)
+                  </div>
+                </div>
+
+                <div style={{ padding: '8px 12px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>CARD STATUS</div>
+                  <div style={{ fontSize: '13px', fontWeight: 800, color: accounts[0]?.cardFrozen ? 'var(--accent-rose)' : 'var(--accent-emerald)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    {accounts[0]?.cardFrozen ? <Lock size={14} /> : <Unlock size={14} />} {accounts[0]?.cardFrozen ? 'FROZEN' : 'ACTIVE'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right: Spending This Month & Savings Goals */}
