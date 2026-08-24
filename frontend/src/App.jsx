@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import PublicNavbar from './components/PublicNavbar.jsx'
 import PublicFooter from './components/PublicFooter.jsx'
@@ -74,6 +74,7 @@ export default function App() {
 
               <Route path="/login" element={defaultLanding} />
               <Route path="/register" element={defaultLanding} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
         </div>
@@ -91,6 +92,15 @@ export default function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/admin" element={<Navigate to="/login" replace />} />
+          <Route path="/admin/*" element={<Navigate to="/login" replace />} />
+          <Route path="/dashboard" element={<Navigate to="/login" replace />} />
+          <Route path="/profile" element={<Navigate to="/login" replace />} />
+          <Route path="/accounts" element={<Navigate to="/login" replace />} />
+          <Route path="/transfer" element={<Navigate to="/login" replace />} />
+          <Route path="/expenses" element={<Navigate to="/login" replace />} />
+          <Route path="/savings" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </main>
       <PublicFooter />
