@@ -4,7 +4,6 @@ import api from '../api/axios.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useToast } from '../context/ToastContext.jsx'
 import Modal from '../components/Modal.jsx'
-import DebitCard from '../components/DebitCard.jsx'
 import AnimatedCounter from '../components/AnimatedCounter.jsx'
 import { QRCodeCanvas } from 'qrcode.react'
 import {
@@ -29,10 +28,7 @@ import {
   ShoppingBag,
   Utensils,
   Zap,
-  Car,
-  ShieldCheck,
-  Lock,
-  Unlock
+  Car
 } from 'lucide-react'
 
 export default function Dashboard() {
@@ -560,9 +556,9 @@ export default function Dashboard() {
 
       {/* 4. 2-Column Main Section: Recent Transactions & Spending Overview */}
       <div className="dashboard-grid" style={{ marginBottom: 'var(--section-gap)' }}>
-        {/* Left: Recent Transactions (Content-Based Natural Height) */}
+        {/* Left: Recent Transactions (Clean, Content-Driven Natural Height) */}
         <div className="dashboard-left-col">
-          <div className="card recent-transactions-card">
+          <div className="card recent-transactions-card" style={{ height: 'auto', minHeight: 0, marginBottom: 0 }}>
             <div className="card-header">
               <h3 className="card-title">
                 <History size={18} color="var(--primary)" />
@@ -581,11 +577,11 @@ export default function Dashboard() {
 
             {/* Scenario 1: 0 Transactions Clean Empty State */}
             {recentTransactions.length === 0 ? (
-              <div style={{ padding: '32px 16px', textAlign: 'center', color: 'var(--text-muted)' }}>
+              <div style={{ padding: '28px 16px', textAlign: 'center', color: 'var(--text-muted)' }}>
                 <div
                   style={{
-                    width: 48,
-                    height: 48,
+                    width: 44,
+                    height: 44,
                     borderRadius: 12,
                     background: 'rgba(99, 102, 241, 0.1)',
                     color: 'var(--primary)',
@@ -595,11 +591,11 @@ export default function Dashboard() {
                     margin: '0 auto 12px auto'
                   }}
                 >
-                  <History size={24} />
+                  <History size={22} />
                 </div>
                 <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-main)' }}>No transactions yet</div>
                 <div style={{ fontSize: '13px', marginTop: 4 }}>Your payments, transfers, and deposits will appear here.</div>
-                <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 18 }}>
+                <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 16 }}>
                   <button
                     type="button"
                     onClick={() => setShowDepositModal(true)}
@@ -730,55 +726,12 @@ export default function Dashboard() {
               </>
             )}
           </div>
-
-          {/* 2. Virtual Debit Card & Quick Security Controls Card (Fills lower-left area elegantly) */}
-          {accounts.length > 0 && (
-            <div className="card" style={{ marginBottom: 0 }}>
-              <div className="card-header">
-                <h3 className="card-title">
-                  <CreditCard size={18} color="var(--primary)" />
-                  <span>Virtual Debit Card & Security</span>
-                </h3>
-                <Link to="/accounts" className="btn btn-secondary btn-sm" style={{ fontSize: '12px' }}>
-                  Manage Card <ArrowRight size={13} />
-                </Link>
-              </div>
-
-              <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: 14 }}>
-                Instant virtual debit card for contactless & secure online payments.
-              </p>
-
-              <div style={{ padding: '4px 0 16px 0' }}>
-                <DebitCard
-                  account={accounts[0]}
-                  userName={user?.fullName || 'VALUED CLIENT'}
-                  onToggleFreeze={handleToggleFreeze}
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10, paddingTop: 14, borderTop: '1px solid var(--border-color)' }}>
-                <div style={{ padding: '8px 12px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>ONLINE SHOPPING</div>
-                  <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--accent-emerald)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <ShieldCheck size={14} /> ACTIVE (₹50K/day)
-                  </div>
-                </div>
-
-                <div style={{ padding: '8px 12px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>CARD STATUS</div>
-                  <div style={{ fontSize: '13px', fontWeight: 800, color: accounts[0]?.cardFrozen ? 'var(--accent-rose)' : 'var(--accent-emerald)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
-                    {accounts[0]?.cardFrozen ? <Lock size={14} /> : <Unlock size={14} />} {accounts[0]?.cardFrozen ? 'FROZEN' : 'ACTIVE'}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Right: Spending This Month & Savings Goals */}
         <div className="dashboard-right-col">
           {/* Spending This Month Card (Dynamic & Responsive to Real Data) */}
-          <div className="card" style={{ marginBottom: 0, height: 'fit-content' }}>
+          <div className="card" style={{ marginBottom: 0, height: 'auto', minHeight: 0 }}>
             <div className="card-header">
               <h3 className="card-title">
                 <PieChart size={18} color="var(--primary)" />
@@ -859,7 +812,7 @@ export default function Dashboard() {
           </div>
 
           {/* Savings Goals Preview Card (Dynamic Empty vs Populated) */}
-          <div className="card" style={{ marginBottom: 0, height: 'fit-content' }}>
+          <div className="card" style={{ marginBottom: 0, height: 'auto', minHeight: 0 }}>
             <div className="card-header">
               <h3 className="card-title">
                 <PiggyBank size={18} color="var(--accent-emerald)" />
