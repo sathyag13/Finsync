@@ -112,15 +112,15 @@ export default function Home() {
     <div style={{ background: 'var(--bg-main)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <PublicNavbar />
 
-      {/* 1. FULL-BLEED PANORAMIC HERO: Edge-to-edge photo background with overlaid text & action pills */}
+      {/* 1. FULL-BLEED PANORAMIC HERO: Edge-to-edge photo background with FinSync mascot on the right */}
       <section
         style={{
           position: 'relative',
           width: '100%',
-          minHeight: 580,
+          minHeight: 600,
           backgroundImage: 'url("/hero-mascot.jpg")',
           backgroundSize: 'cover',
-          backgroundPosition: 'center 30%',
+          backgroundPosition: 'right center',
           backgroundRepeat: 'no-repeat',
           display: 'flex',
           alignItems: 'center',
@@ -128,12 +128,12 @@ export default function Home() {
           overflow: 'hidden'
         }}
       >
-        {/* Soft dark-to-transparent gradient overlay to ensure text is 100% crisp & readable on the left */}
+        {/* Dark-to-transparent horizontal gradient ensuring text is crisp on left while mascot is 100% visible on right */}
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(to right, rgba(11, 9, 20, 0.94) 0%, rgba(15, 23, 42, 0.85) 42%, rgba(15, 23, 42, 0.35) 70%, rgba(15, 23, 42, 0.1) 100%)',
+            background: 'linear-gradient(to right, rgba(11, 9, 20, 0.95) 0%, rgba(15, 23, 42, 0.88) 38%, rgba(15, 23, 42, 0.25) 60%, rgba(15, 23, 42, 0.0) 80%)',
             zIndex: 1
           }}
         />
