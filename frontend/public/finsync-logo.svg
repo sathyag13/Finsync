@@ -1,15 +1,28 @@
-<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="1000" height="1000" viewBox="0 0 1000 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="fsGoldGradient" x1="20" y1="15" x2="80" y2="85" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#E8BE74" />
-      <stop offset="45%" stop-color="#D4A359" />
-      <stop offset="100%" stop-color="#BA863A" />
+    <linearGradient id="goldTopGrad" x1="260" y1="100" x2="750" y2="450" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#E9C172" />
+      <stop offset="50%" stop-color="#DCA952" />
+      <stop offset="100%" stop-color="#C48E37" />
     </linearGradient>
-    <linearGradient id="fsSlateGradient" x1="22" y1="58" x2="38" y2="92" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#64748B" />
-      <stop offset="100%" stop-color="#334155" />
+    <linearGradient id="goldBottomGrad" x1="440" y1="350" x2="740" y2="780" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F3D086" />
+      <stop offset="40%" stop-color="#E0AE55" />
+      <stop offset="100%" stop-color="#BA832F" />
+    </linearGradient>
+    <linearGradient id="slateGrad" x1="260" y1="540" x2="550" y2="900" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6C7D93" />
+      <stop offset="60%" stop-color="#4D5D73" />
+      <stop offset="100%" stop-color="#354458" />
+    </linearGradient>
+    <linearGradient id="depthShadow" x1="480" y1="480" x2="550" y2="550" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1E293B" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#1E293B" stop-opacity="0" />
     </linearGradient>
   </defs>
-  <rect x="22" y="58" width="16" height="32" rx="4" fill="url(#fsSlateGradient)" />
-  <path d="M 38 52 C 28 50, 22 42, 22 30 C 22 17, 34 14, 52 14 L 72 14 C 76 14, 78 17, 76 21 C 74 25, 70 26, 66 26 L 50 26 C 39 26, 36 30, 36 35 C 36 41, 41 44, 52 46 L 62 48 C 75 51, 82 58, 82 70 C 82 82, 70 88, 52 88 L 38 88 C 33 88, 30 84, 33 80 C 35 76, 39 76, 44 76 L 54 76 C 64 76, 68 73, 68 67 C 68 61, 63 58, 50 56 L 42 54 Z" fill="url(#fsGoldGradient)" />
+  <rect x="268" y="548" width="116" height="342" rx="18" fill="url(#slateGrad)" />
+  <path d="M 384 548 L 516 548 C 538 548, 550 562, 546 582 C 542 602, 526 618, 498 626 L 384 642 Z" fill="url(#slateGrad)" />
+  <path d="M 538 528 C 430 528, 376 450, 376 348 C 376 226, 452 112, 608 112 L 744 112 C 756 112, 752 136, 736 158 C 712 192, 674 236, 614 236 L 560 236 C 440 236, 268 280, 268 402 C 268 506, 362 556, 492 556 C 524 556, 542 546, 538 528 Z" fill="url(#goldTopGrad)" />
+  <path d="M 470 326 C 444 326, 444 374, 468 392 C 530 436, 642 478, 642 584 C 642 676, 560 766, 384 766 L 384 648 L 490 648 C 604 648, 734 602, 734 496 C 734 388, 624 326, 470 326 Z" fill="url(#goldBottomGrad)" />
+  <path d="M 500 520 C 528 535, 548 554, 544 582 L 516 548 Z" fill="url(#depthShadow)" />
 </svg>
