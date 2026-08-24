@@ -159,16 +159,16 @@ export default function Home() {
         {/* Continuous cinematic video camera motion background */}
         <div className="hero-video-bg" />
 
-        {/* Ambient subtle pastel glows */}
+        {/* Ambient subtle pastel glows positioned on the left text area */}
         <div
           style={{
             position: 'absolute',
             top: '-5%',
-            left: '10%',
-            width: '420px',
-            height: '420px',
+            left: '5%',
+            width: '380px',
+            height: '380px',
             borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(234, 249, 243, 0.6) 0%, rgba(234, 249, 243, 0) 70%)',
+            background: 'radial-gradient(circle, rgba(234, 249, 243, 0.55) 0%, rgba(234, 249, 243, 0) 70%)',
             pointerEvents: 'none',
             zIndex: 1
           }}
@@ -177,22 +177,22 @@ export default function Home() {
           style={{
             position: 'absolute',
             bottom: '5%',
-            left: '35%',
-            width: '380px',
-            height: '380px',
+            left: '22%',
+            width: '340px',
+            height: '340px',
             borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(234, 245, 255, 0.5) 0%, rgba(234, 245, 255, 0) 70%)',
+            background: 'radial-gradient(circle, rgba(234, 245, 255, 0.45) 0%, rgba(234, 245, 255, 0) 70%)',
             pointerEvents: 'none',
             zIndex: 1
           }}
         />
 
-        {/* Crisp luminous light gradient overlay to ensure deep navy text is 100% sharp on the left while mascot is fully visible on the right */}
+        {/* Crisp luminous light gradient overlay on the left text area, fully transparent on the right so the mascot is 100% clear and vivid */}
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(to right, rgba(244, 249, 255, 0.98) 0%, rgba(244, 249, 255, 0.94) 42%, rgba(244, 249, 255, 0.35) 68%, rgba(244, 249, 255, 0.0) 88%)',
+            background: 'linear-gradient(to right, rgba(244, 249, 255, 0.98) 0%, rgba(244, 249, 255, 0.92) 36%, rgba(244, 249, 255, 0.35) 50%, rgba(244, 249, 255, 0.0) 62%)',
             zIndex: 1
           }}
         />
