@@ -100,6 +100,34 @@
   --shadow-glow: 0 0 20px rgba(15, 168, 120, 0.15);
 }
 
+[data-theme="dark"],
+.dark {
+  /* Black & White Format Theme System */
+  --bg-main: #000000;
+  --bg-secondary: #0d0d0d;
+  --bg-card: #121214;
+  --bg-card-hover: #1c1c1f;
+  --bg-input: #18181b;
+  --bg-sidebar: #09090b;
+  --bg-top-bar: #0c0c0e;
+  
+  --text-main: #FFFFFF;
+  --text-muted: #D4D4D8;
+  --text-dim: #A1A1AA;
+  
+  --primary: #12A878;
+  --primary-hover: #0FA878;
+  --primary-glow: rgba(18, 168, 120, 0.3);
+  
+  --border-color: #27272a;
+  --border-glow: rgba(255, 255, 255, 0.12);
+  
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.8);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.9);
+  --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.95);
+  --shadow-glow: 0 0 20px rgba(255, 255, 255, 0.08);
+}
+
 /* ==========================================================================
    Reset & Global Box Sizing (Strict box-sizing on all elements)
    ========================================================================== */

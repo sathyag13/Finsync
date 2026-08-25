@@ -53,10 +53,12 @@ export default function PublicNavbar() {
     ? user.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
     : 'FS'
 
+  const isDark = theme === 'dark'
+
   return (
     <>
       {/* Main Brand Header */}
-      <header className="public-navbar" style={{ background: '#ffffff', borderBottom: '1px solid #E5E7EB', boxShadow: '0 2px 12px rgba(17, 24, 39, 0.03)', position: 'sticky', top: 0, zIndex: 100 }}>
+      <header className="public-navbar" style={{ background: isDark ? '#09090b' : '#ffffff', borderBottom: isDark ? '1px solid #27272a' : '1px solid #E5E7EB', boxShadow: isDark ? '0 2px 16px rgba(0, 0, 0, 0.8)' : '0 2px 12px rgba(17, 24, 39, 0.03)', position: 'sticky', top: 0, zIndex: 100, transition: 'background 0.25s ease, border-color 0.25s ease' }}>
         <div className="nav-inner" style={{ maxWidth: 1200, margin: '0 auto', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           
           {/* Brand Logo with Bank Title on the Left */}
@@ -66,7 +68,7 @@ export default function PublicNavbar() {
           >
             <FinSyncLogo size={50} glow />
             <div>
-              <span style={{ fontSize: '1.55rem', fontWeight: 900, color: '#111827', letterSpacing: '-0.5px', display: 'block', lineHeight: 1.1 }}>
+              <span style={{ fontSize: '1.55rem', fontWeight: 900, color: isDark ? '#ffffff' : '#111827', letterSpacing: '-0.5px', display: 'block', lineHeight: 1.1 }}>
                 FINSYNC BANK
               </span>
               <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#12A878', letterSpacing: 1.4, textTransform: 'uppercase', marginTop: 2 }}>
@@ -83,8 +85,8 @@ export default function PublicNavbar() {
                 width: 38,
                 height: 38,
                 borderRadius: '50%',
-                border: '1px solid #E5E7EB',
-                background: '#F4F9FF',
+                border: isDark ? '1px solid #27272a' : '1px solid #E5E7EB',
+                background: isDark ? '#141416' : '#F4F9FF',
                 color: '#12A878',
                 cursor: 'pointer',
                 display: 'flex',
@@ -103,9 +105,9 @@ export default function PublicNavbar() {
                 width: 38,
                 height: 38,
                 borderRadius: '50%',
-                border: '1px solid #E5E7EB',
-                background: '#F4F9FF',
-                color: '#4B5563',
+                border: isDark ? '1px solid #27272a' : '1px solid #E5E7EB',
+                background: isDark ? '#141416' : '#F4F9FF',
+                color: isDark ? '#F59E0B' : '#4B5563',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -114,14 +116,14 @@ export default function PublicNavbar() {
               }}
               title="Toggle Theme"
             >
-              {theme === 'dark' ? <Sun size={16} color="#D97706" /> : <Moon size={16} color="#12A878" />}
+              {theme === 'dark' ? <Sun size={16} color="#F59E0B" /> : <Moon size={16} color="#12A878" />}
             </button>
             {user ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <button
                   onClick={handleAdminClick}
                   className="btn btn-secondary btn-sm"
-                  style={{ padding: '8px 14px', fontWeight: 800, background: '#ffffff', border: '1.5px solid #E2E8F0', color: '#111827' }}
+                  style={{ padding: '8px 14px', fontWeight: 800, background: isDark ? '#141416' : '#ffffff', border: isDark ? '1px solid #27272a' : '1.5px solid #E2E8F0', color: isDark ? '#ffffff' : '#111827' }}
                 >
                   <ShieldCheck size={16} color="#12A878" />
                   <span>Admin Portal</span>
@@ -154,10 +156,10 @@ export default function PublicNavbar() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 6,
-                    background: '#ffffff',
-                    border: '1.5px solid #E2E8F0',
+                    background: isDark ? '#141416' : '#ffffff',
+                    border: isDark ? '1px solid #27272a' : '1.5px solid #E2E8F0',
                     borderRadius: 8,
-                    color: '#111827',
+                    color: isDark ? '#ffffff' : '#111827',
                     cursor: 'pointer',
                     transition: 'all 0.15s ease'
                   }}
