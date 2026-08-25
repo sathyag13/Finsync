@@ -414,10 +414,10 @@ export default function Dashboard() {
       </div>
 
       {/* 4. 2-Column Main Section: Recent Transactions & Spending Overview */}
-      <div className="dashboard-grid" style={{ marginBottom: 'var(--section-gap)' }}>
-        {/* Left: Recent Transactions (Clean, Content-Driven Natural Height) */}
-        <div className="dashboard-left-col">
-          <div className="card recent-transactions-card" style={{ height: 'auto', minHeight: 0, marginBottom: 0 }}>
+      <div className="dashboard-grid" style={{ marginBottom: 'var(--section-gap)', alignItems: 'start' }}>
+        {/* Left: Recent Transactions (Hugs content height naturally) */}
+        <div className="dashboard-left-col" style={{ alignSelf: 'start' }}>
+          <div className="card recent-transactions-card" style={{ height: 'auto', minHeight: 0, marginBottom: 0, alignSelf: 'start' }}>
             <div className="card-header">
               <h3 className="card-title">
                 <History size={18} color="var(--primary)" />
@@ -436,7 +436,7 @@ export default function Dashboard() {
 
             {/* Scenario 1: 0 Transactions Clean Empty State */}
             {recentTransactions.length === 0 ? (
-              <div style={{ padding: '28px 16px', textAlign: 'center', color: 'var(--text-muted)' }}>
+              <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--text-muted)', minHeight: 0 }}>
                 <div
                   style={{
                     width: 44,
@@ -472,17 +472,18 @@ export default function Dashboard() {
                 </div>
               </div>
             ) : (
-              /* Scenario 2: Populated Transactions (Latest 5-6 with natural fit or scroll) */
+              /* Scenario 2: Populated Transactions (Hugs content when few items, scrolls when exceeding max-height) */
               <>
                 <div
-                  className={recentTransactions.length > 5 ? 'custom-scroll' : ''}
+                  className="recent-transactions-list-wrapper custom-scroll"
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
                     gap: 10,
-                    maxHeight: recentTransactions.length > 5 ? 380 : 'none',
-                    overflowY: recentTransactions.length > 5 ? 'auto' : 'visible',
-                    paddingRight: recentTransactions.length > 5 ? 6 : 0
+                    maxHeight: '380px',
+                    overflowY: 'auto',
+                    minHeight: 0,
+                    paddingRight: recentTransactions.length > 5 ? 4 : 0
                   }}
                 >
                   {recentTransactions.map((txn) => {
