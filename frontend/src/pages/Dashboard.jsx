@@ -335,39 +335,14 @@ export default function Dashboard() {
           <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600 }}>Click any action to execute immediately</span>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 16 }}>
+        <div className="quick-actions-grid">
           {/* Send Money */}
           <button
             type="button"
             onClick={() => navigate('/transfer')}
-            className="card"
-            style={{
-              padding: '18px 16px',
-              margin: 0,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 14,
-              cursor: 'pointer',
-              border: '1.5px solid rgba(99, 102, 241, 0.25)',
-              background: 'var(--bg-card)',
-              textAlign: 'left',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 4px 14px rgba(0,0,0,0.05)'
-            }}
+            className="quick-action-card qa-send"
           >
-            <div
-              style={{
-                width: 46,
-                height: 46,
-                borderRadius: 12,
-                background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(99, 102, 241, 0.1))',
-                color: 'var(--primary)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0
-              }}
-            >
+            <div className="quick-action-icon-wrapper">
               <Send size={22} />
             </div>
             <div>
@@ -380,34 +355,9 @@ export default function Dashboard() {
           <button
             type="button"
             onClick={() => navigate('/transfer')}
-            className="card"
-            style={{
-              padding: '18px 16px',
-              margin: 0,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 14,
-              cursor: 'pointer',
-              border: '1.5px solid rgba(16, 185, 129, 0.25)',
-              background: 'var(--bg-card)',
-              textAlign: 'left',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 4px 14px rgba(0,0,0,0.05)'
-            }}
+            className="quick-action-card qa-scan"
           >
-            <div
-              style={{
-                width: 46,
-                height: 46,
-                borderRadius: 12,
-                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1))',
-                color: 'var(--accent-emerald)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0
-              }}
-            >
+            <div className="quick-action-icon-wrapper">
               <QrCode size={22} />
             </div>
             <div>
@@ -420,34 +370,9 @@ export default function Dashboard() {
           <button
             type="button"
             onClick={() => setShowReceiveModal(true)}
-            className="card"
-            style={{
-              padding: '18px 16px',
-              margin: 0,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 14,
-              cursor: 'pointer',
-              border: '1.5px solid rgba(6, 182, 212, 0.25)',
-              background: 'var(--bg-card)',
-              textAlign: 'left',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 4px 14px rgba(0,0,0,0.05)'
-            }}
+            className="quick-action-card qa-receive"
           >
-            <div
-              style={{
-                width: 46,
-                height: 46,
-                borderRadius: 12,
-                background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(6, 182, 212, 0.1))',
-                color: 'var(--accent-cyan)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0
-              }}
-            >
+            <div className="quick-action-icon-wrapper">
               <ArrowDownLeft size={22} />
             </div>
             <div>
@@ -460,34 +385,9 @@ export default function Dashboard() {
           <button
             type="button"
             onClick={() => setShowDepositModal(true)}
-            className="card"
-            style={{
-              padding: '18px 16px',
-              margin: 0,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 14,
-              cursor: 'pointer',
-              border: '1.5px solid rgba(245, 158, 11, 0.25)',
-              background: 'var(--bg-card)',
-              textAlign: 'left',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 4px 14px rgba(0,0,0,0.05)'
-            }}
+            className="quick-action-card qa-deposit"
           >
-            <div
-              style={{
-                width: 46,
-                height: 46,
-                borderRadius: 12,
-                background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.1))',
-                color: 'var(--accent-amber)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0
-              }}
-            >
+            <div className="quick-action-icon-wrapper">
               <Plus size={22} />
             </div>
             <div>
@@ -500,34 +400,9 @@ export default function Dashboard() {
           <button
             type="button"
             onClick={() => navigate('/accounts')}
-            className="card"
-            style={{
-              padding: '18px 16px',
-              margin: 0,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 14,
-              cursor: 'pointer',
-              border: '1.5px solid rgba(139, 92, 246, 0.25)',
-              background: 'var(--bg-card)',
-              textAlign: 'left',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 4px 14px rgba(0,0,0,0.05)'
-            }}
+            className="quick-action-card qa-history"
           >
-            <div
-              style={{
-                width: 46,
-                height: 46,
-                borderRadius: 12,
-                background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(139, 92, 246, 0.1))',
-                color: '#8b5cf6',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0
-              }}
-            >
+            <div className="quick-action-icon-wrapper">
               <History size={22} />
             </div>
             <div>

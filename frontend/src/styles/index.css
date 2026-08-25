@@ -677,6 +677,123 @@ html, body {
   border-color: var(--border-glow);
 }
 
+/* ==========================================================================
+   Interactive Quick Action Cards & Touch Glow System
+   ========================================================================== */
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.quick-action-card {
+  padding: 18px 18px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  background: var(--bg-card);
+  border: 1.5px solid var(--action-border, var(--border-color));
+  border-radius: var(--card-radius);
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.quick-action-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+  background: radial-gradient(circle at center, var(--action-glow-color, rgba(18, 168, 120, 0.15)) 0%, transparent 70%);
+}
+
+.quick-action-card:hover,
+.quick-action-card:focus-visible,
+.quick-action-card:active {
+  transform: translateY(-4px);
+  border-color: var(--action-color, var(--primary)) !important;
+  box-shadow: 0 0 24px var(--action-glow-color, rgba(18, 168, 120, 0.35)),
+              0 8px 20px -4px var(--action-glow-color, rgba(18, 168, 120, 0.25));
+}
+
+.quick-action-card:hover::before,
+.quick-action-card:focus-visible::before,
+.quick-action-card:active::before {
+  opacity: 1;
+}
+
+.quick-action-card:active {
+  transform: translateY(-1px) scale(0.98);
+}
+
+.quick-action-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--action-icon-bg, rgba(18, 168, 120, 0.12));
+  color: var(--action-color, var(--primary));
+  border: 1px solid var(--action-border, rgba(18, 168, 120, 0.2));
+  transition: all 0.22s ease;
+}
+
+.quick-action-card:hover .quick-action-icon-wrapper,
+.quick-action-card:active .quick-action-icon-wrapper {
+  transform: scale(1.12);
+  box-shadow: 0 0 16px var(--action-glow-color, rgba(18, 168, 120, 0.45));
+}
+
+/* Color Variants for Quick Actions */
+.qa-send {
+  --action-color: #6366F1;
+  --action-glow-color: rgba(99, 102, 241, 0.42);
+  --action-icon-bg: rgba(99, 102, 241, 0.12);
+  --action-border: rgba(99, 102, 241, 0.25);
+}
+
+.qa-scan {
+  --action-color: #10B981;
+  --action-glow-color: rgba(16, 185, 129, 0.42);
+  --action-icon-bg: rgba(16, 185, 129, 0.12);
+  --action-border: rgba(16, 185, 129, 0.25);
+}
+
+.qa-receive {
+  --action-color: #06B6D4;
+  --action-glow-color: rgba(6, 182, 212, 0.42);
+  --action-icon-bg: rgba(6, 182, 212, 0.12);
+  --action-border: rgba(6, 182, 212, 0.25);
+}
+
+.qa-deposit {
+  --action-color: #F59E0B;
+  --action-glow-color: rgba(245, 158, 11, 0.42);
+  --action-icon-bg: rgba(245, 158, 11, 0.12);
+  --action-border: rgba(245, 158, 11, 0.25);
+}
+
+.qa-history {
+  --action-color: #8B5CF6;
+  --action-glow-color: rgba(139, 92, 246, 0.42);
+  --action-icon-bg: rgba(139, 92, 246, 0.12);
+  --action-border: rgba(139, 92, 246, 0.25);
+}
+
 .card.card-sm {
   padding: 16px;
 }
