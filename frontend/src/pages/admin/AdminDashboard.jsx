@@ -14,7 +14,8 @@ import {
   Activity,
   ShieldAlert,
   Sliders,
-  ArrowUpRight
+  ArrowUpRight,
+  User
 } from 'lucide-react'
 
 export default function AdminDashboard() {
@@ -56,9 +57,29 @@ export default function AdminDashboard() {
   const highRiskTransactionsCount = auditLogs.filter(l => l.riskLevel === 'HIGH' || l.riskLevel === 'MEDIUM').length
   const totalBankLiquidity = dbAccounts.reduce((sum, a) => sum + (Number(a.balance) || 0), 0)
 
-  // 7-Day Activity Heights
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-  const activityHeights = [45, 65, 80, 50, 95, 70, 85]
+  // Dynamic 7-Day Activity aggregation from real transactions & audit logs
+  const dayCounts = [0, 0, 0, 0, 0, 0, 0]
+  dbTransactions.forEach(t => {
+    if (t.createdAt) {
+      const d = new Date(t.createdAt).getDay()
+      dayCounts[d] += 1
+    }
+  })
+  auditLogs.forEach(l => {
+    if (l.timestamp) {
+      const d = new Date(l.timestamp).getDay()
+      dayCounts[d] += 1
+    }
+  })
+  const maxDayCount = Math.max(...dayCounts, 1)
+  const displayDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  const dayIndices = [1, 2, 3, 4, 5, 6, 0]
+  const activityData = displayDays.map((name, i) => {
+    const idx = dayIndices[i]
+    const count = dayCounts[idx]
+    const heightPercent = count > 0 ? Math.max(20, Math.round((count / maxDayCount) * 100)) : 10
+    return { name, count, heightPercent }
+  })
 
   return (
     <div>
@@ -68,14 +89,17 @@ export default function AdminDashboard() {
         description="Full management access across customer directories, real account ledgers, risk indicators, and audit trails"
         icon={ShieldCheck}
         actions={
-          <>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button className="btn btn-secondary btn-sm" onClick={() => navigate('/admin/profile')}>
+              <User size={15} /> Admin Profile
+            </button>
             <button className="btn btn-secondary btn-sm" onClick={() => navigate('/admin/users')}>
               <UserCheck size={15} /> User Directory
             </button>
             <button className="btn btn-primary btn-sm" onClick={() => navigate('/admin/audit-logs')}>
               <History size={15} /> Audit Trail
             </button>
-          </>
+          </div>
         }
       />
 
@@ -129,30 +153,30 @@ export default function AdminDashboard() {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: 130, padding: '10px 0', borderBottom: '1px solid var(--border-color)' }}>
-            {days.map((day, i) => {
-              const barHeightPx = Math.round((activityHeights[i] / 100) * 90) + 12
+            {activityData.map((item, i) => {
+              const barHeightPx = Math.round((item.heightPercent / 100) * 90) + 12
               return (
-                <div key={day} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%', gap: 6, flex: 1 }}>
+                <div key={item.name} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%', gap: 6, flex: 1 }}>
                   <div
                     style={{
                       width: 24,
                       height: `${barHeightPx}px`,
-                      background: i === 4 ? 'linear-gradient(180deg, var(--primary) 0%, #4338ca 100%)' : 'linear-gradient(180deg, rgba(99, 102, 241, 0.8) 0%, rgba(99, 102, 241, 0.3) 100%)',
+                      background: item.count > 0 ? 'linear-gradient(180deg, var(--primary) 0%, #4338ca 100%)' : 'rgba(99, 102, 241, 0.2)',
                       borderRadius: '4px 4px 0 0',
-                      boxShadow: i === 4 ? '0 4px 12px var(--primary-glow)' : 'none',
+                      boxShadow: item.count > 0 ? '0 4px 12px var(--primary-glow)' : 'none',
                       transition: 'all 0.3s ease',
                       cursor: 'pointer'
                     }}
-                    title={`${day}: ${activityHeights[i] * 12} transactions`}
+                    title={`${item.name}: ${item.count} activity event(s)`}
                   />
-                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>{day}</span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>{item.name}</span>
                 </div>
               )
             })}
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10, fontSize: '12px', color: 'var(--text-muted)' }}>
-            <span>Weekly Total: <strong>{dbTransactions.length + 42} Transfers</strong></span>
-            <span>Avg Settlement: <strong>&lt; 350ms</strong></span>
+            <span>Recorded Volume: <strong>{dbTransactions.length} Transactions</strong></span>
+            <span>Audit Events: <strong>{auditLogs.length} Events</strong></span>
           </div>
         </div>
 
@@ -166,6 +190,29 @@ export default function AdminDashboard() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div
+              onClick={() => navigate('/admin/profile')}
+              style={{
+                padding: '10px 14px',
+                borderRadius: 8,
+                background: 'var(--bg-input)',
+                border: '1px solid var(--border-color)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                cursor: 'pointer'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div className="stat-icon emerald" style={{ width: 32, height: 32, borderRadius: 6 }}><User size={16} /></div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '13px' }}>Admin Profile & Security Credentials</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Admin Employee ID, 2FA security, credentials & password</div>
+                </div>
+              </div>
+              <ArrowUpRight size={15} color="var(--text-muted)" />
+            </div>
+
             <div
               onClick={() => navigate('/admin/users')}
               style={{

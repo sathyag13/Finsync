@@ -93,6 +93,14 @@ public class AuthServiceImpl implements AuthService {
                 "SYSTEM"
         );
 
+        if (user.getRole() == com.finsync.model.Role.CUSTOMER) {
+            notificationService.sendNotificationToAdmins(
+                    "New Customer Registered",
+                    "Customer " + user.getFullName() + " (" + user.getEmail() + ") registered. Account #" + account.getAccountNumber() + " created.",
+                    "ADMIN_USER"
+            );
+        }
+
         auditLogService.logAction(
                 user,
                 account.getAccountNumber(),

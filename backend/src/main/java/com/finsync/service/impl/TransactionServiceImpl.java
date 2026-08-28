@@ -133,12 +133,17 @@ public class TransactionServiceImpl implements TransactionService {
                 "WITHDRAWAL"
         );
 
-        if ("HIGH".equals(riskLevel)) {
+        if ("HIGH".equals(riskLevel) || req.amount.compareTo(new BigDecimal("50000.00")) >= 0) {
             notificationService.sendNotification(
                     user,
                     "High-Value Withdrawal Alert",
                     "A high-value withdrawal of ₹" + req.amount + " was processed from account " + account.getAccountNumber() + ".",
                     "SECURITY"
+            );
+            notificationService.sendNotificationToAdmins(
+                    "High-Value Withdrawal Surveillance",
+                    "₹" + req.amount + " withdrawn from Account #" + account.getAccountNumber() + " by " + user.getFullName() + " (Risk: " + riskLevel + ").",
+                    "ADMIN_TRANSACTION"
             );
         }
 
@@ -336,12 +341,17 @@ public class TransactionServiceImpl implements TransactionService {
             );
         }
 
-        if ("HIGH".equals(riskLevel)) {
+        if ("HIGH".equals(riskLevel) || req.amount.compareTo(new BigDecimal("25000.00")) >= 0) {
             notificationService.sendNotification(
                     sender,
                     "High-Risk Transfer Alert",
                     "High-value transfer of ₹" + req.amount + " completed with heightened security logging.",
                     "SECURITY"
+            );
+            notificationService.sendNotificationToAdmins(
+                    "High-Value Transfer Surveillance",
+                    "₹" + req.amount + " transferred from " + from.getAccountNumber() + " to " + to.getAccountNumber() + " (Risk: " + riskLevel + ").",
+                    "ADMIN_TRANSACTION"
             );
         }
 
@@ -553,12 +563,17 @@ public class TransactionServiceImpl implements TransactionService {
                 "TRANSFER"
         );
 
-        if ("HIGH".equals(riskLevel)) {
+        if ("HIGH".equals(riskLevel) || req.getAmount().compareTo(new BigDecimal("25000.00")) >= 0) {
             notificationService.sendNotification(
                     sender,
                     "High-Risk Transfer Alert",
                     "High-value QR transfer of ₹" + req.getAmount() + " completed with heightened security logging.",
                     "SECURITY"
+            );
+            notificationService.sendNotificationToAdmins(
+                    "High-Value QR Payment Alert",
+                    "₹" + req.getAmount() + " transferred via QR from " + sender.getFullName() + " to " + recipient.getFullName() + " (Risk: " + riskLevel + ").",
+                    "ADMIN_TRANSACTION"
             );
         }
 
@@ -627,6 +642,12 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private void checkSystemLimits(BigDecimal amount) {
+        systemSettingRepository.findBySettingKey("maintenance_mode").ifPresent(setting -> {
+            if ("true".equalsIgnoreCase(setting.getSettingValue())) {
+                throw new BadRequestException("FinSync banking platform is currently in MAINTENANCE MODE. Transactions are temporarily suspended.");
+            }
+        });
+
         systemSettingRepository.findBySettingKey("max_transaction_limit").ifPresent(setting -> {
             try {
                 BigDecimal maxLimit = new BigDecimal(setting.getSettingValue());

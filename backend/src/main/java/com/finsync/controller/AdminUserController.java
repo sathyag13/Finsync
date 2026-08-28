@@ -313,6 +313,12 @@ public class AdminUserController {
 
         userRepository.save(user);
 
+        notificationService.sendNotificationToAdmins(
+                "Customer Profile & KYC Updated",
+                "Profile / KYC for " + user.getFullName() + " (" + user.getEmail() + ") was updated (KYC: " + user.getKycStatus() + ", Status: " + user.getAccountStatus() + ").",
+                "ADMIN_USER"
+        );
+
         auditLogService.logAction("Admin", "admin@finsync.in", "-", "USER_UPDATE", "Admin updated profile for user #" + id + " (" + user.getEmail() + ")", null, "SUCCESS", "LOW");
 
         return ResponseEntity.ok(Map.of("message", "User updated successfully"));
@@ -354,6 +360,12 @@ public class AdminUserController {
                 "Account Status Notice",
                 "Your account (" + account.getAccountNumber() + ") status has been updated to " + newStatus + " by Bank Administration.",
                 "SECURITY"
+        );
+
+        notificationService.sendNotificationToAdmins(
+                "Account Freeze Status Modified",
+                "Bank Account #" + account.getAccountNumber() + " belonging to " + (user != null ? user.getFullName() : "Client") + " was set to " + newStatus + ".",
+                "ADMIN_SECURITY"
         );
 
         auditLogService.logAction(

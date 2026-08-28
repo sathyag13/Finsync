@@ -5,6 +5,7 @@ import com.finsync.model.SystemSetting;
 import com.finsync.repository.SystemSettingRepository;
 import com.finsync.security.CurrentUser;
 import com.finsync.service.AuditLogService;
+import com.finsync.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,7 @@ public class AdminSettingsController {
 
     private final SystemSettingRepository systemSettingRepository;
     private final AuditLogService auditLogService;
+    private final NotificationService notificationService;
     private final CurrentUser currentUser;
 
     @GetMapping
@@ -31,6 +33,7 @@ public class AdminSettingsController {
         result.put("maintenanceMode", getSettingBoolean("maintenance_mode", false));
         result.put("notificationsEnabled", getSettingBoolean("notifications_enabled", true));
         result.put("auditLoggingEnabled", getSettingBoolean("audit_logging_enabled", true));
+        result.put("savingsVaultApy", getSettingDecimal("savings_vault_apy", new BigDecimal("5.50")));
         result.put("jwtLifetime", getSettingString("jwt_lifetime", "24h"));
         result.put("failedLockoutThreshold", getSettingInteger("failed_lockout_threshold", 3));
         return ResponseEntity.ok(result);
@@ -53,6 +56,15 @@ public class AdminSettingsController {
         if (req.auditLoggingEnabled != null) {
             saveOrUpdate("audit_logging_enabled", req.auditLoggingEnabled.toString(), "Enable/disable comprehensive transaction audit logging");
         }
+        if (req.savingsVaultApy != null) {
+            saveOrUpdate("savings_vault_apy", req.savingsVaultApy.toString(), "Platform savings vault APY percentage");
+        }
+
+        notificationService.sendNotificationToAdmins(
+                "Global System Settings Updated",
+                "System configuration and risk parameters were updated by Administrator.",
+                "ADMIN_SYSTEM"
+        );
 
         auditLogService.logAction(
                 "Admin",

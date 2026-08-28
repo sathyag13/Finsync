@@ -18,7 +18,8 @@ import {
   Download,
   Share2,
   Copy,
-  Check
+  Check,
+  CheckCircle2
 } from 'lucide-react'
 
 export default function Profile() {
@@ -44,11 +45,35 @@ export default function Profile() {
 
   const qrCanvasRef = useRef(null)
 
+  const displayUser = profileData || user || {}
+  const isAdmin = String(displayUser.role || user?.role || '').toUpperCase() === 'ADMIN'
+  const initials = displayUser.fullName
+    ? String(displayUser.fullName).trim().split(/\s+/).map((n) => n[0]).join('').slice(0, 2).toUpperCase()
+    : 'FS'
+  const payId = displayUser.publicPaymentId || (displayUser.id ? `FS-PAY-${displayUser.id}` : 'FS-PAY-001')
+  const qrString = `FINSYNC://PAY?payId=${payId}`
+
+  const formatDateSafe = (val) => {
+    if (!val) return 'August 2026'
+    try {
+      if (Array.isArray(val)) {
+        return new Date(val[0], val[1] - 1, val[2] || 1).toLocaleDateString('en-IN', { month: 'long', year: 'numeric', day: 'numeric' })
+      }
+      const d = new Date(val)
+      if (isNaN(d.getTime())) return 'August 2026'
+      return d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric', day: 'numeric' })
+    } catch {
+      return 'August 2026'
+    }
+  }
+
   const loadProfile = async () => {
     try {
       setLoading(true)
       const res = await api.get('/auth/profile')
-      setProfileData(res.data)
+      if (res && res.data) {
+        setProfileData(res.data)
+      }
     } catch (err) {
       console.error('Failed to load profile:', err)
       setProfileData(user)
@@ -91,7 +116,7 @@ export default function Profile() {
   }
 
   const handleToggle2FA = () => {
-    if (profileData?.twoFactorEnabled) {
+    if (displayUser.twoFactorEnabled) {
       api.put('/auth/profile', { twoFactorEnabled: false }).then((res) => {
         setProfileData(res.data)
         addToast('Two-Factor Authentication disabled', 'info')
@@ -123,7 +148,6 @@ export default function Profile() {
   }
 
   const handleCopyPayId = () => {
-    const payId = displayUser.publicPaymentId || `FS-PAY-${displayUser.id}`
     navigator.clipboard.writeText(payId)
     setCopiedPayId(true)
     addToast(`FinSync Pay ID copied: ${payId}`, 'success')
@@ -146,7 +170,6 @@ export default function Profile() {
   }
 
   const handleShareQr = async () => {
-    const payId = displayUser.publicPaymentId || `FS-PAY-${displayUser.id}`
     const shareText = `Pay me on FinSync Bank using FinSync Pay ID: ${payId}`
     if (navigator.share) {
       try {
@@ -167,20 +190,12 @@ export default function Profile() {
 
   if (!user) return null
 
-  const displayUser = profileData || user
-  const initials = displayUser.fullName
-    ? displayUser.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
-    : 'FS'
-
-  const payId = displayUser.publicPaymentId || `FS-PAY-${displayUser.id}`
-  const qrString = `FINSYNC://PAY?payId=${payId}`
-
   return (
     <div>
       {/* Page Header */}
       <PageHeader
-        title={displayUser.role === 'ADMIN' ? 'Admin Profile & Security' : 'My Profile'}
-        description={displayUser.role === 'ADMIN' ? 'Manage your admin credentials and system configuration.' : 'Manage your personal details, password, and QR receive settings.'}
+        title={isAdmin ? 'Admin Profile & Security' : 'My Profile'}
+        description={isAdmin ? 'Manage your admin credentials and system configuration.' : 'Manage your personal details, password, and QR receive settings.'}
         icon={User}
       />
 
@@ -209,9 +224,9 @@ export default function Profile() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
               <h2 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-main)', margin: 0 }}>
-                {displayUser.fullName}
+                {displayUser.fullName || 'User'}
               </h2>
-              {displayUser.role === 'ADMIN' ? (
+              {isAdmin ? (
                 <span className="badge badge-indigo">
                   ADMINISTRATOR {displayUser.empNo ? `• ${displayUser.empNo}` : ''}
                 </span>
@@ -227,7 +242,7 @@ export default function Profile() {
               )}
             </div>
             <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Mail size={14} color="var(--primary)" /> {displayUser.email}
+              <Mail size={14} color="var(--primary)" /> {displayUser.email || '—'}
             </p>
           </div>
         </div>
@@ -236,19 +251,19 @@ export default function Profile() {
         <div className="grid grid-3" style={{ gap: 14 }}>
           <div style={{ padding: '12px 14px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>
-              {displayUser.role === 'ADMIN' ? 'ADMIN / EMPLOYEE ID' : 'CUSTOMER ID'}
+              {isAdmin ? 'ADMIN / EMPLOYEE ID' : 'CUSTOMER ID'}
             </div>
             <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-main)', marginTop: 2, fontFamily: 'monospace' }}>
-              {displayUser.role === 'ADMIN' ? (displayUser.empNo || `#ADM-00${displayUser.id}`) : `#FS-USR-00${displayUser.id || '101'}`}
+              {isAdmin ? (displayUser.empNo || `#ADM-00${displayUser.id || '1'}`) : `#FS-USR-00${displayUser.id || '101'}`}
             </div>
           </div>
 
           <div style={{ padding: '12px 14px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>
-              {displayUser.role === 'ADMIN' ? 'SECURITY CLEARANCE' : 'FINSYNC PAY ID'}
+              {isAdmin ? 'SECURITY CLEARANCE' : 'FINSYNC PAY ID'}
             </div>
             <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--primary)', marginTop: 2, fontFamily: 'monospace', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              {displayUser.role === 'ADMIN' ? (
+              {isAdmin ? (
                 <span style={{ fontSize: '13px', color: 'var(--accent-emerald)', fontWeight: 700 }}>SYSTEM ADMIN (SUPERVISOR)</span>
               ) : (
                 <>
@@ -268,7 +283,7 @@ export default function Profile() {
 
           <div style={{ padding: '12px 14px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>
-              {displayUser.role === 'ADMIN' ? 'SYSTEM STATUS' : 'ACCOUNT STATUS'}
+              {isAdmin ? 'SYSTEM STATUS' : 'ACCOUNT STATUS'}
             </div>
             <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--accent-emerald)', marginTop: 2 }}>
               {displayUser.accountStatus || 'ACTIVE (FULL PRIVILEGES)'}
@@ -277,10 +292,10 @@ export default function Profile() {
 
           <div style={{ padding: '12px 14px', borderRadius: 8, background: 'var(--bg-input)', border: '1px solid var(--border-color)' }}>
             <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>
-              {displayUser.role === 'ADMIN' ? 'REGISTERED SINCE' : 'CUSTOMER SINCE'}
+              {isAdmin ? 'REGISTERED SINCE' : 'CUSTOMER SINCE'}
             </div>
             <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-main)', marginTop: 2 }}>
-              {displayUser.createdAt ? new Date(displayUser.createdAt).toLocaleDateString('en-IN', { month: 'long', year: 'numeric', day: 'numeric' }) : 'August 2026'}
+              {formatDateSafe(displayUser.createdAt)}
             </div>
           </div>
 
@@ -302,7 +317,7 @@ export default function Profile() {
 
       {/* 2-Column Grid: Left Card (Admin Privileges or QR Code) & Right Card (Change Password) */}
       <div className="grid grid-2" style={{ gap: 24, marginBottom: 'var(--section-gap)' }}>
-        {displayUser.role === 'ADMIN' ? (
+        {isAdmin ? (
           /* Admin Security Privileges Card */
           <div className="card" style={{ marginBottom: 0 }}>
             <div className="card-header">

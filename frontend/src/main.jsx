@@ -7,7 +7,9 @@ import { ThemeProvider } from './context/ThemeContext.jsx'
 import { ToastProvider } from './context/ToastContext.jsx'
 import './styles/index.css'
 
-ReactDOM.createRoot(document.getElementById('sathya')).render(
+const rootElement = document.getElementById('root') || document.getElementById('sathya') || document.body
+
+ReactDOM.createRoot(rootElement).render(
   <BrowserRouter>
     <ThemeProvider>
       <ToastProvider>

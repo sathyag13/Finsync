@@ -1456,5 +1456,63 @@ tr:hover td {
   z-index: 0;
 }
 
+/* ==========================================================================
+   Full-Page Auth Layout (No Card Container)
+   ========================================================================== */
+.auth-page-full {
+  width: 100%;
+  min-height: calc(100vh - 78px);
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  align-items: stretch;
+  background: var(--bg-main);
+  box-sizing: border-box;
+}
+
+.auth-left-pane {
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 60%, #064E3B 100%);
+  padding: 60px 48px;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-right: 4px solid #12A878;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.auth-right-pane {
+  background: var(--bg-secondary);
+  padding: 60px 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.auth-form-wrapper {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+@media (max-width: 960px) {
+  .auth-page-full {
+    grid-template-columns: 1fr;
+  }
+  .auth-left-pane {
+    display: none !important;
+  }
+  .auth-right-pane {
+    padding: 40px 20px;
+  }
+}
+
+
 
 

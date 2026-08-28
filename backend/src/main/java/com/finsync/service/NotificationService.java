@@ -9,6 +9,7 @@ import java.util.Map;
 public interface NotificationService {
     Notification sendNotification(User user, String title, String message, String type);
     Notification sendNotification(Long userId, String title, String message, String type);
+    void sendNotificationToAdmins(String title, String message, String type);
     List<Map<String, Object>> getUserNotifications(Long userId);
     Map<String, Object> markAsRead(Long userId, Long notificationId);
     void markAllAsRead(Long userId);

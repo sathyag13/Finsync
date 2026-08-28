@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useTheme } from '../context/ThemeContext.jsx'
@@ -27,7 +27,9 @@ import {
   Wallet,
   ArrowDownLeft,
   ArrowUpRight,
-  HelpCircle
+  HelpCircle,
+  ShieldAlert,
+  FileText
 } from 'lucide-react'
 
 export function Sidebar() {
@@ -45,9 +47,14 @@ export function Sidebar() {
   if (user.role === 'ADMIN') {
     const adminNavItems = [
       { label: 'Admin Control Center', path: '/admin', icon: LayoutDashboard },
-      { label: 'User Directory', path: '/admin/users', icon: UserCheck },
-      { label: 'Accounts Opened This Month', path: '/admin/accounts', icon: CreditCard },
-      { label: 'User Transactions Audit Logs', path: '/admin/audit-logs', icon: History },
+      { label: 'User Directory & KYC', path: '/admin/users', icon: UserCheck },
+      { label: 'Accounts & Cards', path: '/admin/accounts', icon: CreditCard },
+      { label: 'Live Transactions', path: '/admin/transactions', icon: Send },
+      { label: 'Risk & Fraud Alerts', path: '/admin/risk', icon: ShieldAlert },
+      { label: 'Audit Trail Logs', path: '/admin/audit-logs', icon: History },
+      { label: 'Reports & Compliance', path: '/admin/reports', icon: FileText },
+      { label: 'Liquidity & Outflows', path: '/admin/expenses', icon: PieChart },
+      { label: 'Savings Vault APY', path: '/admin/savings', icon: PiggyBank },
       { label: 'System Settings', path: '/admin/settings', icon: Settings },
       { label: 'Admin Profile', path: '/admin/profile', icon: User }
     ]
@@ -227,6 +234,61 @@ export function TopHeader() {
   const [notifications, setNotifications] = useState([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [filterUnreadOnly, setFilterUnreadOnly] = useState(false)
+  const notifTimerRef = useRef(null)
+  const notifContainerRef = useRef(null)
+
+  const clearAutoCloseTimer = () => {
+    if (notifTimerRef.current) {
+      clearTimeout(notifTimerRef.current)
+      notifTimerRef.current = null
+    }
+  }
+
+  const startAutoCloseTimer = () => {
+    clearAutoCloseTimer()
+    notifTimerRef.current = setTimeout(() => {
+      setShowNotifications(false)
+    }, 4000)
+  }
+
+  const toggleNotifications = () => {
+    if (!showNotifications) {
+      setShowNotifications(true)
+      startAutoCloseTimer()
+    } else {
+      setShowNotifications(false)
+      clearAutoCloseTimer()
+    }
+  }
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notifContainerRef.current && !notifContainerRef.current.contains(event.target)) {
+        setShowNotifications(false)
+        clearAutoCloseTimer()
+      }
+    }
+
+    if (showNotifications) {
+      document.addEventListener('mousedown', handleClickOutside)
+      document.addEventListener('touchstart', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
+    }
+  }, [showNotifications])
+
+  useEffect(() => {
+    return () => {
+      clearAutoCloseTimer()
+    }
+  }, [])
+
+  const initials = user?.fullName
+    ? user.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
+    : 'FS'
 
   const loadNotifications = async () => {
     if (!user) return
@@ -291,8 +353,47 @@ export function TopHeader() {
   }
 
   const displayedNotifications = filterUnreadOnly
-    ? notifications.filter((n) => !n.read)
+    ? notifications.filter((n) => (!n.read && !n.isRead))
     : notifications
+
+  const getNotificationIcon = (type) => {
+    switch (type) {
+      case 'ADMIN_SECURITY':
+      case 'ADMIN_RISK':
+      case 'SECURITY':
+      case 'CARD_CONTROL':
+        return <ShieldAlert size={16} color="var(--accent-coral, #ef4444)" />
+      case 'ADMIN_USER':
+      case 'ADMIN_KYC':
+        return <UserCheck size={16} color="var(--primary, #6366f1)" />
+      case 'ADMIN_ACCOUNT':
+      case 'ACCOUNT':
+        return <CreditCard size={16} color="var(--accent-emerald, #10b981)" />
+      case 'ADMIN_TRANSACTION':
+      case 'TRANSFER':
+      case 'DEPOSIT':
+      case 'WITHDRAWAL':
+        return <ArrowUpRight size={16} color="var(--accent-cyan, #06b6d4)" />
+      case 'ADMIN_SYSTEM':
+      case 'SETTINGS':
+        return <Settings size={16} color="var(--accent-violet, #8b5cf6)" />
+      default:
+        return <CheckCircle2 size={16} color="var(--primary)" />
+    }
+  }
+
+  const getNotificationTypeTag = (type) => {
+    if (!type) return null
+    if (type.startsWith('ADMIN_')) {
+      const label = type.replace('ADMIN_', '')
+      return (
+        <span style={{ fontSize: '10px', padding: '1px 5px', borderRadius: 4, background: 'rgba(99, 102, 241, 0.15)', color: 'var(--primary)', fontWeight: 800, textTransform: 'uppercase', marginRight: 6 }}>
+          {label}
+        </span>
+      )
+    }
+    return null
+  }
 
   // Dynamic Page Label Helper
   const getPageTitle = () => {
@@ -305,11 +406,14 @@ export function TopHeader() {
     if (path === '/profile' || path === '/admin/profile') return user?.role === 'ADMIN' ? 'Admin Profile & Security' : 'My Profile'
     if (path === '/admin') return 'Admin Control Center'
     if (path === '/admin/users') return 'User Directory & KYC'
-    if (path === '/admin/accounts') return 'Accounts Opened This Month'
-    if (path === '/admin/transactions') return 'Transaction Audit Logs'
-    if (path === '/admin/settings') return 'System Settings'
+    if (path === '/admin/accounts') return 'Accounts & Cards Ledger'
+    if (path === '/admin/transactions') return 'Live Transaction Ledger'
+    if (path === '/admin/risk') return 'Risk & Fraud Surveillance'
     if (path === '/admin/audit-logs') return 'Real-Time Audit Trail'
-    if (path === '/admin/risk') return 'Risk Engine'
+    if (path === '/admin/reports') return 'Administrative Reports & Compliance'
+    if (path === '/admin/expenses') return 'Liquidity Flow & Limits'
+    if (path === '/admin/savings') return 'Savings Vault APY Yields'
+    if (path === '/admin/settings') return 'System Settings & Config'
     return path.slice(1).replace('-', ' ').replace(/\b\w/g, (c) => c.toUpperCase())
   }
 
@@ -346,11 +450,11 @@ export function TopHeader() {
         </button>
 
         {/* Real-Time Notification Bell */}
-        <div style={{ position: 'relative' }}>
+        <div ref={notifContainerRef} style={{ position: 'relative' }}>
           <button
             type="button"
             className="header-icon-btn"
-            onClick={() => setShowNotifications(!showNotifications)}
+            onClick={toggleNotifications}
             title="Notifications"
           >
             <Bell size={18} />
@@ -361,7 +465,12 @@ export function TopHeader() {
 
           {/* Notifications Dropdown Panel */}
           {showNotifications && (
-            <div className="notifications-dropdown">
+            <div
+              className="notifications-dropdown"
+              onMouseEnter={clearAutoCloseTimer}
+              onMouseLeave={startAutoCloseTimer}
+              onTouchStart={clearAutoCloseTimer}
+            >
               <div className="notifications-header">
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ fontWeight: 800, fontSize: '14px', color: 'var(--text-main)' }}>
@@ -438,41 +547,90 @@ export function TopHeader() {
               <div className="notifications-list">
                 {displayedNotifications.length === 0 ? (
                   <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
-                    You're all caught up! ✨
+                    {user?.role === 'ADMIN' ? 'All Admin Alerts Cleared 🛡️' : "You're all caught up! ✨"}
                   </div>
                 ) : (
-                  displayedNotifications.map((notif) => (
-                    <div
-                      key={notif.id}
-                      className={`notification-item ${!notif.read ? 'unread' : ''}`}
-                      onClick={(e) => !notif.read && handleMarkAsRead(notif.id, e)}
-                    >
-                      <div className="notification-icon">
-                        <CheckCircle2 size={16} color="var(--primary)" />
-                      </div>
-                      <div className="notification-content">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span className="notification-title">{notif.title}</span>
-                          <span className="notification-time">{formatTimeAgo(notif.createdAt)}</span>
+                  displayedNotifications.map((notif) => {
+                    const isUnread = !notif.read && !notif.isRead
+                    return (
+                      <div
+                        key={notif.id}
+                        className={`notification-item ${isUnread ? 'unread' : ''}`}
+                        onClick={(e) => isUnread && handleMarkAsRead(notif.id, e)}
+                      >
+                        <div className="notification-icon">
+                          {getNotificationIcon(notif.type)}
                         </div>
-                        <p className="notification-desc">{notif.message}</p>
+                        <div className="notification-content">
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                              {getNotificationTypeTag(notif.type)}
+                              <span className="notification-title">{notif.title}</span>
+                            </div>
+                            <span className="notification-time">{formatTimeAgo(notif.createdAt)}</span>
+                          </div>
+                          <p className="notification-desc">{notif.message}</p>
+                        </div>
+                        {isUnread && (
+                          <button
+                            type="button"
+                            className="mark-read-btn"
+                            onClick={(e) => handleMarkAsRead(notif.id, e)}
+                            title="Mark as read"
+                          >
+                            <Check size={12} />
+                          </button>
+                        )}
                       </div>
-                      {!notif.read && (
-                        <button
-                          type="button"
-                          className="mark-read-btn"
-                          onClick={(e) => handleMarkAsRead(notif.id, e)}
-                          title="Mark as read"
-                        >
-                          <Check size={12} />
-                        </button>
-                      )}
-                    </div>
-                  ))
+                    )
+                  })
                 )}
               </div>
             </div>
           )}
+        </div>
+
+        {/* User / Admin Profile Header Trigger */}
+        <div
+          className="header-user-badge"
+          onClick={() => navigate(user?.role === 'ADMIN' ? '/admin/profile' : '/profile')}
+          title={user?.role === 'ADMIN' ? 'Admin Profile & Security' : 'My Profile'}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: '4px 12px 4px 6px',
+            borderRadius: 24,
+            background: 'var(--bg-input)',
+            border: '1px solid var(--border-color)',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <div
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, var(--primary) 0%, #4338ca 100%)',
+              color: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 800,
+              fontSize: '11px'
+            }}
+          >
+            {initials}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.1 }}>
+            <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--text-main)', maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {user?.fullName || 'User'}
+            </span>
+            <span style={{ fontSize: '10px', fontWeight: 700, color: user?.role === 'ADMIN' ? 'var(--accent-emerald)' : 'var(--text-muted)' }}>
+              {user?.role === 'ADMIN' ? (user.empNo ? `ADMIN • ${user.empNo}` : 'ADMIN') : 'CUSTOMER'}
+            </span>
+          </div>
         </div>
 
         {/* User Sign Out Header Trigger */}

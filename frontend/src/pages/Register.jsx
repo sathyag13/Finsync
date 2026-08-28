@@ -67,9 +67,9 @@ export default function Register() {
   }
 
   return (
-    <div style={{ width: '100%', maxWidth: 1240, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.1fr 1fr', borderRadius: 24, overflow: 'hidden', border: '1px solid var(--border-color)', boxShadow: '0 16px 40px rgba(0,0,0,0.15)' }}>
+    <div className="auth-page-full">
       {/* Left Side: Deep Navy & Emerald Banking Showcase with Rich Value Pillars & Logo Watermark */}
-      <div style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 60%, #064E3B 100%)', padding: '44px 38px', color: '#ffffff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRight: '4px solid #12A878', position: 'relative', overflow: 'hidden' }}>
+      <div className="auth-left-pane">
         
         {/* Subtle Watermark Logo behind text */}
         <div
@@ -78,8 +78,8 @@ export default function Register() {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: '580px',
-            height: '580px',
+            width: '620px',
+            height: '620px',
             opacity: 0.045,
             pointerEvents: 'none',
             zIndex: 0,
@@ -97,11 +97,11 @@ export default function Register() {
             <span style={{ fontSize: '0.82rem', fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase' }}>FinSync Digital Onboarding</span>
           </div>
 
-          <h1 style={{ fontSize: '2.35rem', fontWeight: 900, lineHeight: 1.2, color: '#ffffff', marginBottom: 14, letterSpacing: '-0.5px', textAlign: 'left' }}>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 900, lineHeight: 1.2, color: '#ffffff', marginBottom: 14, letterSpacing: '-0.5px', textAlign: 'left' }}>
             Open Your FinSync Account & Role Clearance
           </h1>
 
-          <p style={{ fontSize: '1.02rem', lineHeight: 1.6, color: 'rgba(255,255,255,0.9)', marginBottom: 26, fontWeight: 500, textAlign: 'justify' }}>
+          <p style={{ fontSize: '1.05rem', lineHeight: 1.6, color: 'rgba(255,255,255,0.9)', marginBottom: 26, fontWeight: 500, textAlign: 'justify' }}>
             Join FinSync Bank NetBanking in under 60 seconds. Experience zero account opening fees, multi-currency vaults, and industry-leading security controls.
           </p>
 
@@ -170,9 +170,9 @@ export default function Register() {
         </div>
       </div>
 
-      {/* Right Side: Theme 2 - Clean Form Theme (Centered in Right Half) */}
-      <div style={{ background: 'var(--bg-secondary)', padding: '48px 40px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: '100%', maxWidth: 480, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+      {/* Right Side: Clean Form Full-Page Container */}
+      <div className="auth-right-pane">
+        <div className="auth-form-wrapper">
           <div style={{ marginBottom: 24, textAlign: 'left', width: '100%' }}>
             <h2 style={{ fontSize: '2.1rem', fontWeight: 900, color: 'var(--text-main)', marginBottom: 8, textAlign: 'left' }}>
               Digital Onboarding

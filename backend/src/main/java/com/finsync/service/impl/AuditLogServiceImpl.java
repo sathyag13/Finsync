@@ -3,6 +3,7 @@ package com.finsync.service.impl;
 import com.finsync.model.AuditLog;
 import com.finsync.model.User;
 import com.finsync.repository.AuditLogRepository;
+import com.finsync.repository.SystemSettingRepository;
 import com.finsync.service.AuditLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,11 +23,19 @@ import java.util.stream.Collectors;
 public class AuditLogServiceImpl implements AuditLogService {
 
     private final AuditLogRepository auditLogRepository;
+    private final SystemSettingRepository systemSettingRepository;
+
+    private boolean isAuditLoggingEnabled() {
+        return systemSettingRepository.findBySettingKey("audit_logging_enabled")
+                .map(s -> !"false".equalsIgnoreCase(s.getSettingValue()))
+                .orElse(true);
+    }
 
     @Override
     @Transactional
     public AuditLog logAction(String performedBy, String userEmail, String accountNumber, String action,
                               String description, BigDecimal amount, String status, String riskLevel) {
+        if (!isAuditLoggingEnabled()) return null;
         AuditLog log = new AuditLog();
         log.setPerformedBy(performedBy != null ? performedBy : "System");
         log.setUserEmail(userEmail);

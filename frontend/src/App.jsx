@@ -3,6 +3,7 @@ import ProtectedRoute from './components/ProtectedRoute.jsx'
 import PublicNavbar from './components/PublicNavbar.jsx'
 import PublicFooter from './components/PublicFooter.jsx'
 import { Sidebar, TopHeader } from './components/Navbar.jsx'
+import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { useAuth } from './context/AuthContext.jsx'
 
 // Common Pages
@@ -33,6 +34,8 @@ export default function App() {
   const { user } = useAuth()
   const location = useLocation()
   const isHomePage = location.pathname === '/' || location.pathname === '/home'
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register'
+  const isFullBleedPage = isHomePage || isAuthPage
 
   if (user) {
     // Authenticated App Shell with Dynamic Role Sidebar
@@ -44,38 +47,40 @@ export default function App() {
         <div className="main-wrapper">
           <TopHeader />
           <main className="app-content">
-            <Routes>
-              <Route path="/" element={defaultLanding} />
-              <Route path="/home" element={<Home />} />
+            <ErrorBoundary>
+              <Routes>
+                <Route path="/" element={defaultLanding} />
+                <Route path="/home" element={<Home />} />
 
-              {/* Customer Portal Clearance Routes */}
-              <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['CUSTOMER']}><Dashboard /></ProtectedRoute>} />
-              <Route path="/accounts" element={<ProtectedRoute allowedRoles={['CUSTOMER']}><Accounts /></ProtectedRoute>} />
-              <Route path="/transfer" element={<ProtectedRoute allowedRoles={['CUSTOMER']}><Transfer /></ProtectedRoute>} />
-              <Route path="/expenses" element={<ProtectedRoute allowedRoles={['CUSTOMER']}><Expenses /></ProtectedRoute>} />
-              <Route path="/savings" element={<ProtectedRoute allowedRoles={['CUSTOMER']}><Savings /></ProtectedRoute>} />
-              <Route path="/profile" element={<ProtectedRoute allowedRoles={['CUSTOMER', 'ADMIN']}><Profile /></ProtectedRoute>} />
+                {/* Customer Portal Clearance Routes */}
+                <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['CUSTOMER']}><Dashboard /></ProtectedRoute>} />
+                <Route path="/accounts" element={<ProtectedRoute allowedRoles={['CUSTOMER']}><Accounts /></ProtectedRoute>} />
+                <Route path="/transfer" element={<ProtectedRoute allowedRoles={['CUSTOMER']}><Transfer /></ProtectedRoute>} />
+                <Route path="/expenses" element={<ProtectedRoute allowedRoles={['CUSTOMER']}><Expenses /></ProtectedRoute>} />
+                <Route path="/savings" element={<ProtectedRoute allowedRoles={['CUSTOMER']}><Savings /></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute allowedRoles={['CUSTOMER', 'ADMIN']}><Profile /></ProtectedRoute>} />
 
-              {/* System Admin Clearance Routes */}
-              <Route path="/admin" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminDashboard /></ProtectedRoute>} />
-              <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['ADMIN']}><UserManagement /></ProtectedRoute>} />
-              <Route path="/admin/accounts" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminAccounts /></ProtectedRoute>} />
-              <Route path="/admin/transactions" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminTransactions /></ProtectedRoute>} />
-              <Route path="/admin/expenses" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminExpenses /></ProtectedRoute>} />
-              <Route path="/admin/savings" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminSavings /></ProtectedRoute>} />
-              <Route path="/admin/reports" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminReports /></ProtectedRoute>} />
-              <Route path="/admin/risk" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminRisk /></ProtectedRoute>} />
-              <Route path="/admin/audit-logs" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminAuditLogs /></ProtectedRoute>} />
-              <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminSettings /></ProtectedRoute>} />
-              <Route path="/admin/profile" element={<ProtectedRoute allowedRoles={['ADMIN']}><Profile /></ProtectedRoute>} />
+                {/* System Admin Clearance Routes */}
+                <Route path="/admin" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminDashboard /></ProtectedRoute>} />
+                <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['ADMIN']}><UserManagement /></ProtectedRoute>} />
+                <Route path="/admin/accounts" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminAccounts /></ProtectedRoute>} />
+                <Route path="/admin/transactions" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminTransactions /></ProtectedRoute>} />
+                <Route path="/admin/expenses" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminExpenses /></ProtectedRoute>} />
+                <Route path="/admin/savings" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminSavings /></ProtectedRoute>} />
+                <Route path="/admin/reports" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminReports /></ProtectedRoute>} />
+                <Route path="/admin/risk" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminRisk /></ProtectedRoute>} />
+                <Route path="/admin/audit-logs" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminAuditLogs /></ProtectedRoute>} />
+                <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminSettings /></ProtectedRoute>} />
+                <Route path="/admin/profile" element={<ProtectedRoute allowedRoles={['ADMIN']}><Profile /></ProtectedRoute>} />
 
-              {/* Global Role Access Matrix */}
-              <Route path="/rbac" element={<ProtectedRoute allowedRoles={['ADMIN']}><RoleBasedAccess /></ProtectedRoute>} />
+                {/* Global Role Access Matrix */}
+                <Route path="/rbac" element={<ProtectedRoute allowedRoles={['ADMIN']}><RoleBasedAccess /></ProtectedRoute>} />
 
-              <Route path="/login" element={defaultLanding} />
-              <Route path="/register" element={defaultLanding} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
+                <Route path="/login" element={defaultLanding} />
+                <Route path="/register" element={defaultLanding} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </ErrorBoundary>
           </main>
         </div>
       </div>
@@ -86,22 +91,24 @@ export default function App() {
   return (
     <div className="public-portal">
       <PublicNavbar />
-      <main style={{ minHeight: 'calc(100vh - 180px)', padding: isHomePage ? 0 : '24px 20px', maxWidth: isHomePage ? '100%' : 1280, margin: '0 auto' }}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/admin" element={<Navigate to="/login" replace />} />
-          <Route path="/admin/*" element={<Navigate to="/login" replace />} />
-          <Route path="/dashboard" element={<Navigate to="/login" replace />} />
-          <Route path="/profile" element={<Navigate to="/login" replace />} />
-          <Route path="/accounts" element={<Navigate to="/login" replace />} />
-          <Route path="/transfer" element={<Navigate to="/login" replace />} />
-          <Route path="/expenses" element={<Navigate to="/login" replace />} />
-          <Route path="/savings" element={<Navigate to="/login" replace />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
+      <main style={{ minHeight: 'calc(100vh - 180px)', padding: isFullBleedPage ? 0 : '24px 20px', maxWidth: isFullBleedPage ? '100%' : 1280, margin: '0 auto', width: '100%' }}>
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/admin" element={<Navigate to="/login" replace />} />
+            <Route path="/admin/*" element={<Navigate to="/login" replace />} />
+            <Route path="/dashboard" element={<Navigate to="/login" replace />} />
+            <Route path="/profile" element={<Navigate to="/login" replace />} />
+            <Route path="/accounts" element={<Navigate to="/login" replace />} />
+            <Route path="/transfer" element={<Navigate to="/login" replace />} />
+            <Route path="/expenses" element={<Navigate to="/login" replace />} />
+            <Route path="/savings" element={<Navigate to="/login" replace />} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </Routes>
+        </ErrorBoundary>
       </main>
       <PublicFooter />
     </div>

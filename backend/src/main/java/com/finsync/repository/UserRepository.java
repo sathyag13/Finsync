@@ -20,4 +20,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByPublicPaymentId(String publicPaymentId);
 
     boolean existsByPublicPaymentId(String publicPaymentId);
+
+    java.util.List<User> findByRole(com.finsync.model.Role role);
 }

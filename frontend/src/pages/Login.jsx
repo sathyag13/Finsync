@@ -42,9 +42,9 @@ export default function Login() {
   }
 
   return (
-    <div style={{ width: '100%', maxWidth: 1240, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.1fr 1fr', borderRadius: 24, overflow: 'hidden', border: '1px solid var(--border-color)', boxShadow: '0 16px 40px rgba(0,0,0,0.15)' }}>
+    <div className="auth-page-full">
       {/* Left Side: Deep Navy & Emerald Banking Showcase with Logo Watermark */}
-      <div style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 60%, #064E3B 100%)', padding: '48px 40px', color: '#ffffff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRight: '4px solid #12A878', position: 'relative', overflow: 'hidden' }}>
+      <div className="auth-left-pane">
         
         {/* Subtle Watermark Logo behind text */}
         <div
@@ -53,8 +53,8 @@ export default function Login() {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: '580px',
-            height: '580px',
+            width: '620px',
+            height: '620px',
             opacity: 0.045,
             pointerEvents: 'none',
             zIndex: 0,
@@ -72,46 +72,46 @@ export default function Login() {
             <span style={{ fontSize: '0.85rem', fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase' }}>FinSync Unified NetBanking</span>
           </div>
 
-          <h1 style={{ fontSize: '2.6rem', fontWeight: 900, lineHeight: 1.25, color: '#ffffff', marginBottom: 20, letterSpacing: '-0.6px', textAlign: 'left' }}>
+          <h1 style={{ fontSize: '2.8rem', fontWeight: 900, lineHeight: 1.2, color: '#ffffff', marginBottom: 20, letterSpacing: '-0.6px', textAlign: 'left' }}>
             Single Secure Portal for Clients & Administrators
           </h1>
 
-          <p style={{ fontSize: '1.1rem', lineHeight: 1.7, color: 'rgba(255,255,255,0.92)', marginBottom: 36, fontWeight: 500, textAlign: 'justify' }}>
+          <p style={{ fontSize: '1.12rem', lineHeight: 1.7, color: 'rgba(255,255,255,0.92)', marginBottom: 36, fontWeight: 500, textAlign: 'justify' }}>
             One unified, high-security authentication station. Sign in with your registered credentials to instantly access your Customer Dashboard or Admin Control Center.
           </p>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 36, width: '100%' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 22, marginBottom: 36, width: '100%' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: '1.05rem', fontWeight: 700, color: '#ffffff', textAlign: 'left' }}>
-              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(18, 168, 120, 0.25)', color: '#12A878', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <CheckCircle2 size={20} />
+              <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'rgba(18, 168, 120, 0.25)', color: '#12A878', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <CheckCircle2 size={22} />
               </div>
               <span>Automated Role Detection (Customer & Admin RBAC)</span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: '1.05rem', fontWeight: 700, color: '#ffffff', textAlign: 'left' }}>
-              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(18, 168, 120, 0.25)', color: '#12A878', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <CheckCircle2 size={20} />
+              <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'rgba(18, 168, 120, 0.25)', color: '#12A878', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <CheckCircle2 size={22} />
               </div>
               <span>Stateless JWT Session Tokens & 256-bit SSL Encryption</span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: '1.05rem', fontWeight: 700, color: '#ffffff', textAlign: 'left' }}>
-              <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(18, 168, 120, 0.25)', color: '#12A878', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <CheckCircle2 size={20} />
+              <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'rgba(18, 168, 120, 0.25)', color: '#12A878', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <CheckCircle2 size={22} />
               </div>
               <span>ACID Double-Entry Ledger & Real-Time Security Logs</span>
             </div>
           </div>
         </div>
 
-        <div style={{ position: 'relative', zIndex: 1, fontSize: '0.9rem', color: 'rgba(255,255,255,0.85)', paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.15)', fontWeight: 600, textAlign: 'justify', width: '100%' }}>
+        <div style={{ position: 'relative', zIndex: 1, fontSize: '0.9rem', color: 'rgba(255,255,255,0.85)', paddingTop: 22, borderTop: '1px solid rgba(255,255,255,0.15)', fontWeight: 600, textAlign: 'justify', width: '100%' }}>
           <strong>Security Notice:</strong> FinSync Bank will never ask for your confidential password or OTP over phone or email.
         </div>
       </div>
 
-      {/* Right Side: Clean Form Theme */}
-      <div style={{ background: 'var(--bg-secondary)', padding: '48px 40px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: '100%', maxWidth: 460, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+      {/* Right Side: Clean Form Full-Page Container */}
+      <div className="auth-right-pane">
+        <div className="auth-form-wrapper">
           
           <div style={{ marginBottom: 28, textAlign: 'left', width: '100%' }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 14px', background: '#EAF9F3', border: '1px solid #C6F0DF', borderRadius: 20, color: '#0E7F5A', fontWeight: 800, fontSize: '0.82rem', marginBottom: 12 }}>

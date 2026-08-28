@@ -45,6 +45,12 @@ public class AccountServiceImpl implements AccountService {
     @Transactional(isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     public Map<String, Object> createAccount(Long userId, CreateAccountRequest req) {
         // Check system settings
+        systemSettingRepository.findBySettingKey("maintenance_mode").ifPresent(setting -> {
+            if ("true".equalsIgnoreCase(setting.getSettingValue())) {
+                throw new BadRequestException("FinSync platform is currently in MAINTENANCE MODE. Account operations are temporarily suspended.");
+            }
+        });
+
         systemSettingRepository.findBySettingKey("account_creation_enabled").ifPresent(setting -> {
             if ("false".equalsIgnoreCase(setting.getSettingValue())) {
                 throw new BadRequestException("New account creation is temporarily disabled by system administrator.");
@@ -94,6 +100,14 @@ public class AccountServiceImpl implements AccountService {
                 "Your new " + account.getAccountType() + " account (" + account.getAccountNumber() + ") has been activated.",
                 "SYSTEM"
         );
+
+        if (user.getRole() == com.finsync.model.Role.CUSTOMER) {
+            notificationService.sendNotificationToAdmins(
+                    "New Bank Account Opened",
+                    "Customer " + user.getFullName() + " opened a new " + account.getAccountType() + " account (" + account.getAccountNumber() + ") with initial deposit ₹" + initialDeposit + ".",
+                    "ADMIN_ACCOUNT"
+            );
+        }
 
         auditLogService.logAction(
                 user,
