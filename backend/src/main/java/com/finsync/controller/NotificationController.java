@@ -26,15 +26,27 @@ public class NotificationController {
         return ResponseEntity.ok(Map.of("unreadCount", notificationService.getUnreadCount(currentUser.id())));
     }
 
-    @PatchMapping("/{id}/read")
+    @RequestMapping(value = "/{id}/read", method = {RequestMethod.PUT, RequestMethod.PATCH, RequestMethod.POST})
     public ResponseEntity<?> markAsRead(@PathVariable Long id) {
         return ResponseEntity.ok(notificationService.markAsRead(currentUser.id(), id));
     }
 
-    @PatchMapping("/read-all")
+    @RequestMapping(value = "/read-all", method = {RequestMethod.PUT, RequestMethod.PATCH, RequestMethod.POST})
     public ResponseEntity<?> markAllAsRead() {
         notificationService.markAllAsRead(currentUser.id());
         return ResponseEntity.ok(Map.of("message", "All notifications marked as read"));
+    }
+
+    @DeleteMapping("/clear-all")
+    public ResponseEntity<?> clearAllNotifications() {
+        notificationService.deleteAllNotifications(currentUser.id());
+        return ResponseEntity.ok(Map.of("message", "All notifications deleted successfully"));
+    }
+
+    @DeleteMapping
+    public ResponseEntity<?> deleteAll() {
+        notificationService.deleteAllNotifications(currentUser.id());
+        return ResponseEntity.ok(Map.of("message", "All notifications deleted successfully"));
     }
 
     @DeleteMapping("/{id}")
@@ -42,4 +54,5 @@ public class NotificationController {
         notificationService.deleteNotification(currentUser.id(), id);
         return ResponseEntity.ok(Map.of("message", "Notification deleted successfully"));
     }
+
 }

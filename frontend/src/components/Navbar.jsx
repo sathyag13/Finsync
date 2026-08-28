@@ -234,38 +234,16 @@ export function TopHeader() {
   const [notifications, setNotifications] = useState([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [filterUnreadOnly, setFilterUnreadOnly] = useState(false)
-  const notifTimerRef = useRef(null)
   const notifContainerRef = useRef(null)
 
-  const clearAutoCloseTimer = () => {
-    if (notifTimerRef.current) {
-      clearTimeout(notifTimerRef.current)
-      notifTimerRef.current = null
-    }
-  }
-
-  const startAutoCloseTimer = () => {
-    clearAutoCloseTimer()
-    notifTimerRef.current = setTimeout(() => {
-      setShowNotifications(false)
-    }, 4000)
-  }
-
   const toggleNotifications = () => {
-    if (!showNotifications) {
-      setShowNotifications(true)
-      startAutoCloseTimer()
-    } else {
-      setShowNotifications(false)
-      clearAutoCloseTimer()
-    }
+    setShowNotifications((prev) => !prev)
   }
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (notifContainerRef.current && !notifContainerRef.current.contains(event.target)) {
         setShowNotifications(false)
-        clearAutoCloseTimer()
       }
     }
 
@@ -279,12 +257,6 @@ export function TopHeader() {
       document.removeEventListener('touchstart', handleClickOutside)
     }
   }, [showNotifications])
-
-  useEffect(() => {
-    return () => {
-      clearAutoCloseTimer()
-    }
-  }, [])
 
   const initials = user?.fullName
     ? user.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
@@ -320,11 +292,11 @@ export function TopHeader() {
   }, [user])
 
   const handleMarkAsRead = async (id, e) => {
-    e.stopPropagation()
+    if (e) e.stopPropagation()
     try {
       await api.put(`/notifications/${id}/read`)
       setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+        prev.map((n) => (n.id === id ? { ...n, read: true, isRead: true } : n))
       )
       setUnreadCount((c) => Math.max(0, c - 1))
     } catch (err) {
@@ -335,10 +307,24 @@ export function TopHeader() {
   const handleMarkAllAsRead = async () => {
     try {
       await api.put('/notifications/read-all')
-      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true, isRead: true })))
       setUnreadCount(0)
     } catch (err) {
       console.error('Failed to mark all read:', err)
+    }
+  }
+
+  const handleDeleteNotification = async (id, e) => {
+    if (e) e.stopPropagation()
+    try {
+      await api.delete(`/notifications/${id}`)
+      const target = notifications.find((n) => n.id === id)
+      if (target && !target.read && !target.isRead) {
+        setUnreadCount((c) => Math.max(0, c - 1))
+      }
+      setNotifications((prev) => prev.filter((n) => n.id !== id))
+    } catch (err) {
+      console.error('Failed to delete notification:', err)
     }
   }
 
@@ -355,6 +341,7 @@ export function TopHeader() {
   const displayedNotifications = filterUnreadOnly
     ? notifications.filter((n) => (!n.read && !n.isRead))
     : notifications
+
 
   const getNotificationIcon = (type) => {
     switch (type) {
@@ -465,12 +452,7 @@ export function TopHeader() {
 
           {/* Notifications Dropdown Panel */}
           {showNotifications && (
-            <div
-              className="notifications-dropdown"
-              onMouseEnter={clearAutoCloseTimer}
-              onMouseLeave={startAutoCloseTimer}
-              onTouchStart={clearAutoCloseTimer}
-            >
+            <div className="notifications-dropdown">
               <div className="notifications-header">
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ fontWeight: 800, fontSize: '14px', color: 'var(--text-main)' }}>
@@ -483,13 +465,14 @@ export function TopHeader() {
                   )}
                 </div>
 
-                <div style={{ display: 'flex', gap: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   {unreadCount > 0 && (
                     <button
                       type="button"
                       className="btn-link"
                       onClick={handleMarkAllAsRead}
                       style={{ fontSize: '12px', color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}
+                      title="Mark all notifications as read"
                     >
                       Mark all read
                     </button>
@@ -498,10 +481,22 @@ export function TopHeader() {
                     <button
                       type="button"
                       onClick={handleClearAll}
-                      style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 2 }}
-                      title="Clear All"
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--text-muted)',
+                        cursor: 'pointer',
+                        padding: '4px 6px',
+                        borderRadius: 4,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 4,
+                        fontSize: '12px'
+                      }}
+                      title="Clear all notifications"
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={13} />
+                      <span>Clear all</span>
                     </button>
                   )}
                 </div>
@@ -546,7 +541,7 @@ export function TopHeader() {
               {/* Notification Items List */}
               <div className="notifications-list">
                 {displayedNotifications.length === 0 ? (
-                  <div style={{ padding: '24px 16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
+                  <div style={{ padding: '28px 16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
                     {user?.role === 'ADMIN' ? 'All Admin Alerts Cleared 🛡️' : "You're all caught up! ✨"}
                   </div>
                 ) : (
@@ -571,16 +566,26 @@ export function TopHeader() {
                           </div>
                           <p className="notification-desc">{notif.message}</p>
                         </div>
-                        {isUnread && (
+                        <div className="notification-item-actions">
+                          {isUnread && (
+                            <button
+                              type="button"
+                              className="notif-action-btn mark-read"
+                              onClick={(e) => handleMarkAsRead(notif.id, e)}
+                              title="Mark as read"
+                            >
+                              <Check size={13} />
+                            </button>
+                          )}
                           <button
                             type="button"
-                            className="mark-read-btn"
-                            onClick={(e) => handleMarkAsRead(notif.id, e)}
-                            title="Mark as read"
+                            className="notif-action-btn delete-notif"
+                            onClick={(e) => handleDeleteNotification(notif.id, e)}
+                            title="Delete notification"
                           >
-                            <Check size={12} />
+                            <Trash2 size={13} />
                           </button>
-                        )}
+                        </div>
                       </div>
                     )
                   })
@@ -588,6 +593,7 @@ export function TopHeader() {
               </div>
             </div>
           )}
+
         </div>
 
         {/* User / Admin Profile Header Trigger */}

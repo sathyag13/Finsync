@@ -68,19 +68,9 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Map<String, Object>> getUserNotifications(Long userId) {
         List<Notification> list = notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
-        if (list.isEmpty()) {
-            User user = userRepository.findById(userId).orElse(null);
-            if (user != null && user.getRole() == com.finsync.model.Role.ADMIN) {
-                // Initialize default relevant admin notifications
-                sendNotification(user, "System Health & Core Online", "FinSync Banking Engine is active. High-security mode enabled.", "ADMIN_SYSTEM");
-                sendNotification(user, "Audit Trail & Risk Engine", "Real-time transaction surveillance and risk engine initialized.", "ADMIN_SECURITY");
-                sendNotification(user, "KYC Clearance Queue", "Admin clearance center is active for retail customer verification.", "ADMIN_KYC");
-                list = notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
-            }
-        }
         return list.stream()
                 .map(this::toMap)
                 .collect(Collectors.toList());
@@ -114,6 +104,12 @@ public class NotificationServiceImpl implements NotificationService {
             throw new ResourceNotFoundException("Notification does not belong to user");
         }
         notificationRepository.delete(n);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAllNotifications(Long userId) {
+        notificationRepository.deleteAllByUserId(userId);
     }
 
     @Override

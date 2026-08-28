@@ -14,5 +14,7 @@ public interface NotificationService {
     Map<String, Object> markAsRead(Long userId, Long notificationId);
     void markAllAsRead(Long userId);
     void deleteNotification(Long userId, Long notificationId);
+    void deleteAllNotifications(Long userId);
     long getUnreadCount(Long userId);
 }
+

@@ -150,9 +150,27 @@ public class DataInitializer implements CommandLineRunner {
                     b2.setStatus("ACTIVE");
                     beneficiaryRepository.save(b2);
                 }
+            } else if (u.getRole() == Role.ADMIN) {
+                // Initialize default relevant admin notifications if none exist on startup
+                if (notificationRepository.findByUserIdOrderByCreatedAtDesc(u.getId()).isEmpty()) {
+                    createAdminNotification(u, "System Health & Core Online", "FinSync Banking Engine is active. High-security mode enabled.", "ADMIN_SYSTEM");
+                    createAdminNotification(u, "Audit Trail & Risk Engine", "Real-time transaction surveillance and risk engine initialized.", "ADMIN_SECURITY");
+                    createAdminNotification(u, "KYC Clearance Queue", "Admin clearance center is active for retail customer verification.", "ADMIN_KYC");
+                }
             }
         }
     }
+
+    private void createAdminNotification(User user, String title, String message, String type) {
+        Notification notif = new Notification();
+        notif.setUser(user);
+        notif.setTitle(title);
+        notif.setMessage(message);
+        notif.setType(type);
+        notif.setRead(false);
+        notificationRepository.save(notif);
+    }
+
 
     private void createExpenseIfAbsent(User user, BigDecimal amount, String category, String note, java.time.LocalDate date) {
         Expense e = new Expense();
